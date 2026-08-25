@@ -1,11 +1,24 @@
 {
-  "protocol": "N4DiffTest",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__equivalence__N4DiffTest",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "Diff_test",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "Observational_equivalence",
+      "quantifier": "diff",
+      "verdict": "falsified",
+      "steps": null
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
-  "requires_diff": false,
-  "validated": false
+  "wellformedness_ok": false,
+  "runtime_seconds": 0.71,
+  "requires_diff": true,
+  "validated": true
 }

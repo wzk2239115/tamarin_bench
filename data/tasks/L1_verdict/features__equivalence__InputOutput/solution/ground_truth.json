@@ -1,11 +1,36 @@
 {
-  "protocol": "InputOutputTest",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__equivalence__InputOutput",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "Client_session_key_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 2
+    },
+    {
+      "name": "Diff_test",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 3
+    },
+    {
+      "name": "Diff_test_2",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 3
+    },
+    {
+      "name": "Observational_equivalence",
+      "quantifier": "diff",
+      "verdict": "falsified",
+      "steps": null
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
-  "requires_diff": false,
-  "validated": false
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.27,
+  "requires_diff": true,
+  "validated": true
 }

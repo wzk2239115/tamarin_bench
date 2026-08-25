@@ -1,0 +1,55 @@
+{
+  "realm": {
+    "name": "tamarindemo",
+    "enabled": true,
+    "sslRequired": "none",
+    "registrationAllowed": false,
+    "loginWithEmailAllowed": false,
+    "duplicateEmailsAllowed": false,
+    "resetPasswordAllowed": false,
+    "editUsernameAllowed": false,
+    "bruteForceProtected": false,
+    "attributes": {
+      "userProfileEnabled": "false"
+    }
+  },
+  "roles": [
+    {"name": "admin", "description": "admin role"}
+  ],
+  "users": [
+    {
+      "username": "attacker",
+      "password": "attacker-pass",
+      "enabled": true,
+      "email": "attacker@example.com",
+      "emailVerified": true,
+      "firstName": "Attacker",
+      "lastName": "User",
+      "requiredActions": [],
+      "realmRoles": []
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "demo",
+      "name": "Demo Confidential Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "demo-secret-12345",
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"],
+      "audienceMapper": "demo"
+    }
+  ],
+  "rs_env": {
+    "AUDIENCE": "demo",
+    "ROLE_CHECK": "true"
+  },
+  "disable_required_actions": ["VERIFY_PROFILE", "UPDATE_PROFILE"],
+  "disable_otp_in_direct_grant": true
+}

@@ -1,11 +1,18 @@
 {
-  "protocol": "N5N6DiffTest",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__equivalence__N5N6DiffTest",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "Observational_equivalence",
+      "quantifier": "diff",
+      "verdict": "falsified",
+      "steps": null
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
-  "requires_diff": false,
-  "validated": false
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.08,
+  "requires_diff": true,
+  "validated": true
 }

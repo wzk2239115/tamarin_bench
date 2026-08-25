@@ -1,5 +1,5 @@
 {
-  "protocol": "NeedhamSchroeder",
+  "protocol": "L1:features__auto-sources__tamarin-repo__sapic__NSL__nsl-no_as-untagged-without-SL",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

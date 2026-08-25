@@ -1,1 +1,4 @@
 B1:kc_rs_basic
+B1:kc_rs_confidential
+B1:kc_rs_service_account
+B1:kc_rs_two_clients

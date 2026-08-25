@@ -1,11 +1,42 @@
 {
-  "protocol": "CombinedHashPubEncDecTest",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__equivalence__CombinedHPED",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "Diff_test",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 4
+    },
+    {
+      "name": "Diff_test2",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 9
+    },
+    {
+      "name": "Ltk_secret",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "types",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 12
+    },
+    {
+      "name": "Observational_equivalence",
+      "quantifier": "diff",
+      "verdict": "falsified",
+      "steps": null
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
-  "requires_diff": false,
-  "validated": false
+  "wellformedness_ok": false,
+  "runtime_seconds": 0.35,
+  "requires_diff": true,
+  "validated": true
 }

@@ -1,0 +1,15 @@
+{
+  "task_id": "B1:kc_rs_confidential",
+  "level": "B1_attack",
+  "name": "kc_rs_confidential",
+  "protocol": "OIDC",
+  "source_file": "",
+  "source_dataset": "jwt_oidc",
+  "given_files": [],
+  "lemma_names": [],
+  "uses_diff_terms": false,
+  "family": "jwt_oidc",
+  "deployment": "kc_rs_confidential",
+  "oracle": false,
+  "description": "Keycloak + FastAPI/PyJWT RS zero-day OIDC attack task (kc_rs_confidential variant)"
+}
