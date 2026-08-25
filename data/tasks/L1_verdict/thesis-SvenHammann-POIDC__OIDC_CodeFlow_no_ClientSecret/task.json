@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:thesis-SvenHammann-POIDC__OIDC_CodeFlow_no_ClientSecret",
+  "level": "L1_verdict",
+  "name": "thesis-SvenHammann-POIDC__OIDC_CodeFlow_no_ClientSecret",
+  "protocol": "OIDC_CodeFlow_no_ClientSecret",
+  "source_file": "thesis-SvenHammann-POIDC/OIDC_CodeFlow_no_ClientSecret.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executable",
+    "User_Authentication"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

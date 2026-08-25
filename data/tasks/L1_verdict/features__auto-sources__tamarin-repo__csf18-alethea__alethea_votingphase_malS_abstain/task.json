@@ -1,0 +1,37 @@
+{
+  "task_id": "L1:features__auto-sources__tamarin-repo__csf18-alethea__alethea_votingphase_malS_abstain",
+  "level": "L1_verdict",
+  "name": "features__auto-sources__tamarin-repo__csf18-alethea__alethea_votingphase_malS_abstain",
+  "protocol": "alethea_votingphase_malS_abstain",
+  "source_file": "features/auto-sources/tamarin-repo/csf18-alethea/alethea_votingphase_malS_abstain.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "functional",
+    "indivVerif",
+    "Universal_VerProofV_v1",
+    "Universal_VerProofV_v2",
+    "Universal_VerProofV_v3",
+    "Universal_VerProofV_v4",
+    "Universal_VerProofV_v5",
+    "Universal_VerProofV_v6",
+    "Universal_VerProofV_v7",
+    "Universal_VerProofV_v8",
+    "Universal_VerProofY_v1",
+    "Universal_VerProofY_v2",
+    "Universal_VerProofY_v3",
+    "Universal_VerProofY_v4",
+    "Universal_VerProofY_v5",
+    "Universal_VerProofY_v6",
+    "Universal_VerProofY_v7",
+    "Universal_VerProofY_v8"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

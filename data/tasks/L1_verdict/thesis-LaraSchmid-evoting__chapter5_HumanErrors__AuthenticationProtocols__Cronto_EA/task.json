@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:thesis-LaraSchmid-evoting__chapter5_HumanErrors__AuthenticationProtocols__Cronto_EA",
+  "level": "L1_verdict",
+  "name": "thesis-LaraSchmid-evoting__chapter5_HumanErrors__AuthenticationProtocols__Cronto_EA",
+  "protocol": "Cronto_EA",
+  "source_file": "thesis-LaraSchmid-evoting/chapter5_HumanErrors/AuthenticationProtocols/Cronto_EA.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "functional",
+    "entity_authentication",
+    "device_authentication"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

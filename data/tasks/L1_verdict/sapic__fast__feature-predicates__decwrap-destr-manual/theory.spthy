@@ -1,0 +1,37 @@
+theory DecWrapDestr
+
+begin
+
+builtins: symmetric-encryption
+
+functions: encSucc/2, true/0
+equations: encSucc(senc(x,y),y) = true
+
+process:
+!(
+	(  new h; new k; event NewKey(h,k); 
+		insert <'key',h>,k; 
+	 	insert <'att',h>, 'dec'; out(h) )
+  || //allow wrap
+	(  in(h); lock h; insert <'att',h>, 'wrap'; unlock h)
+  || //Dec
+	( in(<h,c>);
+	  lookup <'att',h> as a in 
+			if a='dec' then lookup <'key',h> as k in
+				event IsTrue(encSucc(c,k));
+				event DecUsing(k,sdec(c,k)); out(sdec(c,k))
+	)
+  || //Wrap
+	( in(<h1,h2>); lookup <'att',h1> as a1 in 
+			if a1='wrap' then lookup <'key',h1> as k1 in
+			lookup <'key',h2> as k2 in
+				event Wrap(k1,k2);
+				out(senc(k2,k1))
+	)
+)
+
+restriction True_is_true:
+      "All x #i. IsTrue(x) @ i ==> x = true()"
+
+end
+

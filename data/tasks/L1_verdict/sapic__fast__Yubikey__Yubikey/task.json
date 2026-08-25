@@ -1,0 +1,29 @@
+{
+  "task_id": "L1:sapic__fast__Yubikey__Yubikey",
+  "level": "L1_verdict",
+  "name": "sapic__fast__Yubikey__Yubikey",
+  "protocol": "Yubikey",
+  "source_file": "sapic/fast/Yubikey/Yubikey.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md",
+    "oracle"
+  ],
+  "lemma_names": [
+    "secrecy_enc",
+    "init_server",
+    "init_server_secrecy",
+    "Login_reachable",
+    "Login_reachable_two",
+    "one_count_foreach_login",
+    "no_replay",
+    "injective_correspondance",
+    "Login_invalidates_smaller_counters"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": true,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

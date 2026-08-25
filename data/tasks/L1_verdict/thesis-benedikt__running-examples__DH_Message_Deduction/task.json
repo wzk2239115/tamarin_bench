@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:thesis-benedikt__running-examples__DH_Message_Deduction",
+  "level": "L1_verdict",
+  "name": "thesis-benedikt__running-examples__DH_Message_Deduction",
+  "protocol": "DH_Message_Deduction",
+  "source_file": "thesis-benedikt/running-examples/DH_Message_Deduction.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "key_deducible"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

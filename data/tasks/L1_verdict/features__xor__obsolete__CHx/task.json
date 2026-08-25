@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:features__xor__obsolete__CHx",
+  "level": "L1_verdict",
+  "name": "features__xor__obsolete__CHx",
+  "protocol": "CHx",
+  "source_file": "features/xor/obsolete/CHx.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "recentalive_tag",
+    "recentalive_reader",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

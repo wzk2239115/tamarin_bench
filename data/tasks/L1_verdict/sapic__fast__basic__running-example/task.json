@@ -1,0 +1,24 @@
+{
+  "task_id": "L1:sapic__fast__basic__running-example",
+  "level": "L1_verdict",
+  "name": "sapic__fast__basic__running-example",
+  "protocol": "RunningExample",
+  "source_file": "sapic/fast/basic/running-example.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "can_create_key",
+    "can_obtain_wrapping",
+    "dec_limits",
+    "cannot_obtain_key_ind",
+    "cannot_obtain_key"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

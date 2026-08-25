@@ -1,0 +1,24 @@
+{
+  "task_id": "L2:usenix23-ens__cwa",
+  "level": "L2_form",
+  "name": "usenix23-ens__cwa",
+  "protocol": "CWA",
+  "source_file": "usenix23-ens/cwa.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "secret_guid",
+    "secret_regToken",
+    "secret_tan",
+    "secret_key",
+    "upload_auth",
+    "soundness"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

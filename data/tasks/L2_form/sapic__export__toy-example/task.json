@@ -1,0 +1,19 @@
+{
+  "task_id": "L2:sapic__export__toy-example",
+  "level": "L2_form",
+  "name": "sapic__export__toy-example",
+  "protocol": "Toy",
+  "source_file": "sapic/export/toy-example.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "Auth"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

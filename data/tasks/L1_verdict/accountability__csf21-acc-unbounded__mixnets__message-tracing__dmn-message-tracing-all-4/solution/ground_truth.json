@@ -1,0 +1,11 @@
+{
+  "protocol": "L1:accountability__csf21-acc-unbounded__mixnets__message-tracing__dmn-message-tracing-all-4",
+  "overall_verdict": "UNKNOWN",
+  "lemmas": [],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": null,
+  "runtime_seconds": null,
+  "requires_diff": false,
+  "validated": true
+}

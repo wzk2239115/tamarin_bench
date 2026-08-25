@@ -1,0 +1,11 @@
+theory LockingRestriction
+begin
+
+let P = lock 'P';
+        event A();
+        unlock 'P'
+
+process:
+  lock 'P'; P
+
+end

@@ -1,0 +1,30 @@
+{
+  "task_id": "L1:features__multiset__NumberSubtermTests",
+  "level": "L1_verdict",
+  "name": "features__multiset__NumberSubtermTests",
+  "protocol": "NumberSubtermTests",
+  "source_file": "features/multiset/NumberSubtermTests.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "SnatChain",
+    "SnegRecurse",
+    "SnegACRecurse",
+    "Sneg",
+    "Sinvalid",
+    "Schain",
+    "SRecurse",
+    "SACRecurse",
+    "testEqual",
+    "arityOneDeduction",
+    "antiCharlie"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,24 @@
+{
+  "task_id": "L1:sapic__not-working__envelope__envelope_allowsattack",
+  "level": "L1_verdict",
+  "name": "sapic__not-working__envelope__envelope_allowsattack",
+  "protocol": "EnvelopeSimple",
+  "source_file": "sapic/not-working/envelope/envelope_allowsattack.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "sanity1",
+    "sanity2",
+    "source",
+    "PCR_Write_chain",
+    "Secret_and_Denied_exclusive"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

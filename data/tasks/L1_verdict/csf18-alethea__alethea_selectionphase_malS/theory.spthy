@@ -1,0 +1,214 @@
+theory alethea_selectionphase_malS
+begin
+
+/* 
+============
+INTRODUCTION
+============
+Protocol: Alethea's selection phase
+Modeler: Lara Schmid
+Described in:[1] Alethea: A Provably Secure Random Sample Voting Protocol, David Basin, Sasa Radomirovic, and Lara Schmid,CSF18.
+Date: 30th April 2018
+
+The file contains: 
+- a short explanation of the modeled version, 
+- the model in Alice & Bob notation, where we denote by ->, *->, ->*, and *->* insecure, authentic, confidential, and secure channels, respectively (see [1]),
+- a list of the results (with references to the lemmas in [1]),
+- the Tamarin protocol specification, the restrictions, and the lemmas.
+
+========
+Version:
+========
+This file models Alethea's selection phase with a malicious server.
+
+- server malicious (platform not present in this phase), A and H can read from BB authentically, but S (adversary) can write to it.
+- as S is malicious, all its secrets are sent to the adversary in beginning
+- explicitly model the auditors
+- explicitly model the environment that decides who is in the sample group (here only has 2 choices, A or B, and decision of environement modeled by a number 1/2 which decides if first or second voter in list of voter codes is selected)
+
+==========================
+Alice & Bob specification: 
+==========================
+
+0. S		: knows(E,BB,H,D,pk(skD),x,no)			
+0. D		: knows(skD,S,H)
+0. H		: knows(D,S,BB)
+0. BB		: knows(S)
+0. A		: knows(S,BB,E)
+
+1. S  		: rand(x)
+		  y=h(H,x)
+2. S  -> BB	: 'yS', [y]  
+3. BB *-> A	: 'yS', [y]  		
+4. S  -> D	: {x}pk(skD)
+5. D  *->* H	: h(H,x)  /  yD
+6.(BB)*->  H 	: 'yS', [y]   
+7. E  *-> S/ A	: rand(b) 		//(bit ='1'/'2' models the randomness which decides who is selected )
+
+8. S  -> BB	: 'ySG', [y_SG]  
+9.(BB)*->  A,H	: 'ySG', [y_SG] 
+		
+
+=========================================
+RESULTS: (aut) = automatically proven
+this model was analyzed without an oracle
+=========================================
+
+- lemma functional_env1:				verified (aut)
+- lemma functional_env2:				verified (aut)
+- UNIVERSAL VERIFIABILITY ([1] Lemma 4)
+	- lemma universalVerifiability_sel:		verified (aut)
+- INDIVIDUAL VERIFIABILIY ([1] Lemmas 2 and 3)	
+	- lemma individualVerifiability_votercode:	verified (aut)
+	- lemma individualVerifiability_sel:		verified (aut)
+
+Additional Lemmas:
+==================
+- AGREEMENTS: 
+	- lemma establishedIK:				verified (aut)	
+
+*/
+/*============
+SPECIFICATION:
+============== */
+
+/*=======
+built-ins 
+========= */
+builtins: signing, asymmetric-encryption, hashing, symmetric-encryption, multiset
+
+/* ==========
+Channel rules
+============= */
+rule ChanOut_S: [Out_S($A,$B,x)]--[ChanOut_S($A,$B,x)]->[!Sec($A,$B,x)]
+rule ChanIn_S: [!Sec($A,$B,x)]--[ChanIn_S($A,$B,x)]->[In_S($A,$B,x)]
+/*
+rule ChanOut_C:	[Out_C($A,$B,x)]--[ChanOut_C($A,$B,x)]->[!Conf($B,x)]
+rule ChanIn_C:	[!Conf($B,x), In($A)]--[ChanIn_C($A,$B,x)]->[In_C($A,$B,x)]
+rule ChanIn_CAdv: [In(<$A,$B,x>)]--[]->[In_C($A,$B,x)]
+*/
+rule ChanOut_A: [Out_A($A,x)]--[ChanOut_A($A,x)]->[!Auth($A,x), Out(<$A,x>)]
+rule ChanIn_A:	[!Auth($A,x)]--[ChanIn_A($A,x)]->[In_A($A,x)]
+
+rule publickeyinfrastructure:
+   [ Fr(~skX) ]--[ LongtermKey($X,~skX) ]-> [ !Ltk($X,~skX), !Pk($X,pk(~skX)), Out(pk(~skX)) ]
+
+/* =====
+Protocol
+======== */
+
+rule Setup: 
+  	[ Fr(~x1), Fr(~x2), !Ltk('D1',~skD1), !Ltk('D2',~skD2) ] 
+  	--[ 	Setup(), 
+		H_x_no('H1',~x1,'1'),
+		H_x_no('H2',~x2,'2')
+	]-> 
+	[ AgSt_D0('D1',< ~skD1,'S','H1' >)
+	, AgSt_D0('D2',< ~skD2,'S','H2' >)  
+	
+	// as S is malicious, S's knowledge is sent to adversary
+	, Out(<'S','BB','E',<'H1','D1',pk(~skD1),~x1,'1'>
+		           +<'H2','D2',pk(~skD2),~x2,'2'> >)
+		
+	, AgSt_H0('H1',<'D1','S','BB' >)
+	, AgSt_H0('H2',<'D2','S','BB' >)
+	
+	, AgSt_A0('A',<'S','BB','E'>) 
+	, Env('E')
+	
+	, AgSt_BB0('BB',<'S'>) 
+	]
+// leave out explicit send of "ev" from S to BB, assume that everyone is measuring the environment at the same moment (which would be the moment specified by this "ev")
+
+rule BB_2:
+	[ AgSt_BB0($BB,<$S>)
+	, In(<$S,<'ys',<y1,no1>+<y2,no2>>>) 
+	]
+	--[ 	BB_Ys($BB,'ys',<y1,no1>+<y2,no2>) 
+	]->
+	[ AgSt_BB2($BB,<$S,'ys',<y1,no1>+<y2,no2>> )
+	, Out_A($BB,<'ys',<y1,no1>+<y2,no2> >)
+	, YPublished() 				// this fact models that only after this rule the event in the environment takes place. auditors would see if this order was not preserved in reality. thus, this fact implicitly models that at least one auditor does the check that the event in the environment happens after the voter codes have been published.
+	]
+
+rule A_3:
+	[ AgSt_A0($A,<$S,$BB,$E>)
+	, In_A($BB,<'ys',<y1,no1>+<y2,no2> >) 
+	]
+	--[ 	Learn_A_Ys($A,$S,<'ys',<y1,no1>+<y2,no2> >)
+	]->
+	[ AgSt_A3($A,<$S,$BB,$E,'ys',<y1,no1>+<y2,no2>> ) ]
+
+rule D_4: 
+	[ AgSt_D0($D,<~skD,$S,$H >)
+	, In(<$S,aenc(x,pk(~skD))> )
+	]
+	--[ 	Comm_D_Y($D,h($H,x)),
+		Commit($D,$S,$H,x)
+	]->
+	[ Out_S($D,$H,h($H,x)) ]
+
+rule H_5: 
+	[ AgSt_H0($H,<$D,$S,$BB >)
+	, In_S($D,$H,yD)
+	, In_A($BB,<'ys',<y1,no1>+<y2,no2> >)
+	] 
+	--[ 	Learn_H_yD($H,$D,yD),
+	   	Learn_H_Ys($H,$S,<'ys',<y1,no1>+<y2,no2> >)
+	]-> 
+	[ AgSt_H5($H,<$D,$S,$BB,yD,y1,y2 >)]
+
+//one of the rules environment_1 or environment_2 can be triggered (only once) after the voter codes have been published
+rule environment_1:
+	[ Env($E), YPublished()] 
+	--[ 	Env_No($E,'1') ]->
+	[ Out_A($E,'1')] 
+
+rule environment_2:
+	[ Env($E), YPublished()]
+	--[ 	Env_No($E,'2') ]->
+	[ Out_A($E,'2')]
+
+rule BB_8: 	
+	[ AgSt_BB2($BB,<$S,'ys',<y1,no1>+<y2,no2>> )
+	, In(<$S,<'ySG',ySG>>)
+	]
+	--[ 	BB_YSG($BB,<'ySG',ySG>)
+	]->
+	[ Out_A($BB,<'ySG',ySG>)]
+
+rule H_9: 
+	[ AgSt_H5($H,<$D,$S,$BB,yD,y1,y2 >),
+	  In_A($BB,<'ySG',ySG>)
+	]
+	--[ 	Learn_H_ySG($H,$S,<'ySG',ySG>)
+	]->
+	[ ]
+
+rule A_9:
+	[ AgSt_A3($A,<$S,$BB,$E,'ys',<y1,no1>+<y2,no2>> )
+	, In_A($E,noSel)
+	, In_A($BB,<'ySG',ySG>)
+	]
+	--[	Learn_A_noSel($A,$E,noSel),
+		Learn_A_ySG($A,$S,ySG)
+	]->
+	[]
+
+/* ====
+RESTRICTIONS
+====== */
+
+// there is only one setup
+restriction OneSetup: 
+	"All #i #j. Setup() @i & Setup() @j ==> #i = #j "
+
+/* ====
+LEMMAS 
+======= */
+/* =================
+functionality lemmas
+==================== */
+
+end
+

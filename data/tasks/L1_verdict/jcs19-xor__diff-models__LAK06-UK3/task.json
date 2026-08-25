@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:jcs19-xor__diff-models__LAK06-UK3",
+  "level": "L1_verdict",
+  "name": "jcs19-xor__diff-models__LAK06-UK3",
+  "protocol": "LAK06_UK3",
+  "source_file": "jcs19-xor/diff-models/LAK06-UK3.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executable"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

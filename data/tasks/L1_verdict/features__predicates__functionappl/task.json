@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:features__predicates__functionappl",
+  "level": "L1_verdict",
+  "name": "features__predicates__functionappl",
+  "protocol": "minimal_predicates",
+  "source_file": "features/predicates/functionappl.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "one_smaller_two",
+    "unequal",
+    "equal"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

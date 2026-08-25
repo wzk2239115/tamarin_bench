@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:features__xor__CR",
+  "level": "L1_verdict",
+  "name": "features__xor__CR",
+  "protocol": "CR",
+  "source_file": "features/xor/CR.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "alive",
+    "recentalive",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:thesis-LaraSchmid-evoting__chapter5_HumanErrors__AuthenticationProtocols__MPAuth_MA_NoTellOK",
+  "level": "L1_verdict",
+  "name": "thesis-LaraSchmid-evoting__chapter5_HumanErrors__AuthenticationProtocols__MPAuth_MA_NoTellOK",
+  "protocol": "MPAuth_MA_NoTellOK",
+  "source_file": "thesis-LaraSchmid-evoting/chapter5_HumanErrors/AuthenticationProtocols/MPAuth_MA_NoTellOK.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "functional"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

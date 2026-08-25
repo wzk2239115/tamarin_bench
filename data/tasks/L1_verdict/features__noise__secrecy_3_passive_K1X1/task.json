@@ -1,0 +1,36 @@
+{
+  "task_id": "L1:features__noise__secrecy_3_passive_K1X1",
+  "level": "L1_verdict",
+  "name": "features__noise__secrecy_3_passive_K1X1",
+  "protocol": "secrecy_3_passive_K1X1",
+  "source_file": "features/noise/secrecy_3_passive_K1X1.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Secrecy_K1X1_3_for_Initiator_unless_active_or_reveal_s_AnyTime_or_reveal_re_AnyTime_end",
+    "Secrecy_K1X1_3_for_Initiator_unless_active_or_reveal_s_AnyTime_or_reveal_re_AnyTime_or_reveal_rs_AnyTime_end",
+    "Secrecy_K1X1_3_for_Initiator_unless_active_or_reveal_e_AnyTime_or_reveal_rs_AnyTime_end",
+    "Secrecy_K1X1_3_for_Initiator_unless_active_or_reveal_e_AnyTime_or_reveal_re_AnyTime_end",
+    "Secrecy_K1X1_3_for_Initiator_unless_active_or_reveal_e_AnyTime_or_reveal_re_AnyTime_or_reveal_rs_AnyTime_end",
+    "Secrecy_K1X1_3_for_Initiator_unless_active_or_reveal_e_AnyTime_or_reveal_s_AnyTime_or_reveal_rs_AnyTime_end",
+    "Secrecy_K1X1_3_for_Initiator_unless_active_or_reveal_e_AnyTime_or_reveal_s_AnyTime_or_reveal_re_AnyTime_end",
+    "Secrecy_K1X1_3_for_Initiator_unless_active_or_reveal_e_AnyTime_or_reveal_s_AnyTime_or_reveal_re_AnyTime_or_reveal_rs_AnyTime_end",
+    "Secrecy_K1X1_3_for_Responder_unless_active_or_reveal_s_AnyTime_or_reveal_re_AnyTime_end",
+    "Secrecy_K1X1_3_for_Responder_unless_active_or_reveal_s_AnyTime_or_reveal_re_AnyTime_or_reveal_rs_AnyTime_end",
+    "Secrecy_K1X1_3_for_Responder_unless_active_or_reveal_e_AnyTime_or_reveal_rs_AnyTime_end",
+    "Secrecy_K1X1_3_for_Responder_unless_active_or_reveal_e_AnyTime_or_reveal_re_AnyTime_end",
+    "Secrecy_K1X1_3_for_Responder_unless_active_or_reveal_e_AnyTime_or_reveal_re_AnyTime_or_reveal_rs_AnyTime_end",
+    "Secrecy_K1X1_3_for_Responder_unless_active_or_reveal_e_AnyTime_or_reveal_s_AnyTime_or_reveal_rs_AnyTime_end",
+    "Secrecy_K1X1_3_for_Responder_unless_active_or_reveal_e_AnyTime_or_reveal_s_AnyTime_or_reveal_re_AnyTime_end",
+    "Secrecy_K1X1_3_for_Responder_unless_active_or_reveal_e_AnyTime_or_reveal_s_AnyTime_or_reveal_re_AnyTime_or_reveal_rs_AnyTime_end",
+    "executabilityPassiveAdv"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

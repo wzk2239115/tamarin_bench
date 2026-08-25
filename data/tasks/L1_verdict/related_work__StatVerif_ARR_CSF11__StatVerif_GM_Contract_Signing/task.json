@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:related_work__StatVerif_ARR_CSF11__StatVerif_GM_Contract_Signing",
+  "level": "L1_verdict",
+  "name": "related_work__StatVerif_ARR_CSF11__StatVerif_GM_Contract_Signing",
+  "protocol": "StatVerif_GM_Contract_Signing",
+  "source_file": "related_work/StatVerif_ARR_CSF11/StatVerif_GM_Contract_Signing.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "aborted_and_resolved_exclusive",
+    "aborted_contract_reachable",
+    "resolved1_contract_reachable",
+    "resolved2_contract_reachable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

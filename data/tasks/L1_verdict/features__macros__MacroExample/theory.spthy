@@ -1,0 +1,50 @@
+theory MacroExemple
+begin 
+
+/*
+ * Protocol:     Basic protocol (tamarin manual example)
+ * Modeler:      Thiebaux Valentin
+ * Date:         July 2023
+ *
+ * Status: 	working
+ * Used to test macros.
+*/
+
+builtins: hashing, asymmetric-encryption 
+macros: encrypt(x, y) = aenc(x, y), decrypt(x, y) = adec(x, y), hashdec(x, y) = h(decrypt(x, y))
+
+rule Register_pk: 
+  [ Fr(~ltk) ]
+-->
+  [ !Ltk($A, ~ltk), !Pk($A, pk(~ltk)) ]
+
+rule Get_pk:
+  [ !Pk(A, pubkey) ]
+-->
+  [ Out(pubkey)  ]
+
+rule Reveal_ltk:
+  [ !Ltk(A, ltk) ]
+--[ LtkReveal(A) ]->
+  [ Out(ltk) ]
+
+rule Client_1:
+  [Fr(~k)
+  , !Pk($S, pkS) ]
+-->
+  [ Client_1($S, ~k)
+  , Out(encrypt(~k, pkS)) ]
+
+rule Client_2:
+  [ Client_1(S, k)
+  , In(h(k)) ]
+--[ SessKeyC(S, k) ]->
+  []
+
+rule Serv_1: 
+  [ !Ltk($S, ~ltkS)
+  , In(request) ]
+--[ AnswerRequest($S, decrypt(request, ~ltkS)) ]->
+  [ Out(hashdec(request, ~ltkS)) ]
+
+end

@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:features__auto-sources__tamarin-repo__related_work__TPM_DKRS_CSF11__Envelope-without-SL",
+  "level": "L1_verdict",
+  "name": "features__auto-sources__tamarin-repo__related_work__TPM_DKRS_CSF11__Envelope-without-SL",
+  "protocol": "TPM_Envelope",
+  "source_file": "features/auto-sources/tamarin-repo/related_work/TPM_DKRS_CSF11/Envelope-without-SL.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "PCR_Write_charn",
+    "Secret_and_Denied_exclusive"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

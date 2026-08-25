@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:post17__denning_sacco_symmetric_cbc",
+  "level": "L1_verdict",
+  "name": "post17__denning_sacco_symmetric_cbc",
+  "protocol": "dsscbc",
+  "source_file": "post17/denning_sacco_symmetric_cbc.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executable",
+    "sessionsmatch"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

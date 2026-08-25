@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:features__macros__MacroGlobalVarNSPK3",
+  "level": "L1_verdict",
+  "name": "features__macros__MacroGlobalVarNSPK3",
+  "protocol": "MacroGlobalVarNSPK3",
+  "source_file": "features/macros/MacroGlobalVarNSPK3.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "types",
+    "nonce_secrecy",
+    "injective_agree",
+    "session_key_setup_possible"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

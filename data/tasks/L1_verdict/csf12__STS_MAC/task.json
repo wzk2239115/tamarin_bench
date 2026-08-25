@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:csf12__STS_MAC",
+  "level": "L1_verdict",
+  "name": "csf12__STS_MAC",
+  "protocol": "STS_MAC",
+  "source_file": "csf12/STS_MAC.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "KI_Perfect_Forward_Secrecy_I",
+    "KI_Perfect_Forward_Secrecy_R"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

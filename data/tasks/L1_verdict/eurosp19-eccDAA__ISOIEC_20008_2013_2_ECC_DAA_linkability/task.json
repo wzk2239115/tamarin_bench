@@ -1,0 +1,31 @@
+{
+  "task_id": "L1:eurosp19-eccDAA__ISOIEC_20008_2013_2_ECC_DAA_linkability",
+  "level": "L1_verdict",
+  "name": "eurosp19-eccDAA__ISOIEC_20008_2013_2_ECC_DAA_linkability",
+  "protocol": "ISOIEC_20008_2013_2_ECC_DAA_LINKABILITY",
+  "source_file": "eurosp19-eccDAA/ISOIEC_20008_2013_2_ECC_DAA.linkability.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "functional_correctness",
+    "functional_correctness_dishonest_send",
+    "functional_correctness_group_verification",
+    "aliveness",
+    "weak_agreement_any_reveal",
+    "weak_agreement",
+    "ni_agreement_any_reveal",
+    "ni_agreement",
+    "i_agreement",
+    "secrecy_cre",
+    "can_be_deanonymised",
+    "user_controlled_linkability"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

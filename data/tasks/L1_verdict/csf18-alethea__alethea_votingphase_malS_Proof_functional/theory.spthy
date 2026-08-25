@@ -1,0 +1,689 @@
+theory alethea_votingphase_malS_Proof_functional begin
+
+// Function signature and definition of the equational theory E
+
+builtins: multiset
+functions: PeqPVote/3, PeqPY/3, adec/2, aenc/2, cp/2, dcp/2, fst/1,
+           h/1, pair/2, pk/1, sdec/2, senc/2, sign/2, snd/1, true/0, verify/3
+equations:
+    adec(aenc(x.1, pk(x.2)), x.2) = x.1,
+    dcp(cp(x, pk(sk)), sk) = x,
+    fst(<x.1, x.2>) = x.1,
+    sdec(senc(x.1, x.2), x.2) = x.1,
+    snd(<x.1, x.2>) = x.2,
+    verify(sign(x.1, x.2), x.1, pk(x.2)) = true
+
+tactic: functional
+presort: C
+prio:
+  regex "PeqPVote"
+prio:
+  regex  "PeqPY"
+prio:
+  regex  "!KU\( ~skS"
+prio:
+  regex  "proofY"
+prio:
+  regex  "In_S"
+prio:
+  regex  "'codes'"
+prio:
+  regex  "BB_C"
+prio:
+  regex  "In_A\( 'S', <'codes'"
+prio:
+  regex  "In_A\( 'BB', <'codes'"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: indivVerif
+presort: C
+prio:
+  regex "AgSt_H"
+prio:
+  regex  "In_A\( 'S', <'codes'"
+prio:
+  regex  "In_A\( 'BB', <'codes'"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofV_v1
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofV'"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofV_v2
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofV'"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofV_v3
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofV'"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofV_v4
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofV'"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofV_v5
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofV'"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofV_v6
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofV'"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofV_v7
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofV'"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofV_v8
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofV'"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofY_v1
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofY'"
+prio:
+  regex  "PeqPY"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofY_v2
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofY'"
+prio:
+  regex  "PeqPY"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofY_v3
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofY'"
+prio:
+  regex  "PeqPY"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofY_v4
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofY'"
+prio:
+  regex  "PeqPY"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofY_v5
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofY'"
+prio:
+  regex  "PeqPY"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofY_v6
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofY'"
+prio:
+  regex  "PeqPY"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofY_v7
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofY'"
+prio:
+  regex  "PeqPY"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+tactic: Universal_VerProofY_v8
+presort: C
+prio:
+  regex "!KU\( ~skS"
+prio:
+  regex  "In_S\( 'H1', 'D1', vote"
+prio:
+  regex  "In_S\( 'H2', 'D2', vote"
+prio:
+  regex  "PeqPVote"
+prio:
+  regex  "AgSt_Au\("
+prio:
+  regex  "'codes'"
+prio:
+  regex  "proofY'"
+prio:
+  regex  "PeqPY"
+prio:
+  regex  "In_S"
+prio:
+  regex  "In_A"
+prio:
+  regex  "In_S\( 'H1'"
+prio:
+  regex  "~~>"
+prio:
+  regex  "cp\("
+
+rule (modulo E) ChanOut_S:
+   [ Out_S( $A, $B, x ) ]
+  --[ ChanOut_S( $A, $B, x ) ]->
+   [ !Sec( $A, $B, x ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) ChanIn_S:
+   [ !Sec( $A, $B, x ) ]
+  --[ ChanIn_S( $A, $B, x ) ]->
+   [ In_S( $A, $B, x ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) ChanOut_A:
+   [ Out_A( $A, x ) ]
+  --[ ChanOut_A( $A, x ) ]->
+   [ !Auth( $A, x ), Out( <$A, x> ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) ChanIn_A:
+   [ !Auth( $A, x ) ] --[ ChanIn_A( $A, x ) ]-> [ In_A( $A, x ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) publickeyinfrastructure:
+   [ Fr( ~skX ) ]
+  --[ LongtermKey( $X, ~skX ) ]->
+   [ !Ltk( $X, ~skX ), !Pk( $X, pk(~skX) ), Out( pk(~skX) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Setup:
+   [ !Ltk( 'S', ~skS ), Fr( ~x1 ), Fr( ~x2 ) ]
+  --[
+  Setup( ), SKS( ~skS ), HV( '1', h(<~x1, $ind1>) ),
+  HV( '2', h(<~x2, $ind2>) ), HY( '1', h(~x1) ), HY( '2', h(~x2) ),
+  V( '1', $v1 ), V( '2', $v2 )
+  ]->
+   [
+   AgSt_H0( 'H1', <'D1', 'S', 'BB', $v1, h(<'H1', ~x1>)> ),
+   AgSt_H0( 'H2', <'D2', 'S', 'BB', $v2, h(<'H2', ~x2>)> ),
+   AgSt_D0( 'D1', <'S', 'BB', 'H1', pk(~skS), ~x1, $ind1> ),
+   AgSt_D0( 'D2', <'S', 'BB', 'H2', pk(~skS), ~x2, $ind2> ),
+   AgSt_BB0( 'BB', <'ySG', (h(<'H1', ~x1>)+h(<'H2', ~x2>))> ),
+   AgSt_Au( 'A', 'S' ),
+   Out_A( 'BB', <'ySG', (h(<'H1', ~x1>)+h(<'H2', ~x2>))> ),
+   Out( <~skS, 'H1', 'H2', 'D1', 'D2', ~x1, ~x2, $ind1, $ind2, 'BB'> )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) H_1:
+   [ AgSt_H0( $H, <$D, $S, $BB, vote, y> ) ]
+  --[ Vote( $H, vote ) ]->
+   [ AgSt_H1( $H, <$D, $S, $BB, vote, y> ), Out_S( $H, $D, vote ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) D_1:
+   [ AgSt_D0( $D, <$S, $BB, $H, pkS, ~x, $ind> ), In_S( $H, $D, vote )
+   ]
+  -->
+   [
+   Out_S( $D, $H,
+          <$H, 
+           <cp(<vote, h(<~x, $ind>)>, pkS), cp(<h(<$H, ~x>), h(~x)>, pkS)>, 
+           $ind>
+   )
+   ]
+
+  // loop breaker: [1]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) H_2:
+   [
+   AgSt_H1( $H, <$D, $S, $BB, vote, y> ),
+   In_S( $D, $H, <$H, code, ind> )
+   ]
+  --[
+  MyCode( $H, code ), Comm_H_C( $H, $S, code ),
+  Comm_H_V( $H, $S, vote )
+  ]->
+   [
+   AgSt_H2( $H, <$D, $S, $BB, vote, y, ind, code> ),
+   Out( <code, ind> )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) BB:
+   [
+   AgSt_BB0( $BB, ySG ), In( <'votes', ($vote1+$vote2)> ),
+   In( <'pVs', (pV1+pV2)> ), In( <'pYs', (pY1+pY2)> ),
+   In( <'yPrime', (yPrime1+yPrime2)> ),
+   In( <'codes', (code1+code2)> ), In( <'proofV', proofV> ),
+   In( <'proofY', proofY> )
+   ]
+  --[
+  BB_V( '1', $BB, $vote1 ), BB_V( '2', $BB, $vote2 ),
+  BB_pV( '1', $BB, pV1 ), BB_pV( '2', $BB, pV2 ),
+  BB_yPrime( '1', $BB, yPrime1 ), BB_yPrime( '2', $BB, yPrime2 ),
+  BB_pY( '1', $BB, pY1 ), BB_pY( '2', $BB, pY2 ),
+  BB_C( '1', $BB, code1 ), BB_C( '2', $BB, code2 ),
+  BB_Cs( $BB, <'codes', (code1+code2)> ), BB_proofV( $BB, proofV ),
+  BB_proofY( $BB, proofY )
+  ]->
+   [
+   Out_A( $BB, <'votes', ($vote1+$vote2)> ),
+   Out_A( $BB, <'pVs', (pV1+pV2)> ), Out_A( $BB, <'pYs', (pY1+pY2)> ),
+   Out_A( $BB, <'yPrime', (yPrime1+yPrime2)> ),
+   Out_A( $BB, <'codes', (code1+code2)> ),
+   Out_A( $BB, <'proofV', proofV> ), Out_A( $BB, <'proofY', proofY> )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) auditor:
+   [
+   AgSt_Au( $A, $S ), In_A( $BB, <'ySG', (y1+y2)> ),
+   In_A( $BB, <'yPrime', (y1+y2)> ), In_A( $BB, <'votes', (v1+v2)> ),
+   In_A( $BB, <'pVs', (<v1, hV1>+<v2, hV2>)> ),
+   In_A( $BB, <'pYs', (<y1, hY1>+<y2, hY2>)> ),
+   In_A( $BB, <'codes', (<fstcode1, sndcode1>+<fstcode2, sndcode2>)>
+   ),
+   In_A( $BB, <'proofV', proofV> ), In_A( $BB, <'proofY', proofY> )
+   ]
+  --[
+  Learn_A_Vs( $S, $A, <'votes', (v1+v2)> ),
+  Learn_A_YSGs( $S, $A, <'ySG', (y1+y2)> ),
+  Learn_A_Cs( $S, $A,
+              <'codes', (<fstcode1, sndcode1>+<fstcode2, sndcode2>)>
+  ),
+  VerProofV( $A, $BB, proofV, <fstcode1, fstcode2>,
+             <<v1, hV1>, v2, hV2>
+  ),
+  VerProofY( $A, $BB, proofY, <sndcode1, sndcode2>,
+             <<y1, hY1>, y2, hY2>
+  )
+  ]->
+   [ ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) H_3:
+   [
+   AgSt_H2( $H, <$D, $S, $BB, vote, y, ind, code> ),
+   In_A( $BB, <'codes', (codeBBOther+mycodeBB)> )
+   ]
+  --[ Learn_H_C( $H, $S, mycodeBB ) ]->
+   [ ]
+
+  /* has exactly the trivial AC variant */
+
+restriction OneSetup:
+  "∀ #i #j. ((Setup( ) @ #i) ∧ (Setup( ) @ #j)) ⇒ (#i = #j)"
+  // safety formula
+
+end

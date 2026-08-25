@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:related_work__YubiSecure_KS_STM12__Yubikey_and_YubiHSM",
+  "level": "L1_verdict",
+  "name": "related_work__YubiSecure_KS_STM12__Yubikey_and_YubiHSM",
+  "protocol": "YubikeyHSM",
+  "source_file": "related_work/YubiSecure_KS_STM12/Yubikey_and_YubiHSM.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "adv_can_guess_counter",
+    "otp_decode_does_not_help_adv_use_induction",
+    "neither_k_nor_k2_are_ever_leaked_inv",
+    "one_count_foreach_login"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

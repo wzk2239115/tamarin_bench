@@ -27,24 +27,33 @@ __all__ = [
     "load_task_registry",
 ]
 
-TASK_LEVELS = ("L1_verdict", "L2_form", "L3_repair")
+TASK_LEVELS = ("L1_verdict", "L2_form", "L3_repair", "B1_attack")
 
 DATA_DIR = Path(__file__).parents[3] / "data"
 TASKS_DIR = DATA_DIR / "tasks"
 
 
 class TaskMeta(BaseModel):
-    task_id: str  # e.g. "L1:NSPK3"
-    level: str  # L1_verdict | L2_form | L3_repair
+    task_id: str  # e.g. "L1:NSPK3" or "B1:kc_rs_basic"
+    level: str  # L1_verdict | L2_form | L3_repair | B1_attack
     name: str  # sanitized protocol name (directory name)
     protocol: str  # original protocol name (theory name)
-    source_file: str  # CrypFormBench source path, e.g. "SPTHY-1/NSPK3.spthy"
-    source_dataset: str  # which CrypFormBench axis it came from
+    source_file: str  # origin path, e.g. "SPTHY-1/NSPK3.spthy"
+    source_dataset: str  # crypformbench | tamarin-examples | jwt_oidc | ...
     given_files: list[str] = Field(default_factory=list)
     # L1: lemma names the agent is asked to (re)formulate, in reference order.
     lemma_names: list[str] = Field(default_factory=list)
     # Theory uses diff() terms / observational equivalence (prompt hint).
     uses_diff_terms: bool = False
+    # Evaluation family: "tamarin" (default) or a deployment family like
+    # "jwt_oidc" (B1 tasks route to the family evaluator).
+    family: str = "tamarin"
+    # Deployment template for family tasks (directory under
+    # data/deployments/<family>/).
+    deployment: str | None = None
+    # Reference solution needs a Tamarin oracle heuristic file (shipped as
+    # solution/oracle and given to the agent as `oracle` in the workspace).
+    oracle: bool = False
     description: str = ""
 
 
@@ -100,6 +109,7 @@ def task_dir_for(task_id: str, tasks_dir: Path = TASKS_DIR) -> Path:
         "L1": "L1_verdict",
         "L2": "L2_form",
         "L3": "L3_repair",
+        "B1": "B1_attack",
     }
     level_dir = level_map.get(level, level)
     return tasks_dir / level_dir / name

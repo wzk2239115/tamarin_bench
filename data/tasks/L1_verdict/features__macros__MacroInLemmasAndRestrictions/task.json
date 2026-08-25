@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:features__macros__MacroInLemmasAndRestrictions",
+  "level": "L1_verdict",
+  "name": "features__macros__MacroInLemmasAndRestrictions",
+  "protocol": "MacrosInLemmasAndRestrictions",
+  "source_file": "features/macros/MacroInLemmasAndRestrictions.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "M"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

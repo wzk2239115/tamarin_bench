@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:features__equivalence__axiom_test_symmetric_nondet",
+  "level": "L1_verdict",
+  "name": "features__equivalence__axiom_test_symmetric_nondet",
+  "protocol": "restriction_test_symmetric_nondet",
+  "source_file": "features/equivalence/axiom_test_symmetric_nondet.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Observational_equivalence"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

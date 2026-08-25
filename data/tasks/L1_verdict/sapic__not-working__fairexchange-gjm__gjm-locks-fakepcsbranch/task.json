@@ -1,0 +1,25 @@
+{
+  "task_id": "L1:sapic__not-working__fairexchange-gjm__gjm-locks-fakepcsbranch",
+  "level": "L1_verdict",
+  "name": "sapic__not-working__fairexchange-gjm__gjm-locks-fakepcsbranch",
+  "protocol": "GJMLocks",
+  "source_file": "sapic/not-working/fairexchange-gjm/gjm-locks-fakepcsbranch.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "sanity_a4b3",
+    "timelinessA",
+    "timelinessB",
+    "fullfairnessA",
+    "helperB1",
+    "fullfairnessB"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

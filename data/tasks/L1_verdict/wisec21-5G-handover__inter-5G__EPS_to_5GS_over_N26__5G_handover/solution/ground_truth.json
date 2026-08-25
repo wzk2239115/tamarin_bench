@@ -1,0 +1,11 @@
+{
+  "protocol": "eps_to_5gs_over_n26_handover",
+  "overall_verdict": "UNKNOWN",
+  "lemmas": [],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": null,
+  "runtime_seconds": null,
+  "requires_diff": false,
+  "validated": false
+}

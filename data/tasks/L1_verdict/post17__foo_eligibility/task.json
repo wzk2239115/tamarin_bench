@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:post17__foo_eligibility",
+  "level": "L1_verdict",
+  "name": "post17__foo_eligibility",
+  "protocol": "FOO_Eligibility",
+  "source_file": "post17/foo_eligibility.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "types",
+    "exec",
+    "eligibility"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

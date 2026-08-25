@@ -1,0 +1,10 @@
+theory OracleRanking
+
+begin
+
+heuristic: o "./oracle-default"
+
+rule test:
+  [ Fr(~x) ]--[ A(~x) ]->[ Out(~x) ]
+
+end

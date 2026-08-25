@@ -1,0 +1,369 @@
+theory SetAbst begin
+
+// Function signature and definition of the equational theory E
+
+functions: adec/2, aenc/2, fst/1, pair/2, pk/1, sign/2, snd/1,
+           true/0, verify/3
+equations:
+    adec(aenc(x.1, pk(x.2)), x.2) = x.1,
+    fst(<x.1, x.2>) = x.1,
+    snd(<x.1, x.2>) = x.2,
+    verify(sign(x.1, x.2), x.1, pk(x.2)) = true
+
+section{* The PKI-example *}
+
+rule (modulo E) 0:
+   [ ] --[ Init( ) ]-> [ !State_0( ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Rep0:
+   [ !State_0( ) ] --> [ State_01( ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Par01:
+   [ State_01( ) ] --> [ State_011( ), State_012( ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) new_pki011:
+   [ State_011( ), Fr( pki ) ] --> [ !State_0111( pki ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Rep0111:
+   [ !State_0111( pki ) ] --> [ State_01111( pki ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Par01111:
+   [ State_01111( pki ) ]
+  -->
+   [ State_011111( pki ), State_011112( pki ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) in___new___user_011111:
+   [ State_011111( pki ), In( <'new', user> ) ]
+  -->
+   [ State_0111111( pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) new__sk0111111:
+   [ State_0111111( pki, user ), Fr( ~sk ) ]
+  -->
+   [ State_01111111( ~sk, pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) lock___SERVER___user_01111111:
+   [ State_01111111( ~sk, pki, user ), Fr( ~lock7 ) ]
+  --[ Lock( ~lock7, <'SERVER', user> ) ]->
+   [ State_011111111( ~lock7, ~sk, pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) event_HonestKey__sk_011111111:
+   [ State_011111111( ~lock7, ~sk, pki, user ) ]
+  --[ Event( ), HonestKey( ~sk ) ]->
+   [ State_0111111111( ~lock7, ~sk, pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) insert___SERVER___pki__user__pk__sk_0111111111:
+   [ State_0111111111( ~lock7, ~sk, pki, user ) ]
+  --[ Insert( <'SERVER', pki, user>, pk(~sk) ) ]->
+   [ State_01111111111( ~lock7, ~sk, pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) insert___USER___user___sk01111111111:
+   [ State_01111111111( ~lock7, ~sk, pki, user ) ]
+  --[ Insert( <'USER', user>, ~sk ) ]->
+   [ State_011111111111( ~lock7, ~sk, pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) event_HonestKey__sk_011111111111:
+   [ State_011111111111( ~lock7, ~sk, pki, user ) ]
+  --[ Event( ), HonestKey( ~sk ) ]->
+   [ State_0111111111111( ~lock7, ~sk, pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) unlock___SERVER___user_0111111111111:
+   [ State_0111111111111( ~lock7, ~sk, pki, user ) ]
+  --[ Unlock( ~lock7, <'SERVER', user> ) ]->
+   [ State_01111111111111( ~lock7, ~sk, pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) out_pk__sk_01111111111111:
+   [ State_01111111111111( ~lock7, ~sk, pki, user ) ]
+  -->
+   [ Out( pk(~sk) ), State_011111111111111( ~lock7, ~sk, pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) in___renew___user__pk_nsk__011112:
+   [ State_011112( pki ), In( <'renew', user, pk(nsk)> ) ]
+  -->
+   [ State_0111121( nsk, pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) in_sign___renew___user__pk_nsk____sk_0111121:
+   [
+   State_0111121( nsk, pki, user ),
+   In( sign(<'renew', user, pk(nsk)>, sk) )
+   ]
+  -->
+   [ State_01111211( nsk, pki, sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) lock___SERVER___user_01111211:
+   [ State_01111211( nsk, pki, sk, user ), Fr( ~lock7 ) ]
+  --[ Lock( ~lock7, <'SERVER', user> ) ]->
+   [ State_011112111( ~lock7, nsk, pki, sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) lookup___SERVER___pki__user__as_pksk011112111:
+   [ State_011112111( ~lock7, nsk, pki, sk, user ) ]
+  --[ IsIn( <'SERVER', pki, user>, pksk ) ]->
+   [ State_0111121111( ~lock7, nsk, pki, pksk, sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) else__lookup___SERVER___pki__user__as_pksk011112111:
+   [ State_011112111( ~lock7, nsk, pki, sk, user ) ]
+  --[ IsNotSet( <'SERVER', pki, user> ) ]->
+   [ State_0111121112( ~lock7, nsk, pki, sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) if_eq_pksk__pk_sk__0111121111:
+   [ State_0111121111( ~lock7, nsk, pki, pksk, sk, user ) ]
+  --[ Pred_eq( pksk, pk(sk) ) ]->
+   [ State_01111211111( ~lock7, nsk, pki, pksk, sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) else__if_eq_pksk__pk_sk__0111121111:
+   [ State_0111121111( ~lock7, nsk, pki, pksk, sk, user ) ]
+  --[ Pred_not_eq( pksk, pk(sk) ) ]->
+   [ State_01111211112( ~lock7, nsk, pki, pksk, sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) delete___SERVER___pki__user_01111211111:
+   [ State_01111211111( ~lock7, nsk, pki, pksk, sk, user ) ]
+  --[ Delete( <'SERVER', pki, user> ) ]->
+   [ State_011112111111( ~lock7, nsk, pki, pksk, sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) insert___SERVER___pki__user__pk_nsk_011112111111:
+   [ State_011112111111( ~lock7, nsk, pki, pksk, sk, user ) ]
+  --[ Insert( <'SERVER', pki, user>, pk(nsk) ) ]->
+   [ State_0111121111111( ~lock7, nsk, pki, pksk, sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) unlock___SERVER___user_0111121111111:
+   [ State_0111121111111( ~lock7, nsk, pki, pksk, sk, user ) ]
+  --[ Unlock( ~lock7, <'SERVER', user> ) ]->
+   [ State_01111211111111( ~lock7, nsk, pki, pksk, sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) out_sign___confirm___sign___renew___user__pk_nsk____sk____pki_01111211111111:
+   [ State_01111211111111( ~lock7, nsk, pki, pksk, sk, user ) ]
+  -->
+   [
+   Out( sign(<'confirm', sign(<'renew', user, pk(nsk)>, sk)>, pki) ),
+   State_011112111111111( ~lock7, nsk, pki, pksk, sk, user )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Zero01111211112:
+   [ State_01111211112( ~lock7, nsk, pki, pksk, sk, user ) ] --> [ ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) new_user012:
+   [ State_012( ), Fr( user ) ] --> [ State_0121( user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) out_user0121:
+   [ State_0121( user ) ] --> [ Out( user ), !State_01211( user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Rep01211:
+   [ !State_01211( user ) ] --> [ State_012111( user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) new__nsk012111:
+   [ State_012111( user ), Fr( ~nsk ) ]
+  -->
+   [ State_0121111( ~nsk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) lock___USER___user_0121111:
+   [ State_0121111( ~nsk, user ), Fr( ~lock11 ) ]
+  --[ Lock( ~lock11, <'USER', user> ) ]->
+   [ State_01211111( ~lock11, ~nsk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) lookup___USER___user__as__sk01211111:
+   [ State_01211111( ~lock11, ~nsk, user ) ]
+  --[ IsIn( <'USER', user>, ~sk ) ]->
+   [ State_012111111( ~lock11, ~nsk, ~sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) else__lookup___USER___user__as__sk01211111:
+   [ State_01211111( ~lock11, ~nsk, user ) ]
+  --[ IsNotSet( <'USER', user> ) ]->
+   [ State_012111112( ~lock11, ~nsk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) event_HonestKey__nsk_012111111:
+   [ State_012111111( ~lock11, ~nsk, ~sk, user ) ]
+  --[ Event( ), HonestKey( ~nsk ) ]->
+   [ State_0121111111( ~lock11, ~nsk, ~sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) delete___USER___user_0121111111:
+   [ State_0121111111( ~lock11, ~nsk, ~sk, user ) ]
+  --[ Delete( <'USER', user> ) ]->
+   [ State_01211111111( ~lock11, ~nsk, ~sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) insert___USER___user___nsk01211111111:
+   [ State_01211111111( ~lock11, ~nsk, ~sk, user ) ]
+  --[ Insert( <'USER', user>, ~nsk ) ]->
+   [ State_012111111111( ~lock11, ~nsk, ~sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) unlock___USER___user_012111111111:
+   [ State_012111111111( ~lock11, ~nsk, ~sk, user ) ]
+  --[ Unlock( ~lock11, <'USER', user> ) ]->
+   [ State_0121111111111( ~lock11, ~nsk, ~sk, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) out___renew___user__pk__nsk__0121111111111:
+   [ State_0121111111111( ~lock11, ~nsk, ~sk, user ) ]
+  -->
+   [
+   Out( <'renew', user, pk(~nsk)> ),
+   State_01211111111111( ~lock11, ~nsk, ~sk, user )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) out_sign___renew___user__pk__nsk_____sk_01211111111111:
+   [ State_01211111111111( ~lock11, ~nsk, ~sk, user ) ]
+  -->
+   [
+   Out( sign(<'renew', user, pk(~nsk)>, ~sk) ),
+   State_012111111111111( ~lock11, ~nsk, ~sk, user )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) in_sign___confirm___sign___renew___user__pk__nsk_____sk____pki_012111111111111:
+   [
+   State_012111111111111( ~lock11, ~nsk, ~sk, user ),
+   In( sign(<'confirm', sign(<'renew', user, pk(~nsk)>, ~sk)>, pki) )
+   ]
+  -->
+   [ State_0121111111111111( ~lock11, ~nsk, ~sk, pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) event_Revoked__sk_0121111111111111:
+   [ State_0121111111111111( ~lock11, ~nsk, ~sk, pki, user ) ]
+  --[ Event( ), Revoked( ~sk ) ]->
+   [ State_01211111111111111( ~lock11, ~nsk, ~sk, pki, user ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) out__sk01211111111111111:
+   [ State_01211111111111111( ~lock11, ~nsk, ~sk, pki, user ) ]
+  -->
+   [
+   Out( ~sk ),
+   State_012111111111111111( ~lock11, ~nsk, ~sk, pki, user )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+restriction single_session:
+  "∀ #i #j. ((Init( ) @ #i) ∧ (Init( ) @ #j)) ⇒ (#i = #j)"
+  // safety formula
+
+restriction set_in:
+  "∀ x y #t3.
+    (IsIn( x, y ) @ #t3) ⇒
+    (∃ #t2.
+      (((Insert( x, y ) @ #t2) ∧ (#t2 < #t3)) ∧
+       (∀ #t1. (Delete( x ) @ #t1) ⇒ ((#t1 < #t2) ∨ (#t3 < #t1)))) ∧
+      (∀ #t1 yp.
+        (Insert( x, yp ) @ #t1) ⇒
+        (((#t1 < #t2) ∨ (#t1 = #t2)) ∨ (#t3 < #t1))))"
+
+restriction set_notin:
+  "∀ x #t3.
+    (IsNotSet( x ) @ #t3) ⇒
+    ((∀ #t1 y. (Insert( x, y ) @ #t1) ⇒ (#t3 < #t1)) ∨
+     (∃ #t1.
+       ((Delete( x ) @ #t1) ∧ (#t1 < #t3)) ∧
+       (∀ #t2 y. ((Insert( x, y ) @ #t2) ∧ (#t2 < #t3)) ⇒ (#t2 < #t1))))"
+
+restriction predicate_not_eq:
+  "∀ #i a b. (Pred_not_eq( a, b ) @ #i) ⇒ (¬(a = b))"
+  // safety formula
+
+restriction predicate_eq:
+  "∀ #i a b. (Pred_eq( a, b ) @ #i) ⇒ (a = b)"
+  // safety formula
+
+restriction immeadiate_in:
+  "∀ t #i.
+    (ChannelInEvent( t ) @ #i) ⇒
+    (∃ #j.
+      (((K( t ) @ #j) ∧ (#j < #i)) ∧
+       (∀ #k. (Event( ) @ #k) ⇒ ((#k < #j) ∨ (#i < #k)))) ∧
+      (∀ #k t2. (K( t2 ) @ #k) ⇒ (((#k < #j) ∨ (#i < #k)) ∨ (#k = #j))))"
+
+restriction locking:
+  "∀ n x np #i #j.
+    ((Lock( n, x ) @ #i) ∧ (Lock( np, x ) @ #j)) ⇒
+    ((((#i < #j) ∧
+       (∃ #k.
+         (((((Unlock( n, x ) @ #k) ∧ (#i < #k)) ∧ (#k < #j)) ∧
+           (∀ #m. (Unlock( n, x ) @ #m) ⇒ (#m = #k))) ∧
+          (∀ np.1 #m.
+            (Lock( np.1, x ) @ #m) ⇒ (((#m < #i) ∨ (#m = #i)) ∨ (#k < #m)))) ∧
+         (∀ np.1 #m.
+           (Unlock( np.1, x ) @ #m) ⇒
+           (((#m < #i) ∨ (#k < #m)) ∨ (#k = #m))))) ∨
+      (#j < #i)) ∨
+     (#i = #j))"
+
+end

@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:loops__Minimal_Create_Use_Destroy",
+  "level": "L1_verdict",
+  "name": "loops__Minimal_Create_Use_Destroy",
+  "protocol": "Minimal_Create_Use_Destroy",
+  "source_file": "loops/Minimal_Create_Use_Destroy.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Use_charn",
+    "Destroy_charn"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

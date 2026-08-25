@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:features__noise__anonymity_Initiator_psk_revealed_trusted_pki_K1K",
+  "level": "L1_verdict",
+  "name": "features__noise__anonymity_Initiator_psk_revealed_trusted_pki_K1K",
+  "protocol": "anonymity_Initiator_psk_revealed_trusted_pki_K1K",
+  "source_file": "features/noise/anonymity_Initiator_psk_revealed_trusted_pki_K1K.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executabilityPassiveAdv"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

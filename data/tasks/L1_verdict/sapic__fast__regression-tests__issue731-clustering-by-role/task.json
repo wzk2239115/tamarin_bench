@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:sapic__fast__regression-tests__issue731-clustering-by-role",
+  "level": "L1_verdict",
+  "name": "sapic__fast__regression-tests__issue731-clustering-by-role",
+  "protocol": "issue731",
+  "source_file": "sapic/fast/regression-tests/issue731-clustering-by-role.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "sanity"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

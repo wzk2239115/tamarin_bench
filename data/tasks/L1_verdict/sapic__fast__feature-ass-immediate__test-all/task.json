@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:sapic__fast__feature-ass-immediate__test-all",
+  "level": "L1_verdict",
+  "name": "sapic__fast__feature-ass-immediate__test-all",
+  "protocol": "AssImmediateTestAll",
+  "source_file": "sapic/fast/feature-ass-immediate/test-all.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "intuitiveTest"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

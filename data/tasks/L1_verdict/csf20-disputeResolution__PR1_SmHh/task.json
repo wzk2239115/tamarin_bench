@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:csf20-disputeResolution__PR1_SmHh",
+  "level": "L1_verdict",
+  "name": "csf20-disputeResolution__PR1_SmHh",
+  "protocol": "PR1_SmHh",
+  "source_file": "csf20-disputeResolution/PR1_SmHh.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "functional",
+    "TimelyP"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

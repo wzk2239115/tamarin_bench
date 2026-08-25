@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:experiments__Partial_Eval_RoleScript",
+  "level": "L1_verdict",
+  "name": "experiments__Partial_Eval_RoleScript",
+  "protocol": "RoleScript",
+  "source_file": "experiments/Partial_Eval_RoleScript.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

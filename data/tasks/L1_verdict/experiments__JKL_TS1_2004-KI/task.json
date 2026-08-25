@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:experiments__JKL_TS1_2004-KI",
+  "level": "L1_verdict",
+  "name": "experiments__JKL_TS1_2004-KI",
+  "protocol": "JKL_TS1_2004",
+  "source_file": "experiments/JKL_TS1_2004-KI.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "JKL2008_1_initiator_key",
+    "JKL2008_1_responder_key"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

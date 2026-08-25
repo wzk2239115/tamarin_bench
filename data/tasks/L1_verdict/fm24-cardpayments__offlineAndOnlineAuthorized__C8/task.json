@@ -1,0 +1,25 @@
+{
+  "task_id": "L1:fm24-cardpayments__offlineAndOnlineAuthorized__C8",
+  "level": "L1_verdict",
+  "name": "fm24-cardpayments__offlineAndOnlineAuthorized__C8",
+  "protocol": "C8",
+  "source_file": "fm24-cardpayments/offlineAndOnlineAuthorized/C8.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executable",
+    "offlineAuth_executable",
+    "wellformedness_test",
+    "secrecy_MK",
+    "secrecy_privkCard",
+    "secrecy_PAN"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

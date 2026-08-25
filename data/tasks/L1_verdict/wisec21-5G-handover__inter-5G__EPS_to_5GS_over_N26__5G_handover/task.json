@@ -1,0 +1,27 @@
+{
+  "task_id": "L1:wisec21-5G-handover__inter-5G__EPS_to_5GS_over_N26__5G_handover",
+  "level": "L1_verdict",
+  "name": "wisec21-5G-handover__inter-5G__EPS_to_5GS_over_N26__5G_handover",
+  "protocol": "eps_to_5gs_over_n26_handover",
+  "source_file": "wisec21-5G-handover/inter-5G/EPS_to_5GS_over_N26/5G_handover.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md",
+    "oracle"
+  ],
+  "lemma_names": [
+    "executability",
+    "injectiveagreement_ue_gnb_k_gnb",
+    "injectiveagreement_gnb_ue_k_gnb",
+    "secret_k_asme",
+    "secret_k_amf",
+    "secret_k_enb",
+    "secret_k_gnb_star"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": true,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

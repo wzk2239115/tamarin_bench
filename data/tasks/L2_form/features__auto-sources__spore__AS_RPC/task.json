@@ -1,0 +1,24 @@
+{
+  "task_id": "L2:features__auto-sources__spore__AS_RPC",
+  "level": "L2_form",
+  "name": "features__auto-sources__spore__AS_RPC",
+  "protocol": "AndrewSecureRPC",
+  "source_file": "features/auto-sources/spore/AS_RPC.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "secrecy",
+    "injectiveagreement_A",
+    "injectiveagreement_B",
+    "noninjectiveagreement_A",
+    "noninjectiveagreement_B",
+    "Session_key_honest_setup"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

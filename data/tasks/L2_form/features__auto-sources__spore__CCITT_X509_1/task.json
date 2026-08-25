@@ -1,0 +1,22 @@
+{
+  "task_id": "L2:features__auto-sources__spore__CCITT_X509_1",
+  "level": "L2_form",
+  "name": "features__auto-sources__spore__CCITT_X509_1",
+  "protocol": "CcittX509_1",
+  "source_file": "features/auto-sources/spore/CCITT_X509_1.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "Secrecy",
+    "injectiveagreement_B",
+    "agreement_B",
+    "Session_key_honest_setup"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

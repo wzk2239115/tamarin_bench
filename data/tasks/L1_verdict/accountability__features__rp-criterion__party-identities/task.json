@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:accountability__features__rp-criterion__party-identities",
+  "level": "L1_verdict",
+  "name": "accountability__features__rp-criterion__party-identities",
+  "protocol": "PartyIdentities",
+  "source_file": "accountability/features/rp-criterion/party-identities.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "acc"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

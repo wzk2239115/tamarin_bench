@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:loops__TESLA_Scheme2_lossless",
+  "level": "L1_verdict",
+  "name": "loops__TESLA_Scheme2_lossless",
+  "protocol": "TESLA_Scheme2_lossless",
+  "source_file": "loops/TESLA_Scheme2_lossless.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "honestly_executable",
+    "chain_keys_unique",
+    "knows_only_expired_chain_keys",
+    "authentic"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

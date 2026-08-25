@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:sapic__not-suitable-for-regression__feature-inevent-restriction__without-invent-restriction",
+  "level": "L1_verdict",
+  "name": "sapic__not-suitable-for-regression__feature-inevent-restriction__without-invent-restriction",
+  "protocol": "WithoutInEventRestriction",
+  "source_file": "sapic/not-suitable-for-regression/feature-inevent-restriction/without-invent-restriction.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "lplus_lminus_all",
+    "lplus_lminus_ex",
+    "lplus_notlminus_ex",
+    "notlplus_lminus_all"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

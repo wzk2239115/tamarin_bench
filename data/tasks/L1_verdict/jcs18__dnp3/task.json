@@ -1,0 +1,31 @@
+{
+  "task_id": "L1:jcs18__dnp3",
+  "level": "L1_verdict",
+  "name": "jcs18__dnp3",
+  "protocol": "DNP3Asymm",
+  "source_file": "jcs18/dnp3.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "countervalue_uniqueness",
+    "CSQ_Uniqueness",
+    "sessions_unique",
+    "update_key_sourced",
+    "update_key_agreement",
+    "update_key_secrecy",
+    "session_key_secrecy",
+    "sessionkeys_sourced",
+    "skiup_agreement",
+    "asdu_agreement_implies_mode_agreement",
+    "asdu_aliveness",
+    "asdu_injective_agreement"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

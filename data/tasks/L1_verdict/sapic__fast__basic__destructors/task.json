@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:sapic__fast__basic__destructors",
+  "level": "L1_verdict",
+  "name": "sapic__fast__basic__destructors",
+  "protocol": "Destructors",
+  "source_file": "sapic/fast/basic/destructors.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "else",
+    "main",
+    "main2"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

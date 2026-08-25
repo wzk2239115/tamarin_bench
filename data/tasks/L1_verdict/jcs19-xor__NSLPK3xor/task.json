@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:jcs19-xor__NSLPK3xor",
+  "level": "L1_verdict",
+  "name": "jcs19-xor__NSLPK3xor",
+  "protocol": "NSLPK3XOR",
+  "source_file": "jcs19-xor/NSLPK3xor.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "types",
+    "nonce_secrecy",
+    "injective_agree",
+    "session_key_setup_possible"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

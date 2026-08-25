@@ -1,0 +1,35 @@
+{
+  "task_id": "L1:thesis-LaraSchmid-evoting__chapter5_HumanErrors__aletheaD_vot_HE_SmHh",
+  "level": "L1_verdict",
+  "name": "thesis-LaraSchmid-evoting__chapter5_HumanErrors__aletheaD_vot_HE_SmHh",
+  "protocol": "aletheaD_vot_HE_SmHh",
+  "source_file": "thesis-LaraSchmid-evoting/chapter5_HumanErrors/aletheaD_vot_HE_SmHh.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "onlyonce1",
+    "onlyonce2",
+    "onlyonce3",
+    "onlyonce4",
+    "onlyonce6",
+    "onlyonce7",
+    "functional",
+    "functional2",
+    "indivVerif_HE",
+    "indivVerif_HE2",
+    "indivVerif_HE3",
+    "indivVerif_HE4",
+    "secretSskD",
+    "ballotsFromVoters_HE",
+    "Tall_As_Rec_D",
+    "EligVerif"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

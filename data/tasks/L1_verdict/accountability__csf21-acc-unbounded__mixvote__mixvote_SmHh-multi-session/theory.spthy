@@ -1,0 +1,310 @@
+/*
+ * Protocol: MixVote (accountability)
+ * Modeler   (original): Lara Schmid
+ * Modeler   (accountability): Kevin Morio and Robert Künnemann
+ * Date:     Sep 2020
+ * Source:	 "Dispute Resolution in Voting", David Basin, Sasa Radomirovic, and Lara Schmid, CSF20
+ * Status:   working
+ */
+
+theory mixvote_SmHh_acc_multi
+begin
+
+/*============
+SPECIFICATION:
+============== */
+
+/*=====================
+Functions and equations
+======================= */
+builtins: hashing, asymmetric-encryption
+
+functions:
+zkp/3, 		//zero knowledge proof of mix and decrypt
+verzkp/4, 	//verification of zkp
+encp/3, decp/2, //encryption function
+sg/2, ver/2 	//new signing function
+
+equations:
+
+//encryption of x under pk(sk) and with randomness r; don't need randomness to decrypt it
+decp(encp(x,r,pk(sk)),sk)=x,
+
+// the function models that given a signature, one can also see the signed plaintext (only if one has the public key, but adversary has all public keys). With this, we do not explicitly have to always send the message in plaintext and signed, but only the signed one is enough.
+
+ver(sg(m, sk), pk(sk)) = m
+
+/* ==========
+Channel rules
+============= */
+
+rule ChanOut_S: [Out_S(A,B,x)]--[ChanOut_S(A,B,x)]->[!Sec(A,B,x)]
+rule ChanIn_S: [!Sec(A,B,x)]--[ChanIn_S(A,B,x)]->[In_S(A,B,x)]
+
+rule ChanOut_A: [Out_A(A,x)]--[ChanOut_A(A,x)]->[!Auth(A,x), Out(<A,x>)]
+rule ChanIn_A:	[!Auth(A,x)]--[ChanIn_A(A,x)]->[In_A(A,x)]
+
+//reliable insecure channel from H to P: all messages sent on a reliable channel, are received unchanged
+rule ChanOut_IR_HP:  	[ Out_IR_HP(A,B,m) ]--[ ChanOut_IR_HP(A,B,m) ]->[ Out(<A,B,m>) ]
+rule ChanIn_IR_HP:  	[ In(<A,B,m>) ]--[ ChanIn_IR_HP(A,B,m) ]->[ In_IR_HP(A,B,m) ]
+restriction Chan_R_HP:
+    "All A B m #i. Send_R_HP(A,B,m) @i ==> Ex #j. Receive_R_HP(A,B,m) @j "
+
+//reliable insecure channel from P to S: all messages sent on a reliable channel, are received unchanged
+rule ChanOut_IR_PS:  	[ Out_IR_PS(A,B,m) ]--[ ChanOut_IR_PS(A,B,m) ]->[ Out(<A,B,m>) ]
+rule ChanIn_IR_PS:  	[ In(<A,B,m>) ]--[ ChanIn_IR_PS(A,B,m) ]->[ In_IR_PS(A,B,m) ]
+// restriction Chan_R_PS:
+// 	"All A B m #i. Send_R_PS(A,B,m) @i ==> Ex #j. Receive_R_PS(A,B,m) @j "
+
+//reliable insecure channel from S to P: all messages sent on a reliable channel, are received unchanged
+rule ChanOut_IR_SP:  	[ Out_IR_SP(A,B,m) ]--[ ChanOut_IR_SP(A,B,m) ]->[ Out(<A,B,m>) ]
+rule ChanIn_IR_SP:  	[ In(<A,B,m>) ]--[ ChanIn_IR_SP(A,B,m) ]->[ In_IR_SP(A,B,m) ]
+restriction Chan_R_SP:
+    "All A B m #i. Send_R_SP(A,B,m) @i ==> Ex #j. Receive_R_SP(A,B,m) @j "
+
+//reliable insecure channel from P to H: all messages sent on a reliable channel, are received unchanged
+rule ChanOut_IR_PH:  	[ Out_IR_PH(A,B,m) ]--[ ChanOut_IR_PH(A,B,m) ]->[ Out(<A,B,m>) ]
+rule ChanIn_IR_PH:  	[ In(<A,B,m>) ]--[ ChanIn_IR_PH(A,B,m) ]->[ In_IR_PH(A,B,m) ]
+restriction Chan_R_PH:
+    "All A B m #i. Send_R_PH(A,B,m) @i ==> Ex #j. Receive_R_PH(A,B,m) @j "
+
+/* ======================
+Adversary's fake evidence
+====================== */
+// the adversary can claim any term that he knows to be evidence
+rule fakeEvidence:
+    [ In(<sid, ballot,evidence>) ] --[ Evidence(sid, ballot,evidence) ]-> [ ]
+
+/* =====
+Protocol
+======== */
+
+rule Init:
+  [ Fr(~sid) ] --[ Init(~sid) ]-> [ !Session(~sid), Out(~sid) ]
+
+rule publickeyinfrastructure:
+  [ Fr(~skX), !Session(~sid) ]--[ LongtermKey(<~sid, $X>,~skX) ]-> [ !Ltk(<~sid,$X>,<~sid, ~skX>), !Pk(<~sid,$X>,pk(<~sid, ~skX>)), Out(pk(<~sid, ~skX>)) ]
+
+rule Setup:
+    let
+        S = <~sid, $S>
+        D1 = <~sid, 'D1'>
+        BB = <~sid, 'BB'>
+        H = <~sid, 'H'>
+        H1 = <~sid, 'H1'>
+        P = <~sid, 'P'>
+        A = <~sid, 'A'>
+    in
+      [ !Session(~sid)
+      , !Ltk(S,skS), !Ltk(D1,sskD1) ]
+      --[ 	Setup(~sid),
+        BB_pskDs(BB,<'spkD', pk(sskD1)>), //corresponds to signal BBpkD in [1]
+        BB_pkS(BB,<'spkS', pk(skS)>), //corresponds to signal BBpk in [1]
+        BB_H(BB,<H,H1>),
+        // castBy is defined over the relation of the voters and their devices' keys
+        CastByCorresp(H1, pk(sskD1)), //corresponds to signal "Corr" in [1]
+        Voter(H1),
+        SecretKeyD(~sid, sskD1),
+        Server(S),
+        Corrupted(S),
+        _restrict( not($S = 'D1' | $S = 'BB' | $S = 'H' | $S = 'H1' | $S = 'P' | $S = 'A' ) )
+
+    ]->
+      [ AgSt_H0(H1,< D1,P,BB,$v1>)
+
+    , AgSt_D0(D1,< H1,S,pk(skS),sskD1 >)
+
+    , AgSt_A0(A,<S,BB,pk(skS)>)
+
+    , AgSt_P0(P,<S>)
+    , AgSt_P1(P,<H1>)
+
+    , AgSt_BB0(BB, <S, pk(sskD1), pk(skS),H1>)
+    , Out_A(BB,<'spkD', pk(sskD1)>)
+    , Out_A(BB,<'spkS', pk(skS)>)
+    , Out_A(BB,<H,H1>)
+
+    , AgSt_S0(S, <skS, pk(sskD1)>)
+    , Out(<S, <skS, pk(sskD1)>>)
+
+      ]
+
+rule H_1:
+    let
+        D = <~sid, 'D1'>
+        BB = <~sid, 'BB'>
+        H = <~sid, 'H1'>
+        P = <~sid, 'P'>
+    in
+    [ AgSt_H0(H, <D, P, BB, $v>) ]
+    --[	Vote(H,$v),
+        Send(H,D,$v),
+        H1(~sid)
+    ]->
+    [ AgSt_H1(H, <D, P, BB, $v>), Out_S(H,D,$v)
+    ]
+
+rule D_1:
+    let
+        S = <~sid, $S>
+        D = <~sid, 'D1'>
+        H = <~sid, 'H1'>
+        sskD = <~sid, ~sskDp>
+    in
+    [ AgSt_D0(D, <H,S,pkS,sskD >), In_S(H,D,v), Fr(~r) ]
+    --[  	D1(~sid) ]->
+    [ Out_S(D,H, sg(encp(v,~r,pkS),sskD) )
+    ]
+
+rule H_2:
+    let
+        S = <~sid, $S>
+        D = <~sid, 'D1'>
+        BB = <~sid, 'BB'>
+        H = <~sid, 'H1'>
+        P = <~sid, 'P'>
+    in
+    [ AgSt_H1(H, <D, P, BB, $v>), In_S(D,H, b) ]
+    --[	Ballot(H,b),
+        Send(H,P,b),
+        Comm_H_vote(H,S,$v),
+        Comm_H_ballot(H,S,b),
+        Send_R_HP(H,P,b),
+        H2(~sid)
+    ]->
+    [ AgSt_H2(H, <D, P, BB, $v, b>),
+      Out_IR_HP(H,P,b)
+    ]
+
+rule P: // P is partially trusted to forward messages from H to S
+    let
+        S = <~sid, $S>
+        H = <~sid, 'H1'>
+        P = <~sid, 'P'>
+    in
+    [ AgSt_P0(P,<S>), In_IR_HP(H,P,b)]
+    --[ Receive_R_HP(H,P,b),
+        Send_R_PS(P,S,b),
+        P1(~sid)
+    ]->
+    [  Out_IR_PS(P,S,b) ]
+
+rule S_1a: // S is partially trusted to answer with a confirmation when receiving a valid ballot
+    let
+        S = <~sid, $S>
+        P = <~sid, 'P'>
+        skS = <~sid, ~skSp>
+        sskDa = <~sid, ~sskDp>
+    in
+    [ AgSt_S0(S, < skS, pk(sskDa)>),
+      In_IR_PS(P,S,sg(encp(va,ra,pk(skS)),sskDa)) ]
+    --[ Learn_S_ballot(S,sg(encp(va,ra,pk(skS)),sskDa)),
+        Receive_R_PS(P,S,sg(encp(va,ra,pk(skS)),sskDa)),
+        Send_R_SP(S,P,sg(sg(encp(va,ra,pk(skS)),sskDa),skS)),
+        S1(~sid)
+    ]->
+    [ Out_IR_SP(S,P,sg(sg(encp(va,ra,pk(skS)),sskDa),skS))
+    ]
+
+rule P_2: // P is partially trusted to forward messages from S to H
+    let
+        S = <~sid, $S>
+        H = <~sid, 'H1'>
+        P = <~sid, 'P'>
+    in
+    [ AgSt_P1(P,<H>), In_IR_SP(S,P,c) ]
+    --[ Receive_R_SP(S,P,c),
+        Send_R_PH(P,H,c),
+        P2(~sid)
+    ]->
+    [  Out_IR_PH(P,H,c) ]
+
+rule H_3:
+    let
+        D = <~sid, 'D1'>
+        BB = <~sid, 'BB'>
+        H = <~sid, 'H1'>
+        P = <~sid, 'P'>
+    in
+    [ AgSt_H2(H, <D, P, BB, $v, b>), In_IR_PH(P,H,c)]
+    --[ Receive_R_PH(P,H,c),
+        Evidence(~sid, b,c),
+        H3(~sid)
+    ]->
+    [ AgSt_H3(H, <D, P, BB, $v, b, c>)
+    ]
+
+rule BB:
+    let
+        S = <~sid, $S>
+        BB = <~sid, 'BB'>
+    in
+    [ AgSt_BB0(BB, <S, spkDa, pkS,Ha>)
+    , In(<S, <'b', ba >>)
+    , In(<S, <'bPrime', bPrimea >>)
+    , In(<S, <'v', va >>)
+    , In(<S, <'zkp', p >>)
+    ]
+     --[	BB_rec(BB,<'b', ba >),
+        BB_woS(BB,<'bPrime', bPrimea >),
+        BB_tal(BB,<'v', va >),
+        BB_zkp(BB,<'zkp', p >),
+        End(~sid)
+    ]->
+    [ Out_A(BB, <'b', ba>)
+    , Out_A(BB, <'bPrime', bPrimea >)
+    , Out_A(BB, <'v', va>)
+    , Out_A(BB, <'zkp', p >)
+    ]
+
+rule A_1:
+    let
+        S = <~sid, $S>
+        BB = <~sid, 'BB'>
+        A = <~sid, 'A'>
+    in
+    [ AgSt_A0(A,<S,BB,pkS>)
+    // implicitly do verifyA1 (by pattern matching) since each ballot signed w/ exactly one valid verification key (also no duplicates) and since bPrime really corresponds to b without signatures:
+    , In_A(BB, <'b', sg(bPrimea,sskDa) >)
+    , In_A(BB, <'bPrime', bPrimea >)
+    , In_A(BB, <'v', va>)
+    , In_A(BB, <'zkp', p >)
+    , In_A(BB, <'spkD', pk(sskDa) >)
+    ]
+    --[   Learn_A_proof(A, <'zkp', p >),
+          Learn_A_spkDSG(A, <'spkD', pk(sskDa) >),
+          Learn_A_Vs(A,<'v', va >),
+          Learn_A_Bs(A,<'b', sg(bPrimea,sskDa) >),
+          Learn_A_bPrimes(A,<'bPrime', bPrimea >),
+          VerifyA2(A,verzkp( p, <bPrimea>,<va>,pkS) ),
+          A1(~sid)
+    ]->
+    []
+
+rule H_4:
+    let
+        D = <~sid, 'D1'>
+        BB = <~sid, 'BB'>
+        H = <~sid, 'H1'>
+        P = <~sid, 'P'>
+    in
+    [ AgSt_H3(H, <D, P, BB, $v, b, c>),
+      In_A(BB, <'b', ba >)
+    ]
+    --[	Verify(H,b,ba), //captures both VerifyC and VerifyH from [1]
+          H4(~sid)
+    ]->
+    [   ]
+
+/* =========
+RESTRICTIONS
+========= */
+// there is only one setup per session
+restriction OneSetup:
+    "All sid #i #j. Setup(sid) @i & Setup(sid) @j ==> #i = #j "
+
+/* ====
+LEMMAS
+======= */
+
+end

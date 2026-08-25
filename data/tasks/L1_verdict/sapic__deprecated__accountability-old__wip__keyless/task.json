@@ -1,0 +1,30 @@
+{
+  "task_id": "L1:sapic__deprecated__accountability-old__wip__keyless",
+  "level": "L1_verdict",
+  "name": "sapic__deprecated__accountability-old__wip__keyless",
+  "protocol": "Keyless_SSL_Modified",
+  "source_file": "sapic/deprecated/accountability-old/wip/keyless.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "count_unique",
+    "nonces_unique",
+    "force_nonce_ordering",
+    "exists_session",
+    "exists_second_session",
+    "exists_detect_no_C_compromise",
+    "exists_detect_no_I_compromise",
+    "injectivity",
+    "detect_sound",
+    "correct_dolevyao",
+    "unmatching_implies_detect_with_W_uncompromised"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,24 @@
+{
+  "task_id": "L1:features__xor__OTYT06-attacks-manual",
+  "level": "L1_verdict",
+  "name": "features__xor__OTYT06-attacks-manual",
+  "protocol": "OTYT06",
+  "source_file": "features/xor/OTYT06-attacks-manual.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "reader_start",
+    "tag_start",
+    "recentalive_tag",
+    "recentalive_reader",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

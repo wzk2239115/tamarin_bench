@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:ake__bilinear__TAK1",
+  "level": "L1_verdict",
+  "name": "ake__bilinear__TAK1",
+  "protocol": "TAK1",
+  "source_file": "ake/bilinear/TAK1.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "session_key_establish",
+    "Session_Key_Secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

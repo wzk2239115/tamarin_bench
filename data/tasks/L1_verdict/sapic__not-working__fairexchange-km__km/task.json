@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:sapic__not-working__fairexchange-km__km",
+  "level": "L1_verdict",
+  "name": "sapic__not-working__fairexchange-km__km",
+  "protocol": "KMNonRepudiation",
+  "source_file": "sapic/not-working/fairexchange-km/km.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "untimelinessA",
+    "strongfairnessA"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

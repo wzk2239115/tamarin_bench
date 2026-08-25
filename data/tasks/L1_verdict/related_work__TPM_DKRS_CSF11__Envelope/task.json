@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:related_work__TPM_DKRS_CSF11__Envelope",
+  "level": "L1_verdict",
+  "name": "related_work__TPM_DKRS_CSF11__Envelope",
+  "protocol": "TPM_Envelope",
+  "source_file": "related_work/TPM_DKRS_CSF11/Envelope.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "types",
+    "PCR_Write_charn",
+    "Secret_and_Denied_exclusive"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

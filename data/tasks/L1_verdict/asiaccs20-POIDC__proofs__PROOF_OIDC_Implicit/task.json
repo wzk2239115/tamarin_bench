@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:asiaccs20-POIDC__proofs__PROOF_OIDC_Implicit",
+  "level": "L1_verdict",
+  "name": "asiaccs20-POIDC__proofs__PROOF_OIDC_Implicit",
+  "protocol": "OIDC_Implicit",
+  "source_file": "asiaccs20-POIDC/proofs/PROOF_OIDC_Implicit.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Nonce_Sources",
+    "executable",
+    "Intent_Consent_and_Correct_Browser"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

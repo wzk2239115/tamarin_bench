@@ -1,0 +1,40 @@
+{
+  "task_id": "L1:thesis-LaraSchmid-evoting__chapter4_DisputeResolution__aletheaDR_ShHh",
+  "level": "L1_verdict",
+  "name": "thesis-LaraSchmid-evoting__chapter4_DisputeResolution__aletheaDR_ShHh",
+  "protocol": "aletheaDR_ShHh",
+  "source_file": "thesis-LaraSchmid-evoting/chapter4_DisputeResolution/aletheaDR_ShHh.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "onlyonce1",
+    "onlyonce2",
+    "onlyonce3",
+    "onlyonce4",
+    "onlyonce5",
+    "onlyonce6",
+    "onlyonce7",
+    "onlyonce8",
+    "onlyonce9",
+    "onlyonce10",
+    "functional",
+    "indivVerif_v",
+    "indivVerif_b",
+    "DRvoterC",
+    "DRvoterT",
+    "DRauth",
+    "Uniqueness",
+    "secretSskD",
+    "ballotsFromVoters",
+    "Tall_As_Rec_D",
+    "EligVerif_DR"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,26 @@
+{
+  "task_id": "L1:features__xor__diff-models__obsolete__CH07-untrac-manual-badstate",
+  "level": "L1_verdict",
+  "name": "features__xor__diff-models__obsolete__CH07-untrac-manual-badstate",
+  "protocol": "CH07_untrac",
+  "source_file": "features/xor/diff-models/obsolete/CH07-untrac-manual-badstate.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "recentalive_tag",
+    "recentalive_tag",
+    "recentalive_reader",
+    "recentalive_reader",
+    "executable",
+    "executable",
+    "Observational_equivalence"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

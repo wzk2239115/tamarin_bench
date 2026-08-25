@@ -1,0 +1,33 @@
+{
+  "task_id": "L1:fm24-cardpayments__offlineAndOnlineAuthorized__models-n-proofs__C8_LocalAuth_CopyIAD_OnlinePIN_High",
+  "level": "L1_verdict",
+  "name": "fm24-cardpayments__offlineAndOnlineAuthorized__models-n-proofs__C8_LocalAuth_CopyIAD_OnlinePIN_High",
+  "protocol": "C8_LocalAuth_CopyIAD_OnlinePIN_High",
+  "source_file": "fm24-cardpayments/offlineAndOnlineAuthorized/models-n-proofs/C8_LocalAuth_CopyIAD_OnlinePIN_High.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executable",
+    "offlineAuth_executable",
+    "wellformedness_test",
+    "issuer_accepts_minimal",
+    "issuer_accepts",
+    "auth_to_terminal_minimal",
+    "auth_to_terminal",
+    "auth_to_issuer_minimal",
+    "auth_to_issuer",
+    "secrecy_MK",
+    "secrecy_privkCard",
+    "secrecy_PIN",
+    "secrecy_PAN",
+    "relay_resistance"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

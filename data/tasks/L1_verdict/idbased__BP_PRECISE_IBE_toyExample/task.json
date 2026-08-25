@@ -1,0 +1,26 @@
+{
+  "task_id": "L1:idbased__BP_PRECISE_IBE_toyExample",
+  "level": "L1_verdict",
+  "name": "idbased__BP_PRECISE_IBE_toyExample",
+  "protocol": "BP_PRECISE_IBE_toyExample",
+  "source_file": "idbased/BP_PRECISE_IBE_toyExample.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "secrecy_session_key",
+    "secrecy_session_key_noInd",
+    "nonInjectiveAgreementChallenge_Initiator_Acompro_noInd",
+    "nonInjectiveAgreementChallenge_Initiator_ABcompro_noInd",
+    "nonInjectiveAgreementChallenge_Initiator_Acompro",
+    "nonInjectiveAgreementChallenge_Initiator_ABcompro",
+    "executability_lemma"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

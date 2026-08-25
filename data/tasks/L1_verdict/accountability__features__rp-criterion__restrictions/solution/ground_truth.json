@@ -1,0 +1,54 @@
+{
+  "protocol": "L1:accountability__features__rp-criterion__restrictions",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "acc_A_suff",
+      "quantifier": "exists-trace",
+      "verdict": "falsified",
+      "steps": 2
+    },
+    {
+      "name": "acc_verif_empty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "acc_A_verif_nonempty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "acc_A_min",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "acc_A_uniq",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "acc_A_inj",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1
+    },
+    {
+      "name": "acc_A_single",
+      "quantifier": "exists-trace",
+      "verdict": "falsified",
+      "steps": 2
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 0.05,
+  "requires_diff": false,
+  "validated": true
+}

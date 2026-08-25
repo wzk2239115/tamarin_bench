@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:features__auto-sources__tamarin-repo__loops__JCS12_Typing_Example",
+  "level": "L1_verdict",
+  "name": "features__auto-sources__tamarin-repo__loops__JCS12_Typing_Example",
+  "protocol": "JCS12_Typing_Example",
+  "source_file": "features/auto-sources/tamarin-repo/loops/JCS12_Typing_Example.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "typing_assertion",
+    "Client_session_key_secrecy_raw",
+    "Client_session_key_secrecy",
+    "Client_auth"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:ake__dh__UM_three_pass_combined_fixed",
+  "level": "L1_verdict",
+  "name": "ake__dh__UM_three_pass_combined_fixed",
+  "protocol": "UM_three_pass_combined",
+  "source_file": "ake/dh/UM_three_pass_combined_fixed.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "key_agreement_reachable",
+    "CK_secure_UM3",
+    "CK_secure"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

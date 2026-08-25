@@ -1,0 +1,36 @@
+{
+  "protocol": "L1:Tutorial",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "Client_session_key_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 5
+    },
+    {
+      "name": "Client_auth",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 11
+    },
+    {
+      "name": "Client_auth_injective",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 15
+    },
+    {
+      "name": "Client_session_key_honest_setup",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 5
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.24,
+  "requires_diff": false,
+  "validated": true
+}

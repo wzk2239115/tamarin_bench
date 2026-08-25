@@ -1,0 +1,164 @@
+/*
+   Protocol:    Token commitment protocol applied to ISO-IEC-9798-3-3
+   Modeler:     Kevin Milner
+   Date:        July 2016
+   Source:      Original
+ */
+
+theory ISO_IEC9798_3_3_Modified
+begin
+heuristic: I
+builtins: signing
+
+restriction Eq_testing: "All x y #i. Eq(x,y) @ i ==> x = y"
+restriction InEq_testing: "All x y #i. InEq(x,y) @ i ==> not(x = y)"
+
+//There's one id, per role, per direction.
+restriction pairings_unique:
+    "All id1 id2 role ki kr #i #j.
+        Paired(id1,role,ki,kr) @ i & Paired(id2,role,ki,kr) @ j
+    ==> #i = #j"
+
+rule RegisterKey:
+    [ Fr(~ltkA) ]
+  --[ Key(~ltkA) ]->
+    [ !F_AgentKey(~ltkA), Out(pk(~ltkA)) ]
+
+rule CompromiseKey:
+    [ !F_AgentKey(~ltk) ]
+  --[ Compromise(pk(~ltk)) ]->
+    [ Out(~ltk) ]
+
+rule State_Compromise:
+    [ !F_TokenState(pkA,pkB,curtok)
+    ]--[
+      CompromiseToken(<pkA,pkB>,curtok)
+    ]->
+    [ Out(curtok)
+    ]
+
+/* Models an agent adding anothers public key out-of-band, we assume
+ * that all relationships set up this way are 'sane' in that both of the
+ * keys involved were generated fresh. */
+rule BindState_Init:
+    [ !F_AgentKey(~ltkA)
+    , !F_AgentKey(~ltkB)
+    , Fr(~id)
+    ]--[
+      Paired(~id, 'I', ~ltkA, ~ltkB)
+    , Counter(~id, '0')
+
+    , InvariantSource_I(~id,~ltkA,pk(~ltkB))
+    ]->
+    [ /* For search efficiency, state is divided into
+       * an invariant portion and a variant portion. This
+       * allows tamarin to immediately bind the keys back
+       * to this initial pairing rule. The fresh ~id is used
+       * to identify this pairing. */
+      St_I(~id,~ltkA,pk(~ltkB), 'm1', 'uninitialized', sign{'uninitialized'}'notoken')
+    ]
+
+rule BindState_Resp:
+    [ !F_AgentKey(~ltkA)
+    , !F_AgentKey(~ltkB)
+    , Fr(~id)
+    ]--[
+      Paired(~id, 'R', ~ltkA, ~ltkB)
+    , Counter(~id, '0')
+    , InvariantSource_R(~id,~ltkB,pk(~ltkA))
+    ]->
+    [ St_R(~id, ~ltkB, pk(~ltkA), sign{'uninitialized'}'notoken', 'notoken')
+    ]
+
+//////////////////////////////////////////
+//   Message rules
+rule I_1:
+    let pkA = pk(~ltkA)
+        m1 = <'1',pkA, pkB,~ni,commit> in
+    [ St_I(~id, ~ltkA, pkB,'m1',commitmsg,commit)
+    , Fr(~ni)
+    ]--[
+      Begin('I',<pkA,pkB>,~ni,commit)
+    , Gen(~ni)
+
+    , Invariant_I(~id,~ltkA,pkB)
+    ]->
+    [ St_I(~id, ~ltkA, pkB,<'m2',~ni>,commitmsg,commit)
+    , Out(<m1, sign{m1}~ltkA>)
+    ]
+
+rule R:
+    let pkB = pk(~ltkB)
+        m1 = <'1',pkA,pkB,ni,icommit> 
+        //Sign nonce to prove we still have secret key
+        //Provide our proof of the previous commit with the public key
+        //Provide a new commit dependent on some known freshness from I
+        newcommit = sign{<'commit',pkB,pkA,ni>}~newtok
+        ncc = <ni,icommit,~nr,newcommit>
+        m2 = <'2',pkB,pkA,~nr,ni,pk(token),newcommit,sign{ncc}token> in
+    [ St_R(~id, ~ltkB, pkA, commit,token)
+    , Fr(~newtok), Fr(~nr)
+    , In(<m1, sig>)
+    ]--[
+      Eq(verify(sig,m1,pkA), true)
+    , Gen(~nr)
+    , Token(~newtok)
+    , Commit(<pkA,pkB>,newcommit)
+    , Eq(icommit, commit)        //Matches the commit we expect in I's request
+    , Session('R', <pkA,pkB>, <ni,icommit,~nr,pk(token),newcommit>)
+    
+    , Invariant_R(~id,~ltkB,pkA)
+    ]->
+    [ St_R(~id, ~ltkB, pkA, newcommit,~newtok)
+    , !F_TokenState(pkA,pkB,~newtok)
+    , Out(<m2,sign{m2}~ltkB>)
+    ]
+
+//Everything matches as expected
+rule I_2_complete:
+    let pkA = pk(~ltkA)
+        m2 = <'2',pkB,pkA,nr,ni,proof,newcommit,nccsig> in
+    [ St_I(~id, ~ltkA, pkB, <'m2',ni>,commitmsg,commit)
+    , In(<m2,sig>)
+    ]--[
+      Eq(verify(sig,m2,pkB), true)
+    , InEq(newcommit,commit)     //Needs to be a new signature
+    , Session('I', <pkA,pkB>, <ni,commit,nr,proof,newcommit>)
+    //Check token matches previous commit:
+    , Eq(verify(commit,commitmsg,proof),true)
+    //Check the nonce signature to ensure R is alive:
+    , Eq(verify(nccsig,<ni,commit,nr,newcommit>,proof),true)       
+    //Session or detect depending on the previous checks:
+    , Complete(<pkA,pkB>)
+
+    , Invariant_I(~id,~ltkA,pkB)
+    ]->
+    [ St_I(~id, ~ltkA, pkB, 'm1', <'commit',pkB,pkA,ni>, newcommit)
+    ]
+
+//Proof mismatch but signed with B's key, so it must have been compromised.
+rule I_2_detect:
+    let pkA = pk(~ltkA)
+        m2 = <'2',pkB,pkA,nr,ni,proof,newcommit,nccsig> in
+    [ St_I(~id, ~ltkA, pkB, <'m2',ni>,commitmsg,commit)
+    , In(<m2,sig>)
+    ]--[
+      Eq(verify(sig,m2,pkB), true)
+    , InEq(newcommit,commit)     //Needs to be a new signature
+    , Session('I', <pkA,pkB>, <ni,commit,nr,proof,newcommit>)
+    //Check token matches previous commit:
+    , InEq(verify(commit,commitmsg,proof),true)
+    //Check the nonce signature to ensure R is alive:
+    , Eq(verify(nccsig,<ni,commit,nr,newcommit>,proof),true)       
+    //Session or detect depending on the previous checks:
+    , Detect(<pkA,pkB>)
+
+    , Invariant_I(~id,~ltkA,pkB)
+    ]->
+    [ Remediate_R(~id, ~ltkA, pkB,'m1', <'commit',pkB,pkA,ni>, newcommit)
+    ]
+
+//////////////////////////////////////////
+//   Helper Lemmas:
+
+end

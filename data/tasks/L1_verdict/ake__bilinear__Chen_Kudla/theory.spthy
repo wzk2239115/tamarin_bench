@@ -1,0 +1,112 @@
+theory Chen_Kudla
+begin
+
+builtins: bilinear-pairing
+
+functions: kdf/1, hp/1, h/1
+
+section{* A variant of the Chen-Kudla protocol that uses ordered concatenation instead 
+          addition of points *}
+
+/*
+ * Protocol:	Chen-Kudla (with concatenation)
+ * Modeler: 	Benedikt Schmidt
+ * Date: 	May 2012
+ * Source:	Boyd overview identity based key exchange protocols
+ *
+ * Status: 	Working
+ */
+
+// Key generation center
+
+rule KGC_Setup:
+  let mpk = pmult(~msk,'P')
+  in
+  [ Fr(~msk) ]
+  --[ KGCSetup() ]->
+  [ !MSK( ~msk )
+  , !MPK( mpk )
+  , Out( mpk )
+  ]
+
+rule KGC_request:
+  [ !MSK( ~msk ) ]
+  -->
+  [ !LTK( $ID, pmult(~msk, hp($ID)) ) ]
+
+// Reveals
+
+rule Reveal_ltk:
+  [ !LTK( $ID, skID ) ]
+  --[ LtkRev($ID) ]->
+  [ Out(skID) ]
+
+rule Reveal_master_key:
+  [ !MSK( ~msk ) ]
+  --[ MskRev() ]->
+  [ Out( ~msk ) ]
+
+rule Reveal_session_key:
+  [ !Sessk( ~ey, kdf(sek) ) ]
+  --[ SesskRev( ~ey ) ]->
+  [ Out( kdf(sek) ) ]
+
+rule Reveal_ephemeral_key:
+  [ !Ephk( ~ex ) ]
+  --[ EphkRev( ~ex ) ]->
+  [ Out( ~ex ) ]
+
+// Protocol
+
+rule Init_1:
+  let X   = pmult(~ex,'P')
+  in
+  [ Fr( ~ex )
+  ]
+  -->
+  [ Init( ~ex, $A, $B )
+  , Out( X )
+  , !Ephk( ~ex )
+  ]
+
+rule Init_2:
+  let skA = pmult(~s1, hp($A))
+      mpk = pmult(~s2,'P')
+      X   = pmult(~ex,'P')
+      sessKey = kdf( em(hp($B), mpk)^~ex, em(skA, Y), pmult(~ex,Y), $A, $B, X, Y )
+  in
+  [ Init( ~ex, $A, $B )
+  , !MPK( mpk )
+  , !LTK( $A, skA )
+  , In( Y )
+  ]
+  --[ Accept( ~ex, $A, $B, sessKey )
+    , Sid( ~ex, <'Init',$A,$B,X,Y> )
+    // a matching session for ~ex has the following sid
+    , Match( ~ex, <'Resp',$B,$A,X,Y> )
+    ]->
+  [ !Sessk( ~ex, sessKey ) ]
+
+rule Resp_1:
+  let skB = pmult(~msk, hp($B))
+      mpk = pmult(~msk, 'P')
+      Y = pmult(~ey,'P')
+      // instead of multiplying the two em-terms, we concatenate them
+      sessKey = kdf( em(skB, X), em(hp($A), mpk)^~ey, pmult(~ey,X), $A, $B, X, Y)
+  in
+  [ Fr( ~ey )
+  , !LTK( $B, skB )
+  , !MPK( mpk )
+  , In( X )
+  ]
+  --[ Accept( ~ey, $B, $A, sessKey )
+    , Sid( ~ey, <'Resp',$B,$A,X,Y> )
+    // a matching session for ~ey has the following sid
+    , Match( ~ey, <'Init',$A,$B,X,Y> )
+    ]->
+  [ Out( Y )
+  , !Sessk( ~ey, sessKey )
+  , !Ephk(~ey)
+  ]
+
+end

@@ -1,0 +1,11 @@
+{
+  "protocol": "KAS2_original",
+  "overall_verdict": "UNKNOWN",
+  "lemmas": [],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": null,
+  "runtime_seconds": null,
+  "requires_diff": false,
+  "validated": false
+}

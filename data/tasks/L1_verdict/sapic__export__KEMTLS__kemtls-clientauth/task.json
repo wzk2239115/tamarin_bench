@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:sapic__export__KEMTLS__kemtls-clientauth",
+  "level": "L1_verdict",
+  "name": "sapic__export__KEMTLS__kemtls-clientauth",
+  "protocol": "KEMTLS",
+  "source_file": "sapic/export/KEMTLS/kemtls-clientauth.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "execP",
+    "execQ",
+    "authPS",
+    "authSP"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

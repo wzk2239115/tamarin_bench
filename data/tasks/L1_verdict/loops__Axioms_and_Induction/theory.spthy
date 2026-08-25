@@ -1,0 +1,23 @@
+theory Axioms_and_Induction begin
+
+/*
+  Author: Simon Meier <simon.meier@inf.ethz.ch>
+  Date:   2012 08 06
+  Status: Working (exhibits soundness bug in tamarin-0.8.0.0)
+
+  An example demonstrating that restrictions must be transformed as well when using
+  induction.
+
+*/
+
+rule Start: [ Fr(x) ] --[ Start(x) ]-> [ A(x) ]
+
+rule Step:  [ A(x) ]  --[ Step(x)  ]-> [ B(x) ]
+
+rule Stop:  [ B(x) ]  --[ Stop(x)  ]-> [ ]
+
+// Note that the set of traces satisfying this trace is *not* prefix-closed.
+restriction Start_implies_Stop:
+  "All x #i. Start(x) @ i ==> Ex #j. Stop(x) @ j"
+
+end

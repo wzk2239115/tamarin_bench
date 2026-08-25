@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:features__injectivity__injectivity",
+  "level": "L1_verdict",
+  "name": "features__injectivity__injectivity",
+  "protocol": "injectivity",
+  "source_file": "features/injectivity/injectivity.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "injectivity_check"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

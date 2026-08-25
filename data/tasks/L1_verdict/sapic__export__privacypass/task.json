@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:sapic__export__privacypass",
+  "level": "L1_verdict",
+  "name": "sapic__export__privacypass",
+  "protocol": "privpass",
+  "source_file": "sapic/export/privacypass.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "true_honnestauthRI",
+    "false_exec"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

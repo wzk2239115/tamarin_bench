@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:features__equivalence__InputOutput",
+  "level": "L1_verdict",
+  "name": "features__equivalence__InputOutput",
+  "protocol": "InputOutputTest",
+  "source_file": "features/equivalence/InputOutput.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Client_session_key_secrecy",
+    "Diff_test",
+    "Diff_test_2"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

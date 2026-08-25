@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:csf23-subterms__YellowDiffTest",
+  "level": "L1_verdict",
+  "name": "csf23-subterms__YellowDiffTest",
+  "protocol": "YellowDiffTest",
+  "source_file": "csf23-subterms/YellowDiffTest.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "GreenYellow",
+    "RedYellow",
+    "YellowRed",
+    "YellowGreen"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

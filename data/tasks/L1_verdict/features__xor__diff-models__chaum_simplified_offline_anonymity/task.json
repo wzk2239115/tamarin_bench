@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:features__xor__diff-models__chaum_simplified_offline_anonymity",
+  "level": "L1_verdict",
+  "name": "features__xor__diff-models__chaum_simplified_offline_anonymity",
+  "protocol": "Chaum_simplified_Offline_Anonymity",
+  "source_file": "features/xor/diff-models/chaum_simplified_offline_anonymity.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "coins",
+    "exec",
+    "anonymity"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

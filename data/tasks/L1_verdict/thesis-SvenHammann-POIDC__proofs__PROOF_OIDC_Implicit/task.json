@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:thesis-SvenHammann-POIDC__proofs__PROOF_OIDC_Implicit",
+  "level": "L1_verdict",
+  "name": "thesis-SvenHammann-POIDC__proofs__PROOF_OIDC_Implicit",
+  "protocol": "OIDC_Implicit",
+  "source_file": "thesis-SvenHammann-POIDC/proofs/PROOF_OIDC_Implicit.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Nonce_Sources",
+    "executable",
+    "User_Authentication"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

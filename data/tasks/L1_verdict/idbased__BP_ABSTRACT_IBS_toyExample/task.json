@@ -1,0 +1,24 @@
+{
+  "task_id": "L1:idbased__BP_ABSTRACT_IBS_toyExample",
+  "level": "L1_verdict",
+  "name": "idbased__BP_ABSTRACT_IBS_toyExample",
+  "protocol": "BP_ABSTRACT_IBS_toyExample",
+  "source_file": "idbased/BP_ABSTRACT_IBS_toyExample.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "nonInjectiveAgreementChallenge_Initiator_Acompro",
+    "nonInjectiveAgreementChallenge_Initiator_ABcompro",
+    "nonInjectiveAgreementChallenge_Responder_Bcompro",
+    "nonInjectiveAgreementChallenge_Responder_BAcompro",
+    "executability_lemma"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

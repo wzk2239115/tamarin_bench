@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:experiments__chaum_untraceability211",
+  "level": "L1_verdict",
+  "name": "experiments__chaum_untraceability211",
+  "protocol": "Chaum_Untraceability211",
+  "source_file": "experiments/chaum_untraceability211.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "exec"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,12 @@
+theory WithoutInEventRestriction
+begin
+
+process:
+  0
+
+// The following lemmas are not well formed and cannot be proven. They should
+// only ensure that in_event is NOT added.
+
+// L+ & L-
+
+end

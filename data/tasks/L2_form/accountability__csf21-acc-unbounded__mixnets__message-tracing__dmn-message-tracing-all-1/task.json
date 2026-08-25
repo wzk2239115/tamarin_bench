@@ -1,0 +1,22 @@
+{
+  "task_id": "L2:accountability__csf21-acc-unbounded__mixnets__message-tracing__dmn-message-tracing-all-1",
+  "level": "L2_form",
+  "name": "accountability__csf21-acc-unbounded__mixnets__message-tracing__dmn-message-tracing-all-1",
+  "protocol": "DMNMessageTracingAll1",
+  "source_file": "accountability/csf21-acc-unbounded/mixnets/message-tracing/dmn-message-tracing-all-1.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "finished",
+    "valid",
+    "blame",
+    "missing"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

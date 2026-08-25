@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:sapic__fast__basic__no-replication",
+  "level": "L1_verdict",
+  "name": "sapic__fast__basic__no-replication",
+  "protocol": "NoReplication",
+  "source_file": "sapic/fast/basic/no-replication.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "onlyOneSecret"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

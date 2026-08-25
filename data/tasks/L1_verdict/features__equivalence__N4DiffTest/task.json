@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:features__equivalence__N4DiffTest",
+  "level": "L1_verdict",
+  "name": "features__equivalence__N4DiffTest",
+  "protocol": "N4DiffTest",
+  "source_file": "features/equivalence/N4DiffTest.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Diff_test"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

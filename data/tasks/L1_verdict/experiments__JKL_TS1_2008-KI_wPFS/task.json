@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:experiments__JKL_TS1_2008-KI_wPFS",
+  "level": "L1_verdict",
+  "name": "experiments__JKL_TS1_2008-KI_wPFS",
+  "protocol": "JKL_TS1_2008",
+  "source_file": "experiments/JKL_TS1_2008-KI_wPFS.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "JKL2008_2_initiator_key",
+    "JKL2008_2_responder_key"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,28 @@
+{
+  "task_id": "L1:thesis-LaraSchmid-evoting__chapter4_DisputeResolution__PR4_SmHh",
+  "level": "L1_verdict",
+  "name": "thesis-LaraSchmid-evoting__chapter4_DisputeResolution__PR4_SmHh",
+  "protocol": "PR4_SmHh",
+  "source_file": "thesis-LaraSchmid-evoting/chapter4_DisputeResolution/PR4_SmHh.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "onlyonce1",
+    "onlyonce2",
+    "onlyonce3",
+    "onlyonce4",
+    "onlyonce5",
+    "onlyonce6",
+    "onlyonce7",
+    "functional",
+    "DRvoterT"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

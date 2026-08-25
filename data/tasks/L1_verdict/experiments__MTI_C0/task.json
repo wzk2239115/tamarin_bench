@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:experiments__MTI_C0",
+  "level": "L1_verdict",
+  "name": "experiments__MTI_C0",
+  "protocol": "MTI_C0",
+  "source_file": "experiments/MTI_C0.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Executable",
+    "Secrecy_wrt_sesskRev_and_ltk_rev_Initiator",
+    "Secrecy_wrt_sesskRev_and_ltk_rev_Responder"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:features__xor__diff-models__obsolete__KCL07-untrac-pairxored",
+  "level": "L1_verdict",
+  "name": "features__xor__diff-models__obsolete__KCL07-untrac-pairxored",
+  "protocol": "KCL07_untrac_pairxored",
+  "source_file": "features/xor/diff-models/obsolete/KCL07-untrac-pairxored.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "recentalive_tag",
+    "executable"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

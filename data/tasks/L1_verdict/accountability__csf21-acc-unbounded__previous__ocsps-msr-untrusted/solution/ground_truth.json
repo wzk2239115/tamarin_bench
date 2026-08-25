@@ -1,0 +1,54 @@
+{
+  "protocol": "L1:accountability__csf21-acc-unbounded__previous__ocsps-msr-untrusted",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "acc_blamed_suff",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 7
+    },
+    {
+      "name": "acc_verif_empty",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 15
+    },
+    {
+      "name": "acc_blamed_verif_nonempty",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 8
+    },
+    {
+      "name": "acc_blamed_min",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "acc_blamed_uniq",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 8
+    },
+    {
+      "name": "acc_blamed_inj",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1
+    },
+    {
+      "name": "acc_blamed_single",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 7
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 1.59,
+  "requires_diff": false,
+  "validated": true
+}

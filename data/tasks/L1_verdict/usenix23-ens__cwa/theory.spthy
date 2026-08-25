@@ -1,0 +1,568 @@
+/*
+ * Protocol:   German Corona-Warn App (CWA)
+ * Modeler:    Robert Künnemann, Kevin Morio, and Dennis Jackson
+ * Date:       April 2021
+ * Status:     working
+ *
+ * Sources:    https://github.com/DP-3T/documents
+ *             https://github.com/corona-warn-app/cwa-documentation/blob/e4203a628a4b5c225c7d2b9fa386b0d88ee0373c/solution_architecture.md
+ *             https://blog.google/documents/69/Exposure_Notification_-_Cryptography_Specification_v1.2.1.pdf
+ *
+ * Invocation: tamarin-prover --prove cwa.spthy
+ */
+
+theory CWA
+
+begin
+
+heuristic: o "./oracles/oracle-cwa"
+
+functions:
+    hkdf/2
+  , aes/2
+  , h/1
+  , true/0
+  , pk/1
+  , sk/1
+  , sign/2
+  , verify/3
+  , tan/1
+  , reg/1
+
+equations:
+    verify(pk(k), sign(sk(k), m), m) = true()
+
+/*
+**********************************************
+Time Section
+**********************************************
+*/
+
+restriction timeDay:
+    "All d #t1 #t3. Day(d)@t1
+                  & Day(d)@t3
+                  & #t1 < #t3
+                    ==> ( All dp #t2. Day(dp)@t2
+                                    & #t1 < #t2
+                                    & #t2 < #t3 ==> dp = d )"
+
+restriction timeEpochInDates:
+    "All e d dp #t1 #t3.
+        Interval(e)@t1 & Day(d)@t1
+      & Interval(e)@t3 & Day(dp)@t3
+        ==> d = dp"
+
+predicate:
+    EarlierDayP(d1, d2)      <=> (All #t1 #t2. Day(d1)@t1     & Day(d2)@t2     ==> #t1 < #t2)
+  , EarlierDayEqP(ts1, ts2)  <=> (All #t1 #t2. Day(ts1)@t1    & Day(ts2)@t2    ==> ts1 = ts2 | (not(ts1 = ts2) & #t1 < #t2))
+  , EarlierIntervalEqP(i, j) <=> (All #t1 #t2. Interval(i)@t1 & Interval(j)@t2 ==> i = j | (not(i = j) & #t1 < #t2))
+
+restriction interval_ealier_eq:
+    "All #t x y. EarlierIntervalEq(x, y)@t ==> EarlierIntervalEqP(x, y)"
+
+restriction earlier_day:
+    "All #t x y. EarlierDay(x, y)@t ==> EarlierDayP(x, y)"
+
+restriction earlier_day_eq:
+    "All #t x y. EarlierDayEq(x, y)@t ==> EarlierDayEqP(x, y)"
+
+/*
+**********************************************
+Bluetooth
+**********************************************
+
+Broadcast channel, anyone (including the adversary) at some $place and day $d can share and receive messages.
+
+**********************************************
+*/
+
+rule BLEwr [color=#FF6699]:
+    [ In(eph) ]
+  --[ Day($d)
+    , Interval($i)
+    , BLEwr($i, $place, eph) ]->
+    [ !SpaceTime($place, $i, eph) ]
+
+rule BLErd [color=#FF6699]:
+    [ !SpaceTime($place, $i, eph) ]
+  --[ Day($d)
+    , Interval($i)
+    , BLErd($i, $place, eph) ]->
+    [ Out(eph) ]
+
+/*
+**********************************************
+Phone
+**********************************************
+*/
+
+rule PhoneSetup [color=#33FF33]:
+    [ Fr(id) ]
+  --[ PhoneInit(id, $CC) ]->
+    [ !Phone(id, $CC) ]
+
+/*
+ * Roll new temporary exposure key (TEK) each TEKRollingPeriod (defaults to 144 ~ 24h).
+ * Time is discretized in 10 minute intervals.
+ *
+ * NOTE:
+ * - In the implementation the TEK consists of
+ *   + key_data:                      Key of infected user
+ *   + transmission_risk_level:       Varying risk associated with a key depending on diognosis method
+ *   + rolling_start_interval_number: The interval number since epoch for which a key starts
+ *   + rolling_period:                Increments of 10 minutes describing how long a key is valid (default = 144)
+ * - See https://github.com/corona-warn-app/cwa-server/blob/5e81409fad62902edac2c1a30edf4056af26f8d8/common/protocols/src/main/proto/app/coronawarn/server/common/protocols/external/exposurenotification/temporary_exposure_key_export.proto#L39
+ * - In the model, we always use a risk level of '1'.
+ */
+rule PhoneDayStart:
+    let
+        tek = <k, '1', $i, '144'>
+    in
+    [ !Phone(id, $CC)
+    , Fr(k) ]
+  --[ Day($d)
+    , Interval($i)
+    , CreateKey(id, $d, tek) ]->
+    [ !PhoneTEK(id, $d, tek) ]
+
+// The Rolling Proximity Identifier Key (RPIK) is derived from the TEK
+// and is used to derive the Rolling Proximity Identifiers.
+// Associated Encrypted Metadata (AEM) is not modeled.
+rule GenSendEph [color=#0066ff]:
+    let
+        tek = <k, rs, $i, rp>
+        rpik_i = hkdf(tek, 'EN_RPIK')
+        rpi_ij =  aes(rpik_i, <'EN_RPI', $j>)
+    in
+    [ !PhoneTEK(id, $d, tek) ]
+  --[ Day($d)
+    , Interval($j)
+    , EarlierIntervalEq($i, $j)
+    , Honest(<'P', id>)
+
+    , IsAt(id, $place, $j)
+    , GenSendEph(id, $d, $j, rpi_ij)
+    , UseKey(id, tek) ]->
+    [ !SpaceTime($place, $j, rpi_ij) ]
+
+rule RecvEph [color=#00ff99]:
+    [ !Phone(id, $CC)
+    , !SpaceTime($place, $i, rpi) ]
+  --[ Day($d)
+    , Interval($i)
+    , IsAt(id, $place, $i)
+    , Received(id, rpi) ]->
+    [ !PhoneReceived(id, $d, $i, rpi) ]
+
+rule AtRisk [color=#ffcc00]:
+  let
+    tek = <k, rs, $i, rp>
+    entry = <$CCB, tek, $dayKey, $iRelease>
+    mPublic = <entry, sigEntry>
+
+    rpik_i = hkdf(tek, 'EN_RPIK')
+  in
+    [ In(mPublic)
+    , !Phone(idR, $CC)
+    , !PhoneReceived(idR, $dayClose, $iClose, eph)
+    , !BackendPubKey($CCB, pkB) ]
+  --[ Day($day)
+    , Interval($inv)
+    , PClaimAtRisk(idR, $dayClose, $iClose)
+    , ReceiveInfected(idR, tek, $iClose)
+    , Honest(<'P', idR>)
+
+    , _restrict(eph = aes(rpik_i, <'EN_RPI', $iClose>))
+    , _restrict(verify(pkB, sigEntry, entry) = true())
+    , _restrict($dayClose = $dayKey)
+   // Only keep the last 14 days of keys.
+    , Within14Days($dayClose, $day)
+    , EarlierIntervalEq($iClose, $iRelease)
+    ]->
+    [ ]
+
+/*
+**********************************************
+Phone corruption
+**********************************************
+*/
+
+rule CorruptPhoneKey [color=#fc5386]:
+    [ !PhoneTEK(id, $d, tek) ]
+  --[ Corrupt(<'P', id>, 'CorruptPhoneKey', tek) ]->
+    [ Out(tek) ]
+
+rule CorruptPhoneReceived [color=#fc5386]:
+    [ !PhoneReceived(id, $day, $i, eph) ]
+  --[ Corrupt(<'P', id>, 'CorruptPhoneReceived', eph) ]->
+    [ Out(eph) ]
+
+// Phone sends to VS and B
+rule CorruptPhoneSendVS [color=#fc5386]:
+    [ In(m)
+    , !Phone(id, $CC) ]
+  --[ Corrupt(<'P', id>, 'CorruptPhoneSend', m) ]->
+    [ !ChanP_VS(<'P', id>, <'VS', $party>, m) ]
+
+rule CorruptPhoneSendB [color=#fc5386]:
+    [ In(m)
+    , !Phone(id, $CC) ]
+  --[ Corrupt(<'P', id>, 'CorruptPhoneSend', m) ]->
+    [ !ChanP_B(<'P', id>, <'B', $party>, m) ]
+
+// Phone receives from VS and B
+rule CorruptPhoneReceiveVS [color=#fc5386]:
+    [ !ChanVS_P(<'VS', $party>, <'P', id>, m)
+    , !Phone(id, $CC) ]
+  --[ Corrupt(<'P', id>, 'CorruptPhoneReceive', m) ]->
+    [ Out(m) ]
+
+rule CorruptPhoneReceiveB [color=#fc5386]:
+    [ !ChanB_P(<'B', $party>, <'P', id>, m)
+    , !Phone(id, $CC) ]
+  --[ Corrupt(<'P', id>, 'CorruptPhoneReceive', m) ]->
+    [ Out(m) ]
+
+/*
+**********************************************
+Testing and release
+**********************************************
+
+* The steps below correspond to the respective steps in Figure 3
+* (Data flow for the verification process) of the CWA solution architecture.
+*
+**********************************************
+*/
+
+rule ConductTestPositive:
+    [ !Phone(~id, $CC) ]
+  --[ Day($dayTest)
+    , Tested(~id, $dayTest)
+    , TestPositive(~id, $dayTest)
+    , HAClaimInfected($CC, ~id, $dayTest) ]->
+    [ !TestResult($CC, ~id, $dayTest, 'positive')
+    , TestConducted($CC, ~id, $dayTest) ]
+
+rule ConductTestNegative:
+    [ !Phone(~id, $CC) ]
+  --[ Day($dayTest)
+    , Tested(~id, $dayTest) ]->
+    [ !TestResult($CC, ~id, $dayTest, 'negative')
+    , TestConducted($CC, ~id, $dayTest) ]
+
+/*
+ * Step 1 - 2
+ */
+rule PhoneRequestRegistrationTokenByGUID:
+    [ !Phone(~id, $CC)
+    , TestConducted($CC, ~id, $dayTest)
+    , Fr(~guid) ]
+  --[ PhoneRequestRegistrationToken(~id, h(~guid))
+    , Honest(<'P', ~id>) ]->
+    [ !ChanP_VS(<'P', ~id>, <'VS', $CC>, <'registrationToken', 'hashedGUID', h(~guid)>) ]
+
+// As an alternative to scanning a QR code, a teleTAN can be requested by the tested user.
+rule VSGenerateTeleTAN:
+   [ !Phone(~id, $CC)
+   , !TestResult($CC, ~id, $dayTest, 'positive')
+   , TestConducted($CC, ~id, $dayTest)
+   , Fr(~teleTAN) ]
+ --[ VSGenerateTeleTAN($CC, ~teleTAN) ]->
+   [ !ChanVS_P(<'VS', $CC>, <'P', ~id>, <'teleTAN', ~teleTAN>)
+   , !ChanVS_P(<'VS', $CC>, <'P', ~id>, <'testresult', 'positive', h(~teleTAN), $dayTest>)
+   , VSTeleTANRepository($CC, ~teleTAN) ]
+
+rule PhoneRequestRegistrationTokenByTeleTAN:
+    [ !Phone(~id, $CC)
+    , !ChanVS_P(<'VS', $CC>, <'P', ~id>, <'teleTAN', ~teleTAN>) ]
+  --[ PhoneRequestRegistrationToken(~id, ~teleTAN)
+    , Honest(<'P', ~id>) ]->
+    [ !ChanP_VS(<'P', ~id>, <'VS', $CC>, <'registrationToken', 'teleTAN', ~teleTAN>) ]
+
+/* Step 3 - 4
+ * The VS ensures that a GUID is only used once to request a registration token.
+ * See the restriction 'one_registration_token'.
+ * The bug in which a single GUID could be used to request arbitrary many registration tokens
+ * and TANs has been reported on Github:
+ * https://github.com/corona-warn-app/cwa-verification-server/issues/144
+ */
+
+rule VSRegistrationTokenRequestByGUID:
+    [ !ChanP_VS(<'P', ~id>, <'VS', $CC>, <'registrationToken', 'hashedGUID', h(~guid)>)
+    , Fr(~token) ]
+  --[ VSRegistrationTokenRequest($CC, h(~guid), h(reg(~token))) ]->
+    [ !VSAppSession($CC, 'hashedGUID', h(~guid), h(reg(~token)))
+    , !ChanVS_P(<'VS', $CC>, <'P', ~id>,  <'registrationToken', reg(~token)>) ]
+
+rule VSRegistrationTokenRequestByTeleTAN:
+    [ !ChanP_VS(<'P', ~id>, <'VS', $CC>, <'registrationToken', 'teleTAN', ~teleTAN>)
+    , VSTeleTANRepository($CC, ~teleTAN)
+    , Fr(~token) ]
+  --[ VSRegistrationTokenRequest($CC, ~teleTAN, h(reg(~token))) ]->
+    [ !VSAppSession($CC, 'teleTAN', h(~teleTAN), h(reg(~token)))
+    , !ChanVS_P(<'VS', $CC>, <'P', ~id>,  <'registrationToken', reg(~token)>) ]
+
+// Step 5
+rule PhoneRequestTestResult:
+    [ !Phone(~id, $CC)
+    , !ChanVS_P(<'VS', $CC>, <'P', ~id>, <'registrationToken', reg(~token)>)
+    , !VSAppSession($CC, 'hashedGUID', h(~guid), h(reg(~token))) ]
+  --[ PhoneRequestTestResult(~id)
+    , Honest(<'P', ~id>) ]->
+    [ !ChanP_VS(<'P', ~id>, <'VS', $CC>, <'testresult', h(reg(~token))>) ]
+
+/*
+ * Step 7
+ *
+ * NOTE:
+ * - Communication between test result server (TSR) and verification server (VS) is not modelled.
+ *   In the model, the VS performs both roles.
+ *
+ *   It is possible that a phone requests a registration key for an arbitrary hashed message as GUID.
+ *   However, without corrupting the VS, no test result can be obtained.
+ *   If the VS is corrupted, any test result can be obtained regardless of GUID.
+ */
+
+rule VSNotifyTestResult:
+    [ !ChanP_VS(<'P', ~id>, <'VS', $CC>,  <'testresult', h(reg(~token))>)
+    , !VSAppSession($CC, 'hashedGUID', h(~guid), h(reg(~token)))
+    , !TestResult($CC, ~id, $dayTest, result) ]
+  --[ PhoneReceivedTestResult(~id, <result, h(~guid), $dayTest>)
+    , Honest(<'VS', $CC>) ]->
+    [ !ChanVS_P(<'VS', $CC>, <'P', ~id>, <'testresult', result, h(~guid), $dayTest>) ]
+
+// Step 5, 8 - 9
+rule PhoneRequestTAN:
+    [ !Phone(~id, $CC)
+    , !ChanVS_P(<'VS', $CC>, <'P', ~id>,  <'registrationToken', reg(~token)>)
+    , !VSAppSession($CC, trust, h(~guidOrTeleTAN), h(reg(~token))) ]
+  --[ PhoneRequestTAN(~id, h(~guidOrTeleTAN))
+    , Honest(<'P', ~id>) ]->
+    [ !ChanP_VS(<'P', ~id>, <'VS', $CC>, <'tan', reg(~token)>) ]
+
+// Steps 13
+rule VSGenerateTANByGUID:
+    [ !ChanP_VS(<'P', ~id>, <'VS', $CC>, <'tan', reg(~token)>)
+    , !VSAppSession($CC, 'hashedGUID', h(~guid), h(reg(~token)))
+    , !TestResult($CC, ~id, $dayTest, 'positive')
+    , Fr(~t) ]
+  --[ VSGenerateTAN(~id, h(~guid), tan(~t)) ]->
+    [ !ChanVS_P(<'VS', $CC>, <'P', ~id>, <'tan', tan(~t), $dayTest>)
+   // Non-permanent fact as the TAN is removed from VS once it has been verified.
+    , VSTanRepository($CC, h(tan(~t))) ]
+
+rule VSGenerateTANByTeleTAN:
+    [ !ChanP_VS(<'P', ~id>, <'VS', $CC>, <'tan', reg(~token)>)
+    , !VSAppSession($CC, 'teleTAN', h(~teleTAN), h(reg(~token)))
+    , !TestResult($CC, ~id, $dayTest, 'positive')
+    , Fr(~t) ]
+  --[ VSGenerateTAN(~id, h(~teleTAN), tan(~t))
+    , VSGenerateTANByTeleTAN(~id) ]->
+    [ !ChanVS_P(<'VS', $CC>, <'P', ~id>, <'tan', tan(~t), $dayTest>)
+   // Non-permanent fact as the TAN is removed from VS once it has been verified
+    , VSTanRepository($CC, h(tan(~t))) ]
+
+// Step 14
+// Once the test result is obtained, the keys of the last 14 days without today's key can be uploaded.
+rule PhoneReleaseKey:
+    [ !Phone(~id, $CC)
+    , !ChanVS_P(<'VS', $CC>, <'P', ~id>, <'tan', tan(t), $dayTest>)
+   // Used to ensure that a user has been notified of a positive test result.
+    , !ChanVS_P(<'VS', $CC>, <'P', ~id>, <'testresult', 'positive', h(~guidOrTeleTAN), $dayTest>)
+    , !PhoneTEK(~id, $dayKey, tek) ]
+  --[ Day($dUpload)
+   // Don't upload the current day's key.
+    , EarlierDay($dayKey, $dUpload)
+    , EarlierDayEq($dayKey, $dayTest)
+    , Within14Days($dayKey, $dayTest)
+    , ReleaseKey(~id, $dayKey, tek)
+    , Honest(<'P', ~id>) ]->
+    [ !ChanP_B(<'P', ~id>, <'B', $CC>, <'upload_key', tan(t), $dayKey, tek>) ]
+
+/*
+ * Step 18
+ *
+ * NOTES:
+ * - Due to the lack of numbers in Tamarin, combining the rolling period for multiple TEKs with the same
+ *   rolling_start_interval_number is not modeled.
+ */
+
+rule BackendInit:
+    [ Fr(~x) ]
+  --[ BackendInit($CC, ~x) ]->
+    [ !Backend($CC, ~x)
+    , !BackendPubKey($CC, pk(~x))
+    , Out(pk(~x)) ]
+
+rule Backend:
+    let
+      tek = <k, rl, ri, rp>
+
+      entry = <$CCp, tek, $dayKey, $iRelease>
+      mPublic = <entry, sign(sk(~x), entry)>
+    in
+    [ !ChanP_B(<'P', ~id>, <'B', $CC>, <'upload_key', tan(t), $dayKey, tek>)
+    , VSTanRepository($CC, h(tan(t)))
+   // Implicit forwarding
+    , !Backend($CCp, ~x) ]
+  --[ Day($dRelease)
+    , Interval($iRelease)
+   // Ensure rolling_interval corresponds to day of the TEK.
+    , IntervalAtDay(ri, $dayKey)
+   // Ensures that "the period covered by the data file must not exceed
+   // the configured maximum number of days, represented by MAX_NUMBER_OF_KEYS property..."
+    , EnsureWithin14Days($dayKey, $dRelease)
+   // Ensure that "the total combined rolling period for a single TEK cannot exceed
+   // maximum rolling period, represented by the MAX_ROLLING_PERIOD property..."
+    , _restrict(rp = '144')
+    , Honest(<'B', $CCp>)
+
+    , BackendReleaseKey($CCp, tek)
+    , BackendForward($CC, $CCp)
+    , BackendReleaseKeyWithTime($CCp, tek, $dRelease) ]->
+    [ !Out(mPublic) ]
+
+/*
+ **********************************************
+ Corruption of backend and verification server (VS)
+ **********************************************
+ */
+
+rule CorruptBState [color=#fc5386]:
+    [ !Backend($CC, ~x) ]
+  --[ Corrupt(<'B', $CC>, 'CorruptBState', sk(~x))]->
+    [ Out(sk(~x)) ]
+
+// Backend only sends to VS
+rule CorruptBSend [color=#fc5386]:
+    [ In(m)
+    , !Backend($CC, ~x) ]
+  --[ Corrupt(<'B', $CC>, 'CorruptBSend', m) ]->
+    [ !ChanB_VS(<'B', $CC>, <'VS', $CC>, m) ]
+
+// A rule for backend to release key without validating the TAN is not needed
+// since it is already possible with CorruptBState and CorruptBReceiveFromPhone.
+
+// Backend receives from VS
+rule CorruptBReceiveFromVS [color=#fc5386]:
+    [ !ChanVS_B(<'VS', $CC>, <'B', $CC>, m)
+    , !Backend($CC, ~x) ]
+  --[ Corrupt(<'B', $CC>, 'CorruptBReceiveFromVS', m) ]->
+    [ Out(m) ]
+
+// Backend receives from phone
+rule CorruptBReceiveFromPhone [color=#fc5386]:
+    [ !ChanP_B(<'P', ~id>, <'B', $CC>, m)
+    , !Phone(~id, $CC) ]
+  --[ Corrupt(<'B', $CC>, 'CorruptBReceiveFromPhone', m) ]->
+    [ Out(m) ]
+
+// VS sends to B
+rule CorruptVSSendToTRSnB [color=#fc5386]:
+    [ In(m) ]
+  --[ Corrupt(<'VS', $CC>, 'CorruptVSSendToTRSnB', m) ]->
+    [ !ChanVS_B(<'VS', $CC>, <'B', $CC>, m) ]
+
+// VS sends to phone
+rule CorruptVSSendToPhone [color=#fc5386]:
+    [ In(m)
+    , !Phone(~id, $CC) ]
+  --[ Corrupt(<'VS', $CC>, 'CorruptVSSendToPhone', m) ]->
+    [ !ChanVS_P(<'VS', $CC>, <'P', ~id>, m) ]
+
+// VS receives from B
+rule CorruptVSReceiveFromTRSnB [color=#fc5386]:
+    [ !ChanB_VS(<'B', $CC>, <'VS', $CC>, m) ]
+  --[ Corrupt(<'VS', $CC>, 'CorruptVSReceiveFromTRSnB', m) ]->
+    [ Out(m) ]
+
+// VS receives from phones
+rule CorruptVSReceiveFromPhone [color=#fc5386]:
+    [ !ChanP_VS(<'P', ~id>, <'VS', $CC>, m)
+    , !Phone(~id, $CC) ]
+  --[ Corrupt(<'VS', $CC>, 'CorruptVSReceiveFromPhone', m) ]->
+    [ Out(m) ]
+
+/*
+**********************************************
+Enforcing behavior
+**********************************************
+*/
+
+// A user is tested only once.
+restriction one_test_per_day:
+  "All id d #i #j. Tested(id, d)@i & Tested(id, d)@j ==> #i = #j"
+
+// In this model, we use the default rolling period of 144 intervals such that each TEK is valid for 24h.
+// Hence, there should only be a unique TEK per day.
+restriction one_tek_per_day:
+    "All id d tek1 tek2 k1 k2 rl1 rl2 i1 i2 #t1 #t2. CreateKey(id, d, tek1)@t1 & tek1 = <k1, rl1, i1, '144'>
+                                                   & CreateKey(id, d, tek2)@t2 & tek2 = <k2, rl2, i2, '144'>
+                                                     ==> tek1 = tek2 & #t1 = #t2"
+
+// For each guid, the same registration token is returned.
+// See rule VSRegistrationTokenRequest for details.
+ restriction one_registration_token:
+     "All cc1 g r1 cc2 r2 #i #j. VSRegistrationTokenRequest(cc1, g, r1)@i
+                               & VSRegistrationTokenRequest(cc2, g, r2)@j
+                                 ==> r1 = r2 & #i = #j"
+
+// The phone only requests a TAN once.
+ restriction one_request_tan:
+     "All id hGuid1 hGuid2 #i #j. PhoneRequestTAN(id, hGuid1)@i
+                                & PhoneRequestTAN(id, hGuid2)@j
+                                  ==> #i = #j"
+
+// For each phone, only a single TAN is generated and a guid is only used once.
+ restriction one_generate_tan:
+     "All id1 id2 hGuid tan1 tan2 #i #j. VSGenerateTAN(id1, hGuid, tan1)@i
+                                       & VSGenerateTAN(id2, hGuid, tan2)@j
+                                       ==> id1 = id2 & tan1 = tan2 & #i = #j"
+
+// The phone releases each key once.
+restriction one_release_key:
+     "All id d1 d2 tek #i #j. ReleaseKey(id, d1, tek)@i
+                            & ReleaseKey(id, d2, tek)@j
+                              ==> d1 = d2 & #i = #j"
+
+// The phone is tested positive once.
+restriction one_test_positive:
+    "All id d1 d2 #i #j. TestPositive(id, d1)@i
+                       & TestPositive(id, d2)@j
+                         ==> #i = #j"
+
+// This restriction means we treat users-post-positive test as no longer being capable of being at risk.
+restriction positive_means_stop:
+    "All id tsTest dayClose iClose #t1 #t2.
+         TestPositive(id, tsTest)@t1
+       & PClaimAtRisk(id, dayClose, iClose)@t2
+       & #t1 < t2 ==> F"
+
+// The uploaded key may be released by multiple backends but this has to happen at the same time.
+restriction one_backend_release_time:
+    "All cc1 cc2 tek dRel1 dRel2 #i #j. BackendReleaseKeyWithTime(cc1, tek, dRel1)@i
+                                      & BackendReleaseKeyWithTime(cc2, tek, dRel2)@j
+                                        ==> dRel1 = dRel2"
+
+// The interval i occurs only at day d.
+restriction interval_at_day:
+    "All i d #a dp #t3. IntervalAtDay(i, d)@a
+                      & Interval(i)@t3 & Day(dp)@t3
+                        ==> d = dp"
+
+// Disallow parties that are corrupted in a trace to use honest rules
+// that can be immitated by corruption rules.
+// That is, rules of the form [ ... ] -[ ... ]-> [ !Chan* ] which thus don't product any
+// other facts except outputs on the channels.
+restriction either_honest_or_dishonest:
+    "not (Ex actor #t1 #t2 cortype corparam.
+             Corrupt(actor, cortype, corparam)@#t1
+           & Honest(actor)@t2)"
+
+/*
+**********************************************
+Helping Lemmas
+**********************************************
+*/
+
+end

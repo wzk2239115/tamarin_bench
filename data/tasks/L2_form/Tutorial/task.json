@@ -1,0 +1,22 @@
+{
+  "task_id": "L2:Tutorial",
+  "level": "L2_form",
+  "name": "Tutorial",
+  "protocol": "Tutorial",
+  "source_file": "Tutorial.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "Client_session_key_secrecy",
+    "Client_auth",
+    "Client_auth_injective",
+    "Client_session_key_honest_setup"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

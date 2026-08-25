@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:sapic__fast__feature-predicates__binding",
+  "level": "L1_verdict",
+  "name": "sapic__fast__feature-predicates__binding",
+  "protocol": "PredicatesBinding",
+  "source_file": "sapic/fast/feature-predicates/binding.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "C_exists",
+    "A_before_C"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

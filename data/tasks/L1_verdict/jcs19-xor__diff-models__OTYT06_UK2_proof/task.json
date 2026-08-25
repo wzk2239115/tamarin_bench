@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:jcs19-xor__diff-models__OTYT06_UK2_proof",
+  "level": "L1_verdict",
+  "name": "jcs19-xor__diff-models__OTYT06_UK2_proof",
+  "protocol": "OTYT06_UK2_proof",
+  "source_file": "jcs19-xor/diff-models/OTYT06_UK2_proof.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "tag_start",
+    "tag_start",
+    "Observational_equivalence"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

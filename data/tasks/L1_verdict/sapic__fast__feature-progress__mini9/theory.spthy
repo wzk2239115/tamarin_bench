@@ -1,0 +1,16 @@
+theory mini9
+begin
+
+section{* small example for progression function *}
+builtins: signing, hashing, reliable-channel
+options: translation-progress
+
+process:
+event Start();
+(
+( out('r','Help') + (in('c',m); event B()))
+||
+( in('r','Help'); event A())
+)
+
+end

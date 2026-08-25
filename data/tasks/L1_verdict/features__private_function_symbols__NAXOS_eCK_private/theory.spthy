@@ -1,0 +1,99 @@
+theory NAXOS_eCK
+begin
+
+builtins: diffie-hellman
+
+section{* NAXOS *}
+
+/*
+ * Protocol:	NAXOS
+ * Modeler: 	Cas Cremers, Benedikt Schmidt
+ * Date: 	January 2012/April 2012/October 2012
+ * Source:	"Stronger Security of Authenticated Key Exchange"
+ * 		LaMacchia, Lauter, Mityagin, 2007
+ * Property: 	eCK security
+ *
+ * Status: 	Working
+ */
+
+functions: h1/1
+functions: h2/1
+
+/* We use the private function symbol sk to model the longterm secret key of an
+   agent. For example, sk('A') is 'A's longterm secret key. The corresponding
+   longterm public key is 'g'^sk('A').
+*/
+functions: sk/1 [private]
+
+/* Protocol rules */
+
+/* In the description in the paper, we omitted the sorts. 
+ * In this description they are made explicit.
+ * '$A' is equivalent to 'A:pub'
+ * '~x' is equivalent to 'x:fresh'
+ */
+
+/* Initiator */
+rule Init_1:
+  let X = 'g'^h1(<~ex, sk($A) >)  // $A uses its own longterm secret key
+  in
+  [ Fr( ~ex ) ]
+  -->
+  [ Init_1( ~ex, $A, $B )
+  , !Ephk(~ex, ~ex)
+  , Out( X ) ]
+
+rule Init_2:
+  let KB  = 'g'^sk($B)           // $A uses $B's longterm public key
+      exp = h1(< ~ex, sk($A) >)  // and its own longterm secret key
+      X = 'g'^exp
+      key = h2(< Y^sk($A), KB^exp, Y^exp, $A, $B >) 
+  in
+  [ Init_1( ~ex, $A, $B )
+  , In( Y ) ]
+  --[ Accept( ~ex, key)
+    , Sid( ~ex, < $A, $B, X, Y, 'Init' >)
+    ]->
+   [ !Sessk( ~ex, key) ]
+
+/* Responder */
+rule Resp_1:
+  let KA  = 'g'^sk($A)           // $B uses $A's longterm public key
+      exp = h1(< ~ey, sk($B) >)  // and its own longterm secret key
+      Y   = 'g'^exp
+      key = h2(< KA^exp, X^sk($B), X^exp, $A, $B >) 
+  in
+   [   Fr( ~ey ), In( X ) ]
+   --[ Accept( ~ey, key )
+     , Sid( ~ey, < $B, $A, Y, X, 'Resp' > )
+     ]->
+   [   Out( Y ),
+       !Ephk(~ey, ~ey),
+       !Sessk( ~ey, key) ]
+
+/* Key Reveals for the eCK model */
+rule Sessk_reveal: 
+   [ !Sessk(~s, k) ] --[ RevealSessk(~s) ]-> [ Out(k) ]
+
+rule Ltk_reveal:
+   [  ] --[ RevealLtk($A) ]-> [ Out(sk($A)) ]
+
+rule Ephk_reveal:
+   [ !Ephk(~s, ~ek) ] --[ RevealEphk(~s) ]-> [ Out(~ek) ]
+
+/* Security properties */
+/*
+lemma eCK_same_key:
+  " // If every agent registered at most one public key
+  (All A #i #j. RegKey(A)@i & RegKey(A)@j ==> (#i = #j))
+  ==> // then matching sessions accept the same key
+  (not (Ex #i1 #i2 #i3 #i4 s ss k kk A B minfo .
+              Accept(s, A, B, k ) @ i1
+	    & Accept(ss, B, A, kk) @ i2
+	    & Sid(s, minfo) @ i3
+	    & Match(ss, minfo) @i4
+	    & not( k = kk )
+  ) )"
+*/
+
+end

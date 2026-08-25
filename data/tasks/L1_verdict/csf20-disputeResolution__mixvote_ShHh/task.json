@@ -1,0 +1,39 @@
+{
+  "task_id": "L1:csf20-disputeResolution__mixvote_ShHh",
+  "level": "L1_verdict",
+  "name": "csf20-disputeResolution__mixvote_ShHh",
+  "protocol": "mixvote_ShHh",
+  "source_file": "csf20-disputeResolution/mixvote_ShHh.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "onlyonce1",
+    "onlyonce2",
+    "onlyonce3",
+    "onlyonce4",
+    "onlyonce5",
+    "onlyonce6",
+    "onlyonce7",
+    "onlyonce8",
+    "onlyonce9",
+    "onlyonce10",
+    "functional",
+    "indivVerif",
+    "VoterC",
+    "TimelyP",
+    "AuthP",
+    "Uniqueness",
+    "secretSskD",
+    "ballotsFromVoters",
+    "TalliedAsRecorded",
+    "EligVerif"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

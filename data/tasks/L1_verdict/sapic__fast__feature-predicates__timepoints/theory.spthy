@@ -1,0 +1,9 @@
+theory TestPredicate begin
+
+rule ActionRule: [] --[Action('hi')]-> []
+
+predicates: Exists(#time) <=> (∃ val. Action(val)@time)
+predicates: ExistsVal(val) <=> (∃ #time. Action(val)@time)
+
+end
+

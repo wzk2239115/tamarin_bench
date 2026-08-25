@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:features__noise__anonymity_Responder_peer_revealed_psk_revealed_passive_trusted_pki_NX",
+  "level": "L1_verdict",
+  "name": "features__noise__anonymity_Responder_peer_revealed_psk_revealed_passive_trusted_pki_NX",
+  "protocol": "anonymity_Responder_peer_revealed_psk_revealed_passive_trusted_pki_NX",
+  "source_file": "features/noise/anonymity_Responder_peer_revealed_psk_revealed_passive_trusted_pki_NX.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executabilityPassiveAdv"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,25 @@
+{
+  "task_id": "L1:sapic__fast__feature-locations__AKE",
+  "level": "L1_verdict",
+  "name": "sapic__fast__feature-locations__AKE",
+  "protocol": "AKE",
+  "source_file": "sapic/fast/feature-locations/AKE.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "can_run_p",
+    "can_run_v",
+    "sanity1",
+    "sanity2",
+    "sanity3",
+    "secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

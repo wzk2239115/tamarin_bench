@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:sapic__not-suitable-for-regression__issue-missing-unlock",
+  "level": "L1_verdict",
+  "name": "sapic__not-suitable-for-regression__issue-missing-unlock",
+  "protocol": "LockingRestriction",
+  "source_file": "sapic/not-suitable-for-regression/issue-missing-unlock.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "ANotReachable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

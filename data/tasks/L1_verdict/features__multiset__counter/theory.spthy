@@ -1,0 +1,18 @@
+theory counter begin
+
+builtins: multiset, symmetric-encryption, hashing
+
+rule Create:
+  [ Fr(~s) ]
+  --[ Start(~s) ]->
+  [ Counter(~s, '1')]
+
+rule Inc:
+  [ Counter( ~s, x ), In( x ) ] // The In(x) could be nicely prevented by ensuring
+  --[ Counter( ~s, x ) ]->      // that x never contains names by using the sort
+  [ Counter( ~s, x + '1' )      // system.
+  , Out( senc( x,  ~s ) ) ]
+
+/* How can I ensure this lemma directly? */
+
+end

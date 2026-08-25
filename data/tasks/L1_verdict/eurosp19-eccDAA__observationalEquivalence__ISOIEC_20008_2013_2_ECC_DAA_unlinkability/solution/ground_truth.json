@@ -1,0 +1,11 @@
+{
+  "protocol": "ISOIEC_20008_2013_2_ECC_DAA_UNLINKABILITY",
+  "overall_verdict": "UNKNOWN",
+  "lemmas": [],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": null,
+  "runtime_seconds": null,
+  "requires_diff": false,
+  "validated": false
+}

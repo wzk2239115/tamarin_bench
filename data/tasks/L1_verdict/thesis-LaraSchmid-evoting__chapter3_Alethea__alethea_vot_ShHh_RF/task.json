@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:thesis-LaraSchmid-evoting__chapter3_Alethea__alethea_vot_ShHh_RF",
+  "level": "L1_verdict",
+  "name": "thesis-LaraSchmid-evoting__chapter3_Alethea__alethea_vot_ShHh_RF",
+  "protocol": "alethea_vot_ShHh_RF",
+  "source_file": "thesis-LaraSchmid-evoting/chapter3_Alethea/alethea_vot_ShHh_RF.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "functional",
+    "indivVerif_v",
+    "indivVerif_b"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

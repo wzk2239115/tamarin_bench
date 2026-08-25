@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:features__visualization__roles",
+  "level": "L1_verdict",
+  "name": "features__visualization__roles",
+  "protocol": "NSPK3_roles",
+  "source_file": "features/visualization/roles.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "types",
+    "nonce_secrecy",
+    "injective_agree",
+    "session_key_setup_possible"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

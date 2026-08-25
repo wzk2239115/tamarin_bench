@@ -1,0 +1,25 @@
+{
+  "task_id": "L1:jcs19-xor__LAK06_state_proof-executability",
+  "level": "L1_verdict",
+  "name": "jcs19-xor__LAK06_state_proof-executability",
+  "protocol": "LAK06_state_proof_executability",
+  "source_file": "jcs19-xor/LAK06_state_proof-executability.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "helpingUpdateKey",
+    "helpingStackHash",
+    "helpingSecrecy",
+    "executable",
+    "noninjectiveagreementTAG",
+    "noninjectiveagreementREADER"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

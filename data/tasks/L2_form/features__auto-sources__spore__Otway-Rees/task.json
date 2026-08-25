@@ -1,0 +1,26 @@
+{
+  "task_id": "L2:features__auto-sources__spore__Otway-Rees",
+  "level": "L2_form",
+  "name": "features__auto-sources__spore__Otway-Rees",
+  "protocol": "Otway_Rees",
+  "source_file": "features/auto-sources/spore/Otway-Rees.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "Secrecy",
+    "injectiveagreement_B",
+    "agreement_B",
+    "injectiveagreement_A",
+    "agreement_A",
+    "injectiveagreement_S",
+    "agreement_S",
+    "executability"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:csf12__UM_PFS",
+  "level": "L1_verdict",
+  "name": "csf12__UM_PFS",
+  "protocol": "UM_PFS",
+  "source_file": "csf12/UM_PFS.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "wPFS_initiator_key",
+    "wPFS_responder_key"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

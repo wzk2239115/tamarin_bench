@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:sapic__fast__feature-inevent-restriction__inevent-restriction-private-channel",
+  "level": "L1_verdict",
+  "name": "sapic__fast__feature-inevent-restriction__inevent-restriction-private-channel",
+  "protocol": "InEventRestrictionPrivateChannel",
+  "source_file": "sapic/fast/feature-inevent-restriction/inevent-restriction-private-channel.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "test"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

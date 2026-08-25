@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:csf12__KAS2_eCK",
+  "level": "L1_verdict",
+  "name": "csf12__KAS2_eCK",
+  "protocol": "KAS2_eCK",
+  "source_file": "csf12/KAS2_eCK.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "eCK_key_secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

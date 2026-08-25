@@ -102,7 +102,14 @@ def run_one_task(task_id: str, args_dict: dict) -> dict:
     )
     if args_dict["agent"].startswith("mock_"):
         cfg.credential_path = Path("/dev/null")  # mocks need no auth
-    evaluator = TamarinEvaluator(cfg)
+
+    # family routing: B1 tasks → JwtOidcEvaluator; else TamarinEvaluator
+    if task_id.startswith("B1:"):
+        from tamaringym.evaluation.families.jwt_oidc import JwtOidcEvaluator
+
+        evaluator = JwtOidcEvaluator(cfg)
+    else:
+        evaluator = TamarinEvaluator(cfg)
     agent = build_agent(
         argparse.Namespace(
             **{**vars(_build_arg_namespace(args_dict)), "agent": args_dict["agent"]}

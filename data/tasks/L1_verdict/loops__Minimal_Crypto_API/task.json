@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:loops__Minimal_Crypto_API",
+  "level": "L1_verdict",
+  "name": "loops__Minimal_Crypto_API",
+  "protocol": "Minimal_Crypto_API",
+  "source_file": "loops/Minimal_Crypto_API.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "NewKey_invariant",
+    "NewKey_secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -320,6 +320,35 @@ def parse_theory(text: str, *, defines: set[str] | None = None) -> Theory:
                     q_open = i
                     break
             if q_open is None:
+                if kind == "difflemma":
+                    # diffLemma bodies may carry an inline proof script
+                    # (e.g. "diffLemma X: rule-equivalence ...") instead of a
+                    # quoted formula — record it with an empty formula.
+                    head_name = (
+                        re.sub(
+                            r"^\s*(?:DiffLemma|lemma)\b",
+                            "",
+                            rest,
+                            count=1,
+                            flags=re.IGNORECASE,
+                        )
+                        .strip()
+                        .splitlines()[0]
+                        .split(":")[0]
+                        .strip()
+                        or "<anonymous>"
+                    )
+                    theory.lemmas.append(
+                        Lemma(
+                            name=head_name,
+                            body=body,
+                            quantifier="diff",
+                            formula="",
+                            start_line=start_line,
+                            end_line=end_line,
+                        )
+                    )
+                    continue
                 raise SpthyParseError(
                     f"lemma at line {start_line + 1} has no quoted formula"
                 )

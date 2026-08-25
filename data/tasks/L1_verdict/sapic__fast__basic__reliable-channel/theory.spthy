@@ -1,0 +1,9 @@
+theory reliableChannels
+begin
+
+builtins: signing, hashing, reliable-channel
+
+process:
+(in('r',m); event A()) + !(in('r',m); event B())
+
+end

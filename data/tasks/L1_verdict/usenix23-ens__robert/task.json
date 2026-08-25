@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:usenix23-ens__robert",
+  "level": "L1_verdict",
+  "name": "usenix23-ens__robert",
+  "protocol": "ROBERT",
+  "source_file": "usenix23-ens/robert.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "geneph_storeeph",
+    "upload_auth",
+    "soundness"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

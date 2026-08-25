@@ -1,0 +1,49 @@
+theory ParserTests
+begin
+
+builtins: natural-numbers, multiset, diffie-hellman, xor, bilinear-pairing, hashing
+
+functions: mypair/2, myfst/1, mysnd/1
+equations: myfst(mypair(a,b))=a, mysnd(mypair(a,b))=b
+
+rule Create:
+    [ Fr(~s) ]
+  --[ Start(~s) ]->
+    [ Counter(~s, 1:nat) ]
+
+rule Inc:
+    [ In(%x), Counter(s, %x)]
+  --[ Number(%x) ]->
+    [ Counter(s, (%x %+ 1:nat))]
+
+rule AttackerMsg:
+    [ In(x) ]
+  --[ Value(x) ]->
+    [ ]
+
+rule AttackerPub:
+    [ In($x) ]
+  --[ PubValue($x) ]->
+    [ ]
+
+rule AttackerNat:
+    [ In(x), Counter(~s, x) ]
+  --[ NatValue(x) ]->
+    [ ]
+
+rule InOut:
+  let
+    a  = %x %+ 1:nat %+ %1
+    b  = %1
+    c  = 1:nat
+    y  = (x:nat %+ 1:nat)
+    %z = (%x %+ 1:nat)
+  in
+  [In(%x), In(%x %+ %1 %+ %1 %+ 1:nat)]--[Out(<a, b, c, %x, y, %z>)]->[]
+
+// test of S_nat-chain
+// here we see its full potential!
+// without this rule, the proof needed ~5 steps, now it directly simplifies
+
+end
+

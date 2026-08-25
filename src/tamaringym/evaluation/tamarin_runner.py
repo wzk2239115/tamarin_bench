@@ -141,16 +141,23 @@ def run_tamarin_in_docker(
     timeout_s: int = 600,
     known_lemma_names: list[str] | None = None,
     retry_diff: bool = True,
+    oracle_path: Path | None = None,
 ) -> TamarinRunResult:
     """Run ``tamarin-prover final.spthy --prove`` in a fresh container.
 
     The plain mode is tried first; on diff-signals (``flag diff not set`` or
     a failed parse) the run is retried with ``--diff``. Returns a
     :class:`TamarinRunResult` with parsed lemmas and attack traces.
+
+    When *oracle_path* is given, it is copied into the work directory as
+    ``oracle`` — Tamarin's fallback oracle location — so proof search uses
+    the same heuristic as the reference solution.
     """
     with tempfile.TemporaryDirectory(prefix="tg-run-") as tmp:
         work = Path(tmp)
         (work / "final.spthy").write_bytes(Path(spthy_path).read_bytes())
+        if oracle_path is not None and Path(oracle_path).is_file():
+            (work / "oracle").write_bytes(Path(oracle_path).read_bytes())
         result = _run_once(work, image, timeout_s, diff=False)
         if result["status"] != "done":
             return TamarinRunResult(

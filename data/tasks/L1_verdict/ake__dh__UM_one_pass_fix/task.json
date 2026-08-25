@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:ake__dh__UM_one_pass_fix",
+  "level": "L1_verdict",
+  "name": "ake__dh__UM_one_pass_fix",
+  "protocol": "UM_one_pass_fix",
+  "source_file": "ake/dh/UM_one_pass_fix.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "key_agreement_reachable",
+    "CK_secure"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

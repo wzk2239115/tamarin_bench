@@ -1,0 +1,11 @@
+{
+  "protocol": "anonymity_Responder_peer_revealed_psk_revealed_passive_trusted_pki_NX",
+  "overall_verdict": "UNKNOWN",
+  "lemmas": [],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": null,
+  "runtime_seconds": null,
+  "requires_diff": false,
+  "validated": false
+}

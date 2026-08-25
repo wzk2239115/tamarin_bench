@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:sapic__fast__feature-locations__licensing",
+  "level": "L1_verdict",
+  "name": "sapic__fast__feature-locations__licensing",
+  "protocol": "licensing",
+  "source_file": "sapic/fast/feature-locations/licensing.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "attested_comput",
+    "unique",
+    "final"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

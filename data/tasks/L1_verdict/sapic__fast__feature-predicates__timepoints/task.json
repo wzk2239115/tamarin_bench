@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:sapic__fast__feature-predicates__timepoints",
+  "level": "L1_verdict",
+  "name": "sapic__fast__feature-predicates__timepoints",
+  "protocol": "TestPredicate",
+  "source_file": "sapic/fast/feature-predicates/timepoints.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "hi",
+    "ho"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

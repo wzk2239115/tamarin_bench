@@ -1,0 +1,25 @@
+{
+  "task_id": "L1:jcs18__ESORICS-symmetric-only__dnp3-amoah-attack",
+  "level": "L1_verdict",
+  "name": "jcs18__ESORICS-symmetric-only__dnp3-amoah-attack",
+  "protocol": "DNP3_incorrect",
+  "source_file": "jcs18/ESORICS-symmetric-only/dnp3-amoah-attack.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "countervalue_uniqueness",
+    "CSQ_Uniqueness",
+    "authed_sessions_unique",
+    "update_key_sourced",
+    "sessionkeys_sourced",
+    "asdu_agreement_implies_mode_agreement"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

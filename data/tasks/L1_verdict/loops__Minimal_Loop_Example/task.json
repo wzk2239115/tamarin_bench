@@ -1,0 +1,24 @@
+{
+  "task_id": "L1:loops__Minimal_Loop_Example",
+  "level": "L1_verdict",
+  "name": "loops__Minimal_Loop_Example",
+  "protocol": "Minimal_Loop_Example",
+  "source_file": "loops/Minimal_Loop_Example.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Start_before_Loop",
+    "Start_before_Stop",
+    "Loop_before_Stop",
+    "Stop_unique",
+    "Satisfied_by_empty_trace_only"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

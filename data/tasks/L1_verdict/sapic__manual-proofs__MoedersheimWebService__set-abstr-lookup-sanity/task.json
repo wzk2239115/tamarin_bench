@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:sapic__manual-proofs__MoedersheimWebService__set-abstr-lookup-sanity",
+  "level": "L1_verdict",
+  "name": "sapic__manual-proofs__MoedersheimWebService__set-abstr-lookup-sanity",
+  "protocol": "SetAbst",
+  "source_file": "sapic/manual-proofs/MoedersheimWebService/set-abstr-lookup-sanity.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Knows_Honest_Key_imp_Revoked",
+    "Honest_Revoked_Known_Reachable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

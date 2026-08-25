@@ -1,0 +1,9 @@
+theory WithInEventRestriction
+begin
+
+// The following lemmas are not well formed and cannot be proven. They should
+// only ensure that in_event is added.
+
+// L+ & not L-
+
+end

@@ -1,0 +1,22 @@
+{
+  "task_id": "L2:features__auto-sources__spore__Yahalom_BAN",
+  "level": "L2_form",
+  "name": "features__auto-sources__spore__Yahalom_BAN",
+  "protocol": "Yahalom_BAN",
+  "source_file": "features/auto-sources/spore/Yahalom_BAN.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "executability",
+    "secrecy",
+    "noninjectiveagreement_B",
+    "noninjectiveagreement_A"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

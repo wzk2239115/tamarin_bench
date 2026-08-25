@@ -1,0 +1,25 @@
+{
+  "task_id": "L1:features__auto-sources__spore__CCITT_X509_3_BAN",
+  "level": "L1_verdict",
+  "name": "features__auto-sources__spore__CCITT_X509_3_BAN",
+  "protocol": "CcittX509_3_BAN",
+  "source_file": "features/auto-sources/spore/CCITT_X509_3_BAN.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Secrecy",
+    "injectiveagreement_B",
+    "agreement_B",
+    "injectiveagreement_A",
+    "agreement_A",
+    "Session_key_honest_setup"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

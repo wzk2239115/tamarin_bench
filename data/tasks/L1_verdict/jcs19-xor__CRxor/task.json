@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:jcs19-xor__CRxor",
+  "level": "L1_verdict",
+  "name": "jcs19-xor__CRxor",
+  "protocol": "CRXOR",
+  "source_file": "jcs19-xor/CRxor.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "alive",
+    "recentalive_tag",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

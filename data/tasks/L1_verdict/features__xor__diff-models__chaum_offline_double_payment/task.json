@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:features__xor__diff-models__chaum_offline_double_payment",
+  "level": "L1_verdict",
+  "name": "features__xor__diff-models__chaum_offline_double_payment",
+  "protocol": "Chaum_Offline_Double_Payment_Anonymity",
+  "source_file": "features/xor/diff-models/chaum_offline_double_payment.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "coins",
+    "exec",
+    "anonymity"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

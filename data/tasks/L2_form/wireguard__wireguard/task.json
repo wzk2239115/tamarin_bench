@@ -1,0 +1,26 @@
+{
+  "task_id": "L2:wireguard__wireguard",
+  "level": "L2_form",
+  "name": "wireguard__wireguard",
+  "protocol": "WireGuard",
+  "source_file": "wireguard/wireguard.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "exists_session",
+    "exists_two_sessions",
+    "I_disagreement_implies_Sr_or_SiEi_compromise_and_PSK_compromise",
+    "R_disagreement_implies_Si_or_SrEr_compromise_and_PSK_compromise",
+    "UKS_resistance",
+    "session_uniqueness",
+    "key_secrecy",
+    "identity_hiding"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

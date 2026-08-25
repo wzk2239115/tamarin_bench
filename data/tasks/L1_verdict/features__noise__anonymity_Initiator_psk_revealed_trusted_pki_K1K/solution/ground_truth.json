@@ -1,0 +1,11 @@
+{
+  "protocol": "anonymity_Initiator_psk_revealed_trusted_pki_K1K",
+  "overall_verdict": "UNKNOWN",
+  "lemmas": [],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": null,
+  "runtime_seconds": null,
+  "requires_diff": false,
+  "validated": false
+}

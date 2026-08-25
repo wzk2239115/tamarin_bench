@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:sapic__fast__basic__reliable-channel",
+  "level": "L1_verdict",
+  "name": "sapic__fast__basic__reliable-channel",
+  "protocol": "reliableChannels",
+  "source_file": "sapic/fast/basic/reliable-channel.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "A_possible",
+    "B_possible",
+    "A_once",
+    "B_multiple"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

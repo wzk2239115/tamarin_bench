@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:sapic__fast__MoedersheimWebService__set-abstr-lookup",
+  "level": "L1_verdict",
+  "name": "sapic__fast__MoedersheimWebService__set-abstr-lookup",
+  "protocol": "SetAbst",
+  "source_file": "sapic/fast/MoedersheimWebService/set-abstr-lookup.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Knows_Honest_Key_imp_Revoked"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

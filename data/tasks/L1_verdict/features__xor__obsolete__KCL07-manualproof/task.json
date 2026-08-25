@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:features__xor__obsolete__KCL07-manualproof",
+  "level": "L1_verdict",
+  "name": "features__xor__obsolete__KCL07-manualproof",
+  "protocol": "KCL07",
+  "source_file": "features/xor/obsolete/KCL07-manualproof.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "recentalive_tag",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:features__configuration__configuration",
+  "level": "L1_verdict",
+  "name": "features__configuration__configuration",
+  "protocol": "TestConfiguration",
+  "source_file": "features/configuration/configuration.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "test_lemma"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

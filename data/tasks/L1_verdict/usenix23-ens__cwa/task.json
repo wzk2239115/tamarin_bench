@@ -1,0 +1,25 @@
+{
+  "task_id": "L1:usenix23-ens__cwa",
+  "level": "L1_verdict",
+  "name": "usenix23-ens__cwa",
+  "protocol": "CWA",
+  "source_file": "usenix23-ens/cwa.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "secret_guid",
+    "secret_regToken",
+    "secret_tan",
+    "secret_key",
+    "upload_auth",
+    "soundness"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

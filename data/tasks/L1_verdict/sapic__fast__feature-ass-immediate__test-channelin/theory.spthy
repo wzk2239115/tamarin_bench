@@ -1,0 +1,12 @@
+theory AssImmediateChannelIn
+begin
+
+process:
+new x; out(x);
+in(=x);
+event A()
+
+// should verifiy and NOT trigger addition of ass_immediate
+// since no ChannelIn event is present
+
+end

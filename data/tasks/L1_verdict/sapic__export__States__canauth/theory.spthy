@@ -1,0 +1,26 @@
+theory CANauth
+begin
+
+section{* CANauth protocol *}
+
+/*
+   Proverif: everything in seconds.
+     But answer cannot be proved on last example.
+
+   Tamarin: ?
+
+*/
+builtins: dest-pairing, natural-numbers
+
+options: translation-state-optimisation
+
+functions: hmac(bitstring,bitstring):bitstring
+
+/* Desired properties : ---------------------------------------------------------------------------
+We now prove that for all sk, msg, msg', i, i':
+  1) If the event Received(sk,msg,i) is triggered then the event Sent(sk,msg,i) was too.
+  2) If two events Received(sk,msg',i') and Received(sk,msg,i) are triggered then
+        msg = msg' if and only if i = i'
+-----------------------------------------------------------------------------------------------*/
+
+end

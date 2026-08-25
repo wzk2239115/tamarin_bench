@@ -1,0 +1,1119 @@
+// This file contains the manual proof for the exists-trace lemma.
+// This is not included in the main dnp3.m4/dnp3.spthy file as the proof
+// is rather long and unwieldy to include, and isn't found quickly by
+// Tamarin's autoproving functionality.
+
+theory DNP3AsymmTraceExists begin
+
+// Function signature and definition of the equational theory E
+
+functions: adec/2, aenc/2, fst/1, h/1, hmac/2, pair/2, pk/1,
+           sdec/2, senc/2, sign/2, snd/1, true/0, verify/3
+equations:
+    adec(aenc(x.1, pk(x.2)), x.2) = x.1,
+    fst(<x.1, x.2>) = x.1,
+    sdec(senc(x.1, x.2), x.2) = x.1,
+    snd(<x.1, x.2>) = x.2,
+    verify(sign(x.1, x.2), x.1, pk(x.2)) = true
+
+/*
+looping facts with injective instances:
+  L_OutSentKeyStatus/2, L_OutstationState/7, L_UserState/6
+*/
+
+restriction Eq_testing:
+  "∀ x y #i. (Eq( x, y ) @ #i) ⇒ (x = y)"
+  // safety formula
+
+restriction InEq_testing:
+  "∀ x y #i. (InEq( x, y ) @ #i) ⇒ (¬(x = y))"
+  // safety formula
+
+restriction Unique_Pairings_id:
+  "∀ x #i #j. ((Unique( x ) @ #i) ∧ (Unique( x ) @ #j)) ⇒ (#i = #j)"
+  // safety formula
+
+restriction USR_and_OutstationID_distinct:
+  "∀ x y #i.
+    (Distinct( x, y ) @ #i) ⇒
+    ((¬(∃ #j z. Distinct( y, z ) @ #j)) ∧
+     (¬(∃ #j z. Distinct( z, x ) @ #j)))"
+  // safety formula
+
+rule (modulo E) Update_key_reveal:
+   [ !F_UpdateKey( ~linkid, k ) ]
+  --[ UpdateKeyReveal( k ) ]->
+   [ Out( k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) cdsk_reveal:
+   [ !CDSKToReveal( k1 ) ] --[ CDSKReveal( k1 ) ]-> [ Out( k1 ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) mdsk_reveal:
+   [ !MDSKToReveal( k1 ) ] --[ MDSKReveal( k1 ) ]-> [ Out( k1 ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) authority_symm_key_reveal:
+   [ !F_AuthorityKey( k1 ) ]
+  --[ AuthorityKeyReveal( k1 ) ]->
+   [ Out( k1 ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) authority_asymm_priv_key_reveal:
+   [ !AuthorityPrivateKey( k1 ) ]
+  --[ AuthorityPrivateKeyReveal( k1 ) ]->
+   [ Out( k1 ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) user_asymm_priv_key_reveal:
+   [ !UserPrivateKey( k1 ) ]
+  --[ UserPrivateKeyReveal( k1 ) ]->
+   [ Out( k1 ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) outstation_asymm_priv_key_reveal:
+   [ !OutstationPrivateKey( k1 ) ]
+  --[ OutstationPrivateKeyReveal( k1 ) ]->
+   [ Out( k1 ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Authority_Symm_Key:
+   [ Fr( ~AK ) ]
+  --[ AuthorityCertKey( ~AK ) ]->
+   [ !F_AuthorityKey( ~AK ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) CountUp:
+   [ L_Counter( ~id, val ) ]
+  --[ NewCounterValue( ~id, h(val) ) ]->
+   [
+   L_Counter( ~id, h(val) ), L_XCounterValue( ~id, h(val) ),
+   Out( h(val) )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A2_C_AC_Authentication_Challenge:
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, <cCSQ, cChal>, mCS,
+                      'SecurityIdle'
+   ),
+   L_XCounterValue( ~oid, h(cCSQ) ),
+   !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   Fr( ~CD )
+   ]
+  --[
+  CSQ( ~oid, h(cCSQ) ), A2_nonaggressive( ~oid, 'control', ~CD ),
+  A2_trace( ~oid )
+  ]->
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, <cCSQ, cChal>, mCS,
+                      <'WaitForReply', h(cCSQ), h(cCSQ), $USR, ~CD>
+   ),
+   F_OutWaitForReply( ~oid, KSQ, ~ou, ~os, <cCSQ, cChal>, mCS,
+                      <h(cCSQ), h(cCSQ), $USR, ~CD>
+   ),
+   !F_OutCCSInvariant( ~oid, ~os, <h(cCSQ), $USR, ~CD> ),
+   Out( <h(cCSQ), $USR, ~CD> )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A2_M_AC_Authentication_Challenge:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, <mCSQ, mChal>, 'SecurityIdle' ),
+   L_XCounterValue( ~uid, h(mCSQ) ),
+   !F_UserInvariants( ~uid, AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   Fr( ~CD )
+   ]
+  --[
+  CSQ( ~uid, h(mCSQ) ), A2_nonaggressive( ~uid, 'monitor', ~CD ),
+  A2_M_trace( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, <mCSQ, mChal>,
+                <'WaitForReply', h(mCSQ), h(mCSQ), $USR, ~CD>
+   ),
+   F_UserWaitForReply( ~uid, ~uu, ~us, cCS, <mCSQ, mChal>,
+                       <h(mCSQ), h(mCSQ), $USR, ~CD>
+   ),
+   !F_UserMCSInvariant( ~uid, ~us, <h(mCSQ), $USR, ~CD> ),
+   Out( <h(mCSQ), $USR, ~CD> )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) S3_SKC_session_key_change:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, mCS, 'SessionKeyChange' ),
+   !F_UserInvariants( ~uid, AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !UserUpdateKey( ~uid, ~uu, UK_i_USR_O, update_key_method,
+                   auth_keys_used
+   ),
+   Fr( ~CDSK_j_USR_O ), Fr( ~MDSK_j_USR_O ), Fr( ~newus ),
+   In( <KSQ, $USR, keystatus, CD_j> )
+   ]
+  --[
+  SessKeys( ~CDSK_j_USR_O, ~MDSK_j_USR_O, $USR ),
+  NewSKs( ~linkid, UK_i_USR_O, ~CDSK_j_USR_O, ~MDSK_j_USR_O,
+          update_key_method, auth_keys_used
+  ),
+  Sourced_UpdateKey( ~linkid, UK_i_USR_O, update_key_method,
+                     auth_keys_used
+  ),
+  Sourced_UpdateKey_S3_for_new_lemma( ~linkid, UK_i_USR_O,
+                                      update_key_method, auth_keys_used
+  ),
+  UpdateKeyUsedForSKs( ~linkid, UK_i_USR_O, ~CDSK_j_USR_O,
+                       ~MDSK_j_USR_O, update_key_method, auth_keys_used
+  ),
+  S3( ~uid, ~CDSK_j_USR_O, ~MDSK_j_USR_O ), S3_trace( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~uu, ~newus, cCS, mCS,
+                <'WaitForKeyChangeConfirmation', 
+                 <KSQ, $USR, 
+                  senc(<~CDSK_j_USR_O, ~MDSK_j_USR_O, KSQ, $USR, keystatus, CD_j>,
+                       UK_i_USR_O)
+                 >, 
+                 ~CDSK_j_USR_O, ~MDSK_j_USR_O>
+   ),
+   !F_UserSessKeys( ~uid, ~newus, 'OK', ~CDSK_j_USR_O, ~MDSK_j_USR_O,
+                    UK_i_USR_O, update_key_method, auth_keys_used
+   ),
+   !CDSKToReveal( ~CDSK_j_USR_O ), !MDSKToReveal( ~MDSK_j_USR_O ),
+   Out( <KSQ, $USR, 
+         senc(<~CDSK_j_USR_O, ~MDSK_j_USR_O, KSQ, $USR, keystatus, CD_j>,
+              UK_i_USR_O)
+        >
+   )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) S4_SKS_session_key_status:
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, <cCSQ, cChal>,
+                      <mCSQ, mChal>, 'SecurityIdle'
+   ),
+   L_XCounterValue( ~oid, h(cCSQ) ),
+   L_OutSentKeyStatus( ~oid, <KSQ, $USR, keystatus, CD_j> ),
+   !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !OutUpdateKey( ~oid, ~ou, UK_i_USR_O, update_key_method,
+                  auth_keys_used
+   ),
+   Fr( ~CD_j_plus_1 ), Fr( ~newos ),
+   In( <KSQ, $USR, 
+        senc(<CDSK_j_USR_O, MDSK_j_USR_O, KSQ, $USR, keystatus, CD_j>,
+             UK_i_USR_O)
+       >
+   )
+   ]
+  --[
+  GotSessKeysOutSt( ~linkid, CDSK_j_USR_O, MDSK_j_USR_O, $USR ),
+  CSQ( ~oid, h(cCSQ) ),
+  Sourced_UpdateKey( ~linkid, UK_i_USR_O, update_key_method,
+                     auth_keys_used
+  ),
+  Sourced_SKs( ~linkid, UK_i_USR_O, CDSK_j_USR_O, MDSK_j_USR_O,
+               update_key_method, auth_keys_used
+  ),
+  UpdateKeyUsedForSKs( ~linkid, UK_i_USR_O, CDSK_j_USR_O,
+                       MDSK_j_USR_O, update_key_method, auth_keys_used
+  ),
+  S4_trace( ~oid )
+  ]->
+   [
+   L_OutstationState( ~oid, h(KSQ), ~ou, ~newos, <h(cCSQ), 'none'>,
+                      <h(mCSQ), 'none'>, 'SecurityIdle'
+   ),
+   L_OutSentKeyStatus( ~oid,
+                       <h(KSQ), $USR, 'OK', ~CD_j_plus_1, 
+                        hmac(<KSQ, $USR, 
+                              senc(<CDSK_j_USR_O, MDSK_j_USR_O, KSQ, $USR, keystatus, CD_j>,
+                                   UK_i_USR_O)
+                             >,
+                             MDSK_j_USR_O)
+                       >
+   ),
+   !F_OutSessKeys( ~oid, ~newos, 'OK', CDSK_j_USR_O, MDSK_j_USR_O,
+                   UK_i_USR_O, update_key_method, auth_keys_used
+   ),
+   Out( <h(KSQ), $USR, 'OK', ~CD_j_plus_1, 
+         hmac(<KSQ, $USR, 
+               senc(<CDSK_j_USR_O, MDSK_j_USR_O, KSQ, $USR, keystatus, CD_j>,
+                    UK_i_USR_O)
+              >,
+              MDSK_j_USR_O)
+        >
+   )
+   ]
+
+  // loop breakers: [0,2]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) U2_UKCRp_Key_Change_Reply:
+   [
+   !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   Fr( ~CD_b )
+   ]
+  --[
+  OutUpdateKeyChallengeActionFact( ~oid, ~linkid, ~CD_b ),
+  U2_trace( ~oid )
+  ]->
+   [ OutUpdateKeyChallenge( ~oid, ~CD_b ), Out( <$USR, ~CD_b> ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) U3_U4_U5_new_update_key_symmetric_mode:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, mCS, 'SecurityIdle' ),
+   !F_UserInvariants( ~uid, ~AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_AuthorityKey( ~AK ), Fr( ~CD_a ), Fr( ~UK_i_USR_O ),
+   In( <KSQ, $USR, CD_b> )
+   ]
+  --[
+  NewUpdateKey( ~linkid, ~UK_i_USR_O, 'Symmetric', ~AK ),
+  U345_symm_trace( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, mCS,
+                <'WaitForKCC', hmac(<$OSID, ~CD_a, CD_b, KSQ>, ~UK_i_USR_O)>
+   ),
+   F_WaitForKCC( ~uid, ~uu, ~us, cCS, mCS,
+                 hmac(<$OSID, ~CD_a, CD_b, KSQ>, ~UK_i_USR_O)
+   ),
+   !F_UpdateKey( ~linkid, ~UK_i_USR_O ),
+   Out( <~CD_a, <KSQ, $USR, senc(<$USR, ~UK_i_USR_O, CD_b>, ~AK)>, 
+         hmac(<$OSID, ~CD_a, CD_b, KSQ>, ~UK_i_USR_O)>
+   )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) U3_U4_U5_new_update_key_asymmetric_mode:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, mCS, 'SecurityIdle' ),
+   !F_UserInvariants( ~uid, ~AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   Fr( ~CD_a ), Fr( ~UK_i_USR_O ), In( <KSQ, $USR, CD_b> )
+   ]
+  --[
+  NewUpdateKey( ~linkid, ~UK_i_USR_O, 'Asymmetric',
+                <~outstation_priv_key, ~user_priv_key>
+  ),
+  LinkAndOutstationPrivKey( ~linkid, ~outstation_priv_key ),
+  U345_asymm_trace( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, mCS,
+                <'WaitForKCC', 
+                 sign(<<$OSID, ~CD_a, CD_b, KSQ>, 
+                       aenc(<$USR, ~UK_i_USR_O, CD_b>, pk(~outstation_priv_key))>,
+                      ~user_priv_key)
+                >
+   ),
+   F_WaitForKCC( ~uid, ~uu, ~us, cCS, mCS,
+                 sign(<<$OSID, ~CD_a, CD_b, KSQ>, 
+                       aenc(<$USR, ~UK_i_USR_O, CD_b>, pk(~outstation_priv_key))>,
+                      ~user_priv_key)
+   ),
+   !F_UpdateKey( ~linkid, ~UK_i_USR_O ),
+   Out( <~CD_a, 
+         <KSQ, $USR, 
+          aenc(<$USR, ~UK_i_USR_O, CD_b>, pk(~outstation_priv_key))>, 
+         sign(<<$OSID, ~CD_a, CD_b, KSQ>, 
+               aenc(<$USR, ~UK_i_USR_O, CD_b>, pk(~outstation_priv_key))>,
+              ~user_priv_key)
+        >
+   )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) S5_receive_SKS_confirmation:
+   [
+   L_UserState( ~uid, ~uu, ~us, <cCSQ, cChal>, <mCSQ, cChal>,
+                <'WaitForKeyChangeConfirmation', SKCM_j, CDSK_j_USR_O, MDSK_j_USR_O
+                >
+   ),
+   L_XCounterValue( ~uid, h(mCSQ) ),
+   !F_UserInvariants( ~uid, AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   Fr( ~cid ),
+   In( <KSQ, $USR, 'OK', CD_j_plus_1, hmac(SKCM_j, MDSK_j_USR_O)> )
+   ]
+  --[
+  GotSessKeysUser( ~linkid, CDSK_j_USR_O, MDSK_j_USR_O, $USR ),
+  CSQ( ~uid, h(mCSQ) ),
+  S5( ~uid, 'control', CDSK_j_USR_O, MDSK_j_USR_O ), S5_trace( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~uu, ~us, <h(cCSQ), 'none'>, <h(mCSQ), 'none'>,
+                'SecurityIdle'
+   )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Initial_key_pre_distribution:
+   [
+   !F_AuthorityKey( ~AK ), Fr( ~UK_i_USR_O ), Fr( ~uid ), Fr( ~oid ),
+   Fr( ~uu ), Fr( ~ou ), Fr( ~us ), Fr( ~os ), Fr( ~linkid ),
+   Fr( ~user_priv_key ), Fr( ~outstation_priv_key )
+   ]
+  --[
+  Unique( <~AK, $USR, $OUTSTATION> ),
+  Unique( <~AK, $OUTSTATION, $USR> ), Distinct( $USR, $OUTSTATION ),
+  AuthorityCertKey( ~AK ), NewCounterValue( ~uid, '0' ),
+  NewCounterValue( ~oid, '0' ),
+  NewUpdateKey( ~linkid, ~UK_i_USR_O, 'Initial', 'usb_stick' ),
+  InitialA3( ~uid ), InitialA3( ~oid ),
+  Sourced_UpdateKey_for_skiup_lemma( ~linkid, ~UK_i_USR_O, 'Initial',
+                                     'usb_stick'
+  ),
+  Initial( ~oid )
+  ]->
+   [
+   L_UserState( ~uid, ~uu, ~us, <'0', 'none'>, <'0', 'none'>, 'Init'
+   ),
+   L_OutstationState( ~oid, '0', ~ou, ~os, <'0', 'none'>,
+                      <'0', 'none'>, 'SecurityIdle'
+   ),
+   !F_UserInvariants( ~uid, ~AK, $USR, $OUTSTATION, ~linkid,
+                      ~user_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_OutstationInvariants( ~oid, ~AK, $USR, $OUTSTATION, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !UserUpdateKey( ~uid, ~uu, ~UK_i_USR_O, 'Initial', 'usb_stick' ),
+   !OutUpdateKey( ~oid, ~ou, ~UK_i_USR_O, 'Initial', 'usb_stick' ),
+   !F_UserSessKeys( ~uid, ~us, 'NOT_INIT', 'undefined', 'undefined',
+                    ~UK_i_USR_O, 'Initial', 'usb_stick'
+   ),
+   !F_OutSessKeys( ~oid, ~os, 'NOT_INIT', 'undefined', 'undefined',
+                   ~UK_i_USR_O, 'Initial', 'usb_stick'
+   ),
+   L_OutSentKeyStatus( ~oid, 'none' ), L_Counter( ~uid, '0' ),
+   L_Counter( ~oid, '0' ), !F_UpdateKey( ~linkid, ~UK_i_USR_O ),
+   !UserPrivateKey( ~user_priv_key ),
+   !OutstationPrivateKey( ~outstation_priv_key )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) S1_SKSR_session_key_status_request:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, mCS, anystate ),
+   !F_UserInvariants( ~uid, AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   )
+   ]
+  --[ S1_trace( ~uid ) ]->
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, mCS, 'SessionKeyChange' ),
+   Out( $USR )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) S2_SKS_session_key_status:
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, <cCSQ, cChal>,
+                      <mCSQ, mChal>, 'SecurityIdle'
+   ),
+   L_OutSentKeyStatus( ~oid, lastkeystatus ),
+   !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_OutSessKeys( ~oid, ~os, keystatus, CDSK, MDSK, UK_i_USR_O,
+                   update_key_method, auth_keys_used
+   ),
+   Fr( ~CD_j ), In( $USR )
+   ]
+  --[ S2_trace( ~oid ) ]->
+   [
+   L_OutstationState( ~oid, h(KSQ), ~ou, ~os, <cCSQ, cChal>,
+                      <mCSQ, mChal>, 'SecurityIdle'
+   ),
+   L_OutSentKeyStatus( ~oid, <h(KSQ), $USR, keystatus, ~CD_j> ),
+   Out( <h(KSQ), $USR, keystatus, ~CD_j> )
+   ]
+
+  // loop breakers: [0,1]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A3_C_AR_Authentication_Reply:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, mCS, 'SecurityIdle' ),
+   !F_UserInvariants( ~uid, AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_UserSessKeys( ~uid, ~us, 'OK', CDSK_j_USR_O, MDSK_j_USR_O,
+                    UK_i_USR_O, update_key_method, auth_keys_used
+   ),
+   Fr( ~cinvar ), In( <CSQ, $USR, CD> )
+   ]
+  --[
+  SentASDU( ~linkid,
+            <CSQ, $USR, hmac(<CSQ, <CSQ, $USR, CD>, $ASDU>, CDSK_j_USR_O)>,
+            'normal', 'control'
+  ),
+  UsingSessKeys( CDSK_j_USR_O, MDSK_j_USR_O, UK_i_USR_O,
+                 update_key_method, auth_keys_used
+  ),
+  A3_session_keys( ~linkid, CDSK_j_USR_O, MDSK_j_USR_O,
+                   update_key_method, auth_keys_used
+  ),
+  AuthReply( <CSQ, $USR, CD>, $ASDU, CDSK_j_USR_O ),
+  A3( ~uid, 'control', CDSK_j_USR_O, MDSK_j_USR_O ),
+  A3_nonaggressive( ~uid, 'control', CDSK_j_USR_O, MDSK_j_USR_O, CD
+  ),
+  A3_trace( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~uu, ~us, <CSQ, ~cinvar, CSQ, $USR, CD>, mCS,
+                'SecurityIdle'
+   ),
+   !UserCCSInvariant( ~uid, ~us, ~cinvar, <CSQ, $USR, CD> ),
+   Out( <CSQ, $USR, hmac(<CSQ, <CSQ, $USR, CD>, $ASDU>, CDSK_j_USR_O)>
+   )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A3_C_AR_Authentication_Aggressive:
+   [
+   L_UserState( ~uid, ~uu, ~us, <cCSQ, ~cinv, CSQ, $USR, CD>, mCS,
+                'SecurityIdle'
+   ),
+   !UserCCSInvariant( ~uid, ~us, ~cinv, <CSQ, $USR, CD> ),
+   !F_UserInvariants( ~uid, AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_UserSessKeys( ~uid, ~us, 'OK', CDSK_j_USR_O, MDSK_j_USR_O,
+                    UK_i_USR_O, update_key_method, auth_keys_used
+   )
+   ]
+  --[
+  SentASDU( ~linkid,
+            <h(cCSQ), $USR, 
+             hmac(<'amode', h(cCSQ), <CSQ, $USR, CD>, $ASDU>, CDSK_j_USR_O)>,
+            'aggressive', 'control'
+  ),
+  UsingSessKeys( CDSK_j_USR_O, MDSK_j_USR_O, UK_i_USR_O,
+                 update_key_method, auth_keys_used
+  ),
+  AuthReply( <CSQ, $USR, CD>, $ASDU, CDSK_j_USR_O ),
+  A3( ~uid, 'control', CDSK_j_USR_O, MDSK_j_USR_O ),
+  A3_aggressive( ~uid, 'control', CDSK_j_USR_O, MDSK_j_USR_O, CD ),
+  A3_Aggr_trace( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~uu, ~us, <h(cCSQ), ~cinv, CSQ, $USR, CD>, mCS,
+                'SecurityIdle'
+   ),
+   Out( <h(cCSQ), $USR, 
+         hmac(<'amode', h(cCSQ), <CSQ, $USR, CD>, $ASDU>, CDSK_j_USR_O)>
+   )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A4_receive_C_AC_of_ASDU:
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, cCS, mCS,
+                      <'WaitForReply', CSQ, CSQ, $USR, CD>
+   ),
+   F_OutWaitForReply( ~oid, KSQ, ~ou, ~os, cCS, mCS,
+                      <CSQ, CSQ, $USR, CD>
+   ),
+   !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_OutSessKeys( ~oid, ~os, 'OK', CDSK_j_USR_O, MDSK_j_USR_O,
+                   UK_i_USR_O, update_key_method, auth_keys_used
+   ),
+   In( <CSQ, $USR, hmac(<CSQ, <CSQ, $USR, CD>, $ASDU>, CDSK_j_USR_O)>
+   )
+   ]
+  --[
+  AuthASDU( ~linkid,
+            <CSQ, $USR, hmac(<CSQ, <CSQ, $USR, CD>, $ASDU>, CDSK_j_USR_O)>,
+            'normal', 'control'
+  ),
+  UsingSessKeys( CDSK_j_USR_O, MDSK_j_USR_O, UK_i_USR_O,
+                 update_key_method, auth_keys_used
+  ),
+  A4_C_FINISH( ), A4_trace( ~oid )
+  ]->
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, <CSQ, CSQ, $USR, CD>, mCS,
+                      'SecurityIdle'
+   )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A4_idle_receive_C_AC_aggressive:
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, <CSQ, AC>, mCS,
+                      'SecurityIdle'
+   ),
+   L_XCounterValue( ~oid, h(CSQ) ),
+   !F_OutSessKeys( ~oid, ~os, 'OK', CDSK_j_USR_O, MDSK_j_USR_O,
+                   UK_i_USR_O, update_key_method, auth_keys_used
+   ),
+   !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_OutCCSInvariant( ~oid, ~os, AC ),
+   In( <h(CSQ), $USR, hmac(<'amode', h(CSQ), AC, $ASDU>, CDSK_j_USR_O)
+       >
+   )
+   ]
+  --[
+  AuthASDU( ~linkid,
+            <h(CSQ), $USR, hmac(<'amode', h(CSQ), AC, $ASDU>, CDSK_j_USR_O)>,
+            'aggressive', 'control'
+  ),
+  UsingSessKeys( CDSK_j_USR_O, MDSK_j_USR_O, UK_i_USR_O,
+                 update_key_method, auth_keys_used
+  ),
+  CSQ( ~oid, h(CSQ) ), InEq( AC, 'none' ),
+  A4_idle_aggr_receive( ~oid )
+  ]->
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, <h(CSQ), AC>, mCS,
+                      'SecurityIdle'
+   )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A4_waiting_receive_C_AC_aggressive:
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, <CSQ, h(CSQ), $USR, CD>,
+                      mCS, <'WaitForReply', newChal>
+   ),
+   F_OutWaitForReply( ~oid, KSQ, ~ou, ~os, <CSQ, h(CSQ), $USR, CD>,
+                      mCS, newChal
+   ),
+   !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_OutSessKeys( ~oid, ~os, 'OK', CDSK_j_USR_O, MDSK_j_USR_O,
+                   UK_i_USR_O, update_key_method, auth_keys_used
+   ),
+   !F_OutCCSInvariant( ~oid, ~os, <h(CSQ), $USR, CD> ),
+   In( <h(CSQ), $USR, 
+        hmac(<'amode', h(CSQ), <h(CSQ), $USR, CD>, $ASDU>, CDSK_j_USR_O)>
+   )
+   ]
+  --[
+  AuthASDU( ~linkid,
+            <h(CSQ), $USR, 
+             hmac(<'amode', h(CSQ), <h(CSQ), $USR, CD>, $ASDU>, CDSK_j_USR_O)>,
+            'aggressive', 'control'
+  ),
+  UsingSessKeys( CDSK_j_USR_O, MDSK_j_USR_O, UK_i_USR_O,
+                 update_key_method, auth_keys_used
+  ),
+  InEq( <h(CSQ), $USR, CD>, 'none' ), A4_waiting_aggr_receive( ~oid )
+  ]->
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, <h(CSQ), h(CSQ), $USR, CD>,
+                      mCS, 'SecurityIdle'
+   )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A_OutstationWaitForReply_TimeoutorError:
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, cCS, mCS,
+                      <'WaitForReply', newChal>
+   ),
+   F_OutWaitForReply( ~oid, KSQ, ~ou, ~os, cCS, mCS, newChal )
+   ]
+  -->
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, newChal, mCS,
+                      'SecurityIdle'
+   )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A3_M_AR_Authentication_Reply:
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, cCS, mCS, 'SecurityIdle' ),
+   !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_OutSessKeys( ~oid, ~os, 'OK', CDSK_j_USR_O, MDSK_j_USR_O,
+                   UK_i_USR_O, update_key_method, auth_keys_used
+   ),
+   Fr( ~cinv ), In( <CSQ, $USR, CD> )
+   ]
+  --[
+  SentASDU( ~linkid,
+            <CSQ, $USR, hmac(<CSQ, <CSQ, $USR, CD>, $ASDU>, MDSK_j_USR_O)>,
+            'normal', 'monitor'
+  ),
+  UsingSessKeys( CDSK_j_USR_O, MDSK_j_USR_O, UK_i_USR_O,
+                 update_key_method, auth_keys_used
+  ),
+  AuthReply( <CSQ, $USR, CD>, $ASDU, MDSK_j_USR_O ),
+  A3( ~oid, 'monitor', CDSK_j_USR_O, MDSK_j_USR_O ),
+  A3_nonaggressive( ~oid, 'monitor', CDSK_j_USR_O, MDSK_j_USR_O, CD
+  ),
+  A3_M_trace( ~oid )
+  ]->
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, cCS,
+                      <CSQ, ~cinv, CSQ, $USR, CD>, 'SecurityIdle'
+   ),
+   !OutMCSInvariant( ~oid, ~os, ~cinv, <CSQ, $USR, CD> ),
+   Out( <CSQ, $USR, hmac(<CSQ, <CSQ, $USR, CD>, $ASDU>, MDSK_j_USR_O)>
+   )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A3_M_AR_Authentication_Aggressive:
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, cCS,
+                      <mCSQ, ~cinv, CSQ, $USR, CD>, 'SecurityIdle'
+   ),
+   !OutMCSInvariant( ~oid, ~os, ~cinv, <CSQ, $USR, CD> ),
+   !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_OutSessKeys( ~oid, ~os, 'OK', CDSK_j_USR_O, MDSK_j_USR_O,
+                   UK_i_USR_O, update_key_method, auth_keys_used
+   )
+   ]
+  --[
+  SentASDU( ~linkid,
+            <h(mCSQ), $USR, 
+             hmac(<'amode', h(mCSQ), <CSQ, $USR, CD>, $ASDU>, MDSK_j_USR_O)>,
+            'aggressive', 'monitor'
+  ),
+  UsingSessKeys( CDSK_j_USR_O, MDSK_j_USR_O, UK_i_USR_O,
+                 update_key_method, auth_keys_used
+  ),
+  AuthReply( <CSQ, $USR, CD>, $ASDU, MDSK_j_USR_O ),
+  A3( ~oid, 'monitor', CDSK_j_USR_O, MDSK_j_USR_O ),
+  A3_aggressive( ~oid, 'monitor', CDSK_j_USR_O, MDSK_j_USR_O, CD ),
+  A3_M_Aggr_trace( ~oid )
+  ]->
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, cCS,
+                      <h(mCSQ), ~cinv, CSQ, $USR, CD>, 'SecurityIdle'
+   ),
+   Out( <h(mCSQ), $USR, 
+         hmac(<'amode', h(mCSQ), <CSQ, $USR, CD>, $ASDU>, MDSK_j_USR_O)>
+   )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A4_receive_M_AC_of_ASDU:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, <mCSQ, mChal>,
+                <'WaitForReply', CSQ, CSQ, $USR, CD>
+   ),
+   F_UserWaitForReply( ~uid, ~uu, ~us, cCS, <mCSQ, mChal>,
+                       <CSQ, CSQ, $USR, CD>
+   ),
+   !F_UserInvariants( ~uid, AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_UserSessKeys( ~uid, ~us, 'OK', CDSK_j_USR_O, MDSK_j_USR_O,
+                    UK_i_USR_O, update_key_method, auth_keys_used
+   ),
+   In( <CSQ, $USR, hmac(<CSQ, <CSQ, $USR, CD>, $ASDU>, MDSK_j_USR_O)>
+   )
+   ]
+  --[
+  AuthASDU( ~linkid,
+            <CSQ, $USR, hmac(<CSQ, <CSQ, $USR, CD>, $ASDU>, MDSK_j_USR_O)>,
+            'normal', 'monitor'
+  ),
+  UsingSessKeys( CDSK_j_USR_O, MDSK_j_USR_O, UK_i_USR_O,
+                 update_key_method, auth_keys_used
+  ),
+  A4_M_FINISH( ), A4_M_trace( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, <CSQ, CSQ, $USR, CD>,
+                'SecurityIdle'
+   )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A4_idle_receive_M_AC_aggressive:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, <mCSQ, mChal>, 'SecurityIdle' ),
+   L_XCounterValue( ~uid, h(mCSQ) ),
+   !F_UserInvariants( ~uid, AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_UserSessKeys( ~uid, ~us, 'OK', CDSK_j_USR_O, MDSK_j_USR_O,
+                    UK_i_USR_O, update_key_method, auth_keys_used
+   ),
+   !F_UserMCSInvariant( ~uid, ~us, AC ),
+   In( <h(mCSQ), $USR, 
+        hmac(<'amode', h(mCSQ), mChal, $ASDU>, MDSK_j_USR_O)>
+   )
+   ]
+  --[
+  AuthASDU( ~linkid,
+            <h(mCSQ), $USR, 
+             hmac(<'amode', h(mCSQ), mChal, $ASDU>, MDSK_j_USR_O)>,
+            'aggressive', 'monitor'
+  ),
+  UsingSessKeys( CDSK_j_USR_O, MDSK_j_USR_O, UK_i_USR_O,
+                 update_key_method, auth_keys_used
+  ),
+  CSQ( ~uid, h(mCSQ) ), InEq( mChal, 'none' ),
+  A4_M_idle_aggr_receive( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, <h(mCSQ), mChal>, 'SecurityIdle'
+   )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A4_waiting_receive_M_AC_aggressive:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, <mCSQ, mChal>,
+                <'WaitForReply', newChal>
+   ),
+   F_UserWaitForReply( ~uid, ~uu, ~us, cCS, <mCSQ, mChal>, newChal ),
+   !F_UserInvariants( ~uid, AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   !F_UserSessKeys( ~uid, ~us, 'OK', CDSK_j_USR_O, MDSK_j_USR_O,
+                    UK_i_USR_O, update_key_method, auth_keys_used
+   ),
+   !F_UserMCSInvariant( ~uid, ~us, AC ),
+   In( <h(mCSQ), $USR, 
+        hmac(<'amode', h(mCSQ), mChal, $ASDU>, MDSK_j_USR_O)>
+   )
+   ]
+  --[
+  AuthASDU( ~linkid,
+            <h(mCSQ), $USR, 
+             hmac(<'amode', h(mCSQ), mChal, $ASDU>, MDSK_j_USR_O)>,
+            'aggressive', 'monitor'
+  ),
+  UsingSessKeys( CDSK_j_USR_O, MDSK_j_USR_O, UK_i_USR_O,
+                 update_key_method, auth_keys_used
+  ),
+  InEq( mChal, 'none' ), A4_M_waiting_aggr_receive( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, <h(mCSQ), mChal>, 'SecurityIdle'
+   )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) A_UserWaitForReply_Timeout:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, mCS, <'WaitForReply', newChal> ),
+   F_UserWaitForReply( ~uid, ~uu, ~us, cCS, mCS, newChal )
+   ]
+  -->
+   [ L_UserState( ~uid, ~uu, ~us, cCS, newChal, 'SecurityIdle' ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) U6_UKCC_Update_Key_Change_Confirmation:
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, cCS, mCS, 'SecurityIdle' ),
+   OutUpdateKeyChallenge( ~oid, CD_b ),
+   !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   Fr( ~newou ), In( CD_a ),
+   In( <<h(KSQ), $USR, senc(<$USR, UK_i_USR_O, CD_b>, AK)>, 
+        hmac(<$OSID, CD_a, CD_b, h(KSQ)>, UK_i_USR_O)>
+   )
+   ]
+  --[
+  OutstationUpdateKeySession( ~oid,
+                              hmac(<$OSID, CD_a, CD_b, h(KSQ)>, UK_i_USR_O),
+                              hmac(<$USR, CD_b, CD_a, h(KSQ)>, UK_i_USR_O)
+  ),
+  Sourced_UpdateKey( ~linkid, UK_i_USR_O, 'Symmetric', AK ),
+  Sourced_UpdateKey_for_skiup_lemma_U6( ~linkid, UK_i_USR_O,
+                                        'Symmetric', AK
+  ),
+  U6_symm_trace( ~oid )
+  ]->
+   [
+   L_OutstationState( ~oid, h(KSQ), ~newou, ~os, cCS, mCS,
+                      'SecurityIdle'
+   ),
+   !OutUpdateKey( ~oid, ~newou, UK_i_USR_O, 'Symmetric', AK ),
+   Out( hmac(<$USR, CD_b, CD_a, h(KSQ)>, UK_i_USR_O) )
+   ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) U7_receive_UKCC_from_Outstation:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, mCS,
+                <'WaitForKCC', hmac(<$OSID, CD_a, CD_b, KSQ>, UK_i_USR_O)>
+   ),
+   F_WaitForKCC( ~uid, ~uu, ~us, cCS, mCS,
+                 hmac(<$OSID, CD_a, CD_b, KSQ>, UK_i_USR_O)
+   ),
+   !F_UserInvariants( ~uid, AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   Fr( ~newuu ), In( hmac(<$USR, CD_b, CD_a, KSQ>, UK_i_USR_O) )
+   ]
+  --[
+  UserUpdateKeySession( ~uid,
+                        hmac(<$OSID, CD_a, CD_b, KSQ>, UK_i_USR_O),
+                        hmac(<$USR, CD_b, CD_a, KSQ>, UK_i_USR_O)
+  ),
+  Sourced_UpdateKey( ~linkid, UK_i_USR_O, 'Symmetric', AK ),
+  Sourced_UpdateKey_for_skiup_lemma( ~linkid, UK_i_USR_O,
+                                     'Symmetric', AK
+  ),
+  U7_symm_trace( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~newuu, ~us, cCS, mCS, 'SecurityIdle' ),
+   !UserUpdateKey( ~uid, ~newuu, UK_i_USR_O, 'Symmetric', AK )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) U6_UKCS_Update_Key_Change_Signature:
+   [
+   L_OutstationState( ~oid, KSQ, ~ou, ~os, cCS, mCS, 'SecurityIdle' ),
+   OutUpdateKeyChallenge( ~oid, CD_b ),
+   !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                            ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   Fr( ~newou ), In( CD_a ),
+   In( <
+        <h(KSQ), $USR, 
+         aenc(<$USR, UK_i_USR_O, CD_b>, pk(~outstation_priv_key))>, 
+        ukcsu1>
+   )
+   ]
+  --[
+  Eq( verify(ukcsu1,
+             <<$OSID, CD_a, CD_b, KSQ>, 
+              aenc(<$USR, UK_i_USR_O, CD_b>, pk(~outstation_priv_key))>,
+             pk(~user_priv_key)),
+      true
+  ),
+  Sourced_UpdateKey( ~linkid, UK_i_USR_O, 'Asymmetric',
+                     <~outstation_priv_key, ~user_priv_key>
+  ),
+  Sourced_UpdateKey_for_skiup_lemma_U6( ~linkid, UK_i_USR_O,
+                                        'Asymmetric', <~outstation_priv_key, ~user_priv_key>
+  ),
+  OutstationUpdateKeySession( ~oid, ukcsu1,
+                              hmac(<$USR, CD_b, CD_a, h(KSQ)>, UK_i_USR_O)
+  ),
+  AsymmU6Finish( ~oid, ukcsu1,
+                 hmac(<$USR, CD_b, CD_a, h(KSQ)>, UK_i_USR_O)
+  ),
+  LinkAndUserPrivKey( ~linkid, ~user_priv_key ),
+  LinkAndOutstationPrivKey( ~linkid, ~outstation_priv_key ),
+  U6_asymm_trace( ~oid )
+  ]->
+   [
+   L_OutstationState( ~oid, h(KSQ), ~newou, ~os, cCS, mCS,
+                      'SecurityIdle'
+   ),
+   !OutUpdateKey( ~oid, ~newou, UK_i_USR_O, 'Asymmetric',
+                  ~outstation_priv_key
+   ),
+   Out( hmac(<$USR, CD_b, CD_a, h(KSQ)>, UK_i_USR_O) )
+   ]
+
+  // loop breaker: [0]
+  /*
+  rule (modulo AC) U6_UKCS_Update_Key_Change_Signature:
+     [
+     L_OutstationState( ~oid, KSQ, ~ou, ~os, cCS, mCS, 'SecurityIdle' ),
+     OutUpdateKeyChallenge( ~oid, CD_b ),
+     !F_OutstationInvariants( ~oid, AK, $USR, $OSID, ~linkid,
+                              ~outstation_priv_key, pk(~outstation_priv_key), pk(~user_priv_key)
+     ),
+     Fr( ~newou ), In( CD_a ),
+     In( <
+          <h(KSQ), $USR, 
+           aenc(<$USR, UK_i_USR_O, CD_b>, pk(~outstation_priv_key))>, 
+          ukcsu1>
+     )
+     ]
+    --[
+    Eq( z, true ),
+    Sourced_UpdateKey( ~linkid, UK_i_USR_O, 'Asymmetric',
+                       <~outstation_priv_key, ~user_priv_key>
+    ),
+    Sourced_UpdateKey_for_skiup_lemma_U6( ~linkid, UK_i_USR_O,
+                                          'Asymmetric', <~outstation_priv_key, ~user_priv_key>
+    ),
+    OutstationUpdateKeySession( ~oid, ukcsu1,
+                                hmac(<$USR, CD_b, CD_a, h(KSQ)>, UK_i_USR_O)
+    ),
+    AsymmU6Finish( ~oid, ukcsu1,
+                   hmac(<$USR, CD_b, CD_a, h(KSQ)>, UK_i_USR_O)
+    ),
+    LinkAndUserPrivKey( ~linkid, ~user_priv_key ),
+    LinkAndOutstationPrivKey( ~linkid, ~outstation_priv_key ),
+    U6_asymm_trace( ~oid )
+    ]->
+     [
+     L_OutstationState( ~oid, h(KSQ), ~newou, ~os, cCS, mCS,
+                        'SecurityIdle'
+     ),
+     !OutUpdateKey( ~oid, ~newou, UK_i_USR_O, 'Asymmetric',
+                    ~outstation_priv_key
+     ),
+     Out( hmac(<$USR, CD_b, CD_a, h(KSQ)>, UK_i_USR_O) )
+     ]
+    variants (modulo AC)
+    1. $OSID = $OSID.35
+       $USR  = $USR.36
+       ~outstation_priv_key
+             = ~outstation_priv_key.42
+       ~user_priv_key
+             = ~user_priv_key.43
+       CD_a  = CD_a.45
+       CD_b  = CD_b.46
+       KSQ   = KSQ.47
+       UK_i_USR_O
+             = UK_i_USR_O.48
+       ukcsu1
+             = sign(<<$OSID.35, CD_a.45, CD_b.46, KSQ.47>, 
+                     aenc(<$USR.36, UK_i_USR_O.48, CD_b.46>,
+                          pk(~outstation_priv_key.42))
+                    >,
+                    ~user_priv_key.43)
+       z     = true
+    
+    2. $OSID = $OSID.38
+       $USR  = $USR.39
+       ~outstation_priv_key
+             = ~outstation_priv_key.45
+       ~user_priv_key
+             = ~user_priv_key.46
+       CD_a  = CD_a.48
+       CD_b  = CD_b.49
+       KSQ   = KSQ.50
+       UK_i_USR_O
+             = UK_i_USR_O.51
+       ukcsu1
+             = ukcsu1.54
+       z     = verify(ukcsu1.54,
+                      <<$OSID.38, CD_a.48, CD_b.49, KSQ.50>, 
+                       aenc(<$USR.39, UK_i_USR_O.51, CD_b.49>,
+                            pk(~outstation_priv_key.45))
+                      >,
+                      pk(~user_priv_key.46))
+    // loop breaker: [0]
+  */
+
+rule (modulo E) U7_receive_UKCC_from_Outstation_asymm:
+   [
+   L_UserState( ~uid, ~uu, ~us, cCS, mCS,
+                <'WaitForKCC', 
+                 sign(<<$OSID, ~CD_a, CD_b, KSQ>, 
+                       aenc(<$USR, ~UK_i_USR_O, CD_b>, pk(~outstation_priv_key))>,
+                      ~user_priv_key)
+                >
+   ),
+   F_WaitForKCC( ~uid, ~uu, ~us, cCS, mCS,
+                 sign(<<$OSID, ~CD_a, CD_b, KSQ>, 
+                       aenc(<$USR, ~UK_i_USR_O, CD_b>, pk(~outstation_priv_key))>,
+                      ~user_priv_key)
+   ),
+   !F_UserInvariants( ~uid, AK, $USR, $OSID, ~linkid, ~user_priv_key,
+                      pk(~outstation_priv_key), pk(~user_priv_key)
+   ),
+   Fr( ~newuu ), In( hmac(<$USR, CD_b, ~CD_a, h(KSQ)>, ~UK_i_USR_O) )
+   ]
+  --[
+  UserUpdateKeySession( ~uid,
+                        sign(<<$OSID, ~CD_a, CD_b, KSQ>, 
+                              aenc(<$USR, ~UK_i_USR_O, CD_b>, pk(~outstation_priv_key))>,
+                             ~user_priv_key),
+                        hmac(<$USR, CD_b, ~CD_a, h(KSQ)>, ~UK_i_USR_O)
+  ),
+  Sourced_UpdateKey( ~linkid, ~UK_i_USR_O, 'Asymmetric',
+                     <~outstation_priv_key, ~user_priv_key>
+  ),
+  Sourced_UpdateKey_for_skiup_lemma( ~linkid, ~UK_i_USR_O,
+                                     'Asymmetric', ~outstation_priv_key
+  ),
+  AsymmU7Finish( ~uid, ~linkid,
+                 sign(<<$OSID, ~CD_a, CD_b, KSQ>, 
+                       aenc(<$USR, ~UK_i_USR_O, CD_b>, pk(~outstation_priv_key))>,
+                      ~user_priv_key),
+                 hmac(<$USR, CD_b, ~CD_a, h(KSQ)>, ~UK_i_USR_O)
+  ),
+  LinkAndUserPrivKey( ~linkid, ~user_priv_key ),
+  LinkAndOutstationPrivKey( ~linkid, ~outstation_priv_key ),
+  U7_asymm_trace( ~uid )
+  ]->
+   [
+   L_UserState( ~uid, ~newuu, ~us, cCS, mCS, 'SecurityIdle' ),
+   !UserUpdateKey( ~uid, ~newuu, ~UK_i_USR_O, 'Asymmetric',
+                   ~outstation_priv_key
+   )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+end

@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:loops__Minimal_Typing_Example",
+  "level": "L1_verdict",
+  "name": "loops__Minimal_Typing_Example",
+  "protocol": "Minimal_Typing_Example",
+  "source_file": "loops/Minimal_Typing_Example.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "sources_assertion",
+    "Responder_secrecy",
+    "Public_part_public"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

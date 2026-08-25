@@ -1,0 +1,11 @@
+theory InEventRestrictionPrivateChannel
+begin
+
+process:
+   event A(); in('c', 'a'); event B()
+
+// in_event guarantees that K(x) is between A() and B()
+
+// should trigger addition of in_event and verify
+
+end

@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:sapic__fast__basic__exclusive-secrets",
+  "level": "L1_verdict",
+  "name": "sapic__fast__basic__exclusive-secrets",
+  "protocol": "ExclusiveSecrets",
+  "source_file": "sapic/fast/basic/exclusive-secrets.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "a_not_secret",
+    "b_not_secret",
+    "sanity",
+    "exclusive_secrets"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

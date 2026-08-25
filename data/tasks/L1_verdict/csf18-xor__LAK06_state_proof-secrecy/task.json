@@ -1,0 +1,25 @@
+{
+  "task_id": "L1:csf18-xor__LAK06_state_proof-secrecy",
+  "level": "L1_verdict",
+  "name": "csf18-xor__LAK06_state_proof-secrecy",
+  "protocol": "LAK06_state_proof_secrecy",
+  "source_file": "csf18-xor/LAK06_state_proof-secrecy.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "helpingUpdateKey",
+    "helpingStackHash",
+    "helpingSecrecy",
+    "executable",
+    "noninjectiveagreementTAG",
+    "noninjectiveagreementREADER"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

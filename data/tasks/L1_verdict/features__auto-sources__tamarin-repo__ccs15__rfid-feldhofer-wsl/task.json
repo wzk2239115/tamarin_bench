@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:features__auto-sources__tamarin-repo__ccs15__rfid-feldhofer-wsl",
+  "level": "L1_verdict",
+  "name": "features__auto-sources__tamarin-repo__ccs15__rfid-feldhofer-wsl",
+  "protocol": "RFID_Feldhofer",
+  "source_file": "features/auto-sources/tamarin-repo/ccs15/rfid-feldhofer-wsl.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executable",
+    "executable_left",
+    "executable_right",
+    "secret_value"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,91 @@
+theory Yubikey
+begin
+
+section{* The Yubikey-Protocol *}
+
+/*
+ * Protocol:    Yubikey Protocol
+ * Date:        Nov 2014
+ * Status:      not working (can be shown manually)
+ */
+
+builtins: symmetric-encryption, multiset
+options: translation-state-optimisation
+
+let Yubikey(L_pid,YL_pid,SL_pid,secretid,k)=
+ !(( //Plug
+	lock YL_pid;
+	  lookup YL_pid as sc in
+		in(=sc); //just a trick to enforce adv learning sc
+		insert YL_pid, sc+'one';
+	unlock YL_pid
+  )||( //ButtonPress
+	lock YL_pid;
+	  lookup YL_pid as tc in
+		in(sc); //just a trick to enforce adv learning tc
+		new nonce;
+		new npr;
+		event YubiPress(L_pid,secretid,k,tc);
+		out(<L_pid,nonce,senc(<secretid,tc,npr>,k)>);
+		insert YL_pid, tc + 'one';		
+	unlock YL_pid
+  )
+ )
+
+let Server(SL_pid,L_pid)=
+     in(<=L_pid,nonce,senc(<secretid,tc,npr>,k)>);
+     lock SL_pid;
+     lookup SL_pid as tuple in
+     in(otc);
+     if tuple = <secretid,k,otc> then
+      if otc (<) tc then
+		(event InitStuff(L_pid,secretid,k,tuple,otc,tc);
+		event Login(L_pid,k,tc);
+	 	insert SL_pid, <secretid,k,tc>;
+  	        unlock SL_pid)
+
+ 
+ 
+
+process:
+!(  new SL_pid; new YL_pid; new L_pid;
+     out(L_pid);
+ (!Server(SL_pid,L_pid) ||
+ ( new k;
+   event Sec(k);
+  new secretid;
+ insert SL_pid, <secretid,k,'zero'>;
+ insert YL_pid,('zero'+'one');
+ event YubiInit(L_pid,secretid,k);
+ !Yubikey(L_pid,YL_pid,SL_pid,secretid,k)
+ ))
+
+ )
+
+/* // For sanity: Ensure that a successful login is reachable. */
+
+// source lemmas:
+// There exists a Initialisation for every Login on the Server
+
+restriction slightly_weaker_invariant:
+        "(All pid k tc1 tc2 #t1 #t2 .
+             Login(pid,k,tc1)@#t1 & Login(pid,k,tc2)@#t2
+        ==> ( #t1<#t2 & ( Ex z . tc1+z=tc2))
+            | #t2<#t1 | #t1=#t2)
+        "
+
+end
+
+// Automated part..
+/* ============================================================================== */
+/* summary of summaries: */
+
+/* analyzed: Yubikey/Yubikey.spthy */
+
+/*   init_server (all-traces): verified (148 steps) */
+/*   init_server_secrecy (all-traces): verified (191 steps) */
+/*   init_yubikey (all-traces): verified (63 steps) */
+/*   one_count_foreach_login (all-traces): verified (88 steps) */
+/*   no_replay (all-traces): verified (2 steps) */
+/*   injective_correspondance (all-traces): verified (6 steps) */
+/*   Login_invalidates_smaller_counters (all-traces): verified (340 steps) */

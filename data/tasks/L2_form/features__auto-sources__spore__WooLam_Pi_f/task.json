@@ -1,0 +1,22 @@
+{
+  "task_id": "L2:features__auto-sources__spore__WooLam_Pi_f",
+  "level": "L2_form",
+  "name": "features__auto-sources__spore__WooLam_Pi_f",
+  "protocol": "WooLamPi_f",
+  "source_file": "features/auto-sources/spore/WooLam_Pi_f.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "executability",
+    "Secrecy",
+    "injectiveagreement_B",
+    "agreement_B"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

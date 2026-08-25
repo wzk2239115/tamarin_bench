@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:loops__Axioms_and_Induction",
+  "level": "L1_verdict",
+  "name": "loops__Axioms_and_Induction",
+  "protocol": "Axioms_and_Induction",
+  "source_file": "loops/Axioms_and_Induction.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Exists_test",
+    "NoStep_with_induction",
+    "NoStep_without_induction"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

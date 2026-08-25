@@ -1,0 +1,38 @@
+{
+  "task_id": "L1:asiaccs20-eccDAA__QUOTE__TPM_DAA_JoinQuotePCR_with_fix_noBSN",
+  "level": "L1_verdict",
+  "name": "asiaccs20-eccDAA__QUOTE__TPM_DAA_JoinQuotePCR_with_fix_noBSN",
+  "protocol": "TPM_DAA_JoinQuote_with_fix_noBSN",
+  "source_file": "asiaccs20-eccDAA/QUOTE/TPM_DAA_JoinQuotePCR_with_fix_noBSN.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "auto_bind_restriction",
+    "auto_restriction_one_host_per_tpm",
+    "auto_restriction_one_tpm_per_host",
+    "auto_restricition_pke_comes_from_tpm",
+    "auto_restriction_single_issuer",
+    "auto_verify_multiple_pkes",
+    "oracle_correctness_two_pcr_quotes_same_credentials",
+    "oracle_correctness_two_pcr_quotes_different_credentials",
+    "oracle_correctness_join_only",
+    "oracle_correctness_no_verify",
+    "oracle_correctness_with_verify",
+    "oracle_auth_aliveness_host_very_weak",
+    "oracle_auth_aliveness_host",
+    "oracle_auth_aliveness_issuer",
+    "oracle_auth_weak_agreement_host",
+    "oracle_auth_non_injective_agreement_host_issuer",
+    "oracle_auth_injective_agreement_host_issuer",
+    "oracle_auth_secrecy_cre",
+    "oracle_SP3_Unforgeability"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

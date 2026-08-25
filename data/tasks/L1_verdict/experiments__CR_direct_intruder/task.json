@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:experiments__CR_direct_intruder",
+  "level": "L1_verdict",
+  "name": "experiments__CR_direct_intruder",
+  "protocol": "CR_direct_intruder",
+  "source_file": "experiments/CR_direct_intruder.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Client_session_key_secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

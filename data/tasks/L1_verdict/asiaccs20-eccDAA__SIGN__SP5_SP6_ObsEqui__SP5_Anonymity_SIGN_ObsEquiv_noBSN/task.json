@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:asiaccs20-eccDAA__SIGN__SP5_SP6_ObsEqui__SP5_Anonymity_SIGN_ObsEquiv_noBSN",
+  "level": "L1_verdict",
+  "name": "asiaccs20-eccDAA__SIGN__SP5_SP6_ObsEqui__SP5_Anonymity_SIGN_ObsEquiv_noBSN",
+  "protocol": "SP5_Anonymity_SIGN_ObsEqui_noBSN",
+  "source_file": "asiaccs20-eccDAA/SIGN/SP5_SP6_ObsEqui/SP5_Anonymity_SIGN_ObsEquiv_noBSN.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "diff_signatures_no_verify"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

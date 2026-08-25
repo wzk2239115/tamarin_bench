@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:sp14__Scott_EphkRev",
+  "level": "L1_verdict",
+  "name": "sp14__Scott_EphkRev",
+  "protocol": "Scott",
+  "source_file": "sp14/Scott_EphkRev.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md",
+    "oracle"
+  ],
+  "lemma_names": [
+    "key_secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": true,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

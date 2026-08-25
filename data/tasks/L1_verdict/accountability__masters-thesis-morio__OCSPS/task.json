@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:accountability__masters-thesis-morio__OCSPS",
+  "level": "L1_verdict",
+  "name": "accountability__masters-thesis-morio__OCSPS",
+  "protocol": "OCSPS",
+  "source_file": "accountability/masters-thesis-morio/OCSPS.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "acc"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

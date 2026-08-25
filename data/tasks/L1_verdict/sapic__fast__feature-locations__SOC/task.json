@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:sapic__fast__feature-locations__SOC",
+  "level": "L1_verdict",
+  "name": "sapic__fast__feature-locations__SOC",
+  "protocol": "SOC",
+  "source_file": "sapic/fast/feature-locations/SOC.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "secrecy",
+    "Reach",
+    "attested_computation"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

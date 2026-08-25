@@ -1,0 +1,12 @@
+theory XorTest
+begin
+
+builtins: xor
+
+rule Test:
+  [ Fr(~x), Fr(~y) ]
+  --[ Secret(~x) ]->
+  [ Out(~x XOR ~y), Out(~y) ]
+
+  
+end

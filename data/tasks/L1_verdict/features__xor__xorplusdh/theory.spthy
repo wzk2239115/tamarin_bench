@@ -1,0 +1,12 @@
+theory XorPlusDHTest
+begin
+
+builtins: xor, diffie-hellman
+
+rule Test:
+  [ Fr(~x), Fr(~y) ]
+  --[ Secret(~x) ]->
+  [ Out(~x XOR ~y), Out(~y) ]
+
+  
+end

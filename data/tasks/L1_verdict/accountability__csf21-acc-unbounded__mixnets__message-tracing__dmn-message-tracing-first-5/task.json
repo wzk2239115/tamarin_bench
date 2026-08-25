@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:accountability__csf21-acc-unbounded__mixnets__message-tracing__dmn-message-tracing-first-5",
+  "level": "L1_verdict",
+  "name": "accountability__csf21-acc-unbounded__mixnets__message-tracing__dmn-message-tracing-first-5",
+  "protocol": "DMNMessageTracingFirst5",
+  "source_file": "accountability/csf21-acc-unbounded/mixnets/message-tracing/dmn-message-tracing-first-5.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "finished",
+    "valid",
+    "blame",
+    "missing"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

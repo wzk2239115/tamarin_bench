@@ -1,0 +1,32 @@
+{
+  "task_id": "L1:jcs19-xor__LD07_proof-WA-attack",
+  "level": "L1_verdict",
+  "name": "jcs19-xor__LD07_proof-WA-attack",
+  "protocol": "LD07_WA_attack",
+  "source_file": "jcs19-xor/LD07_proof-WA-attack.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "helping_reader_start",
+    "helping_tag_start",
+    "helping_keys_reader_are_secret",
+    "helping_keys_disjoint_challenge",
+    "helping_keys_disjoint_XX",
+    "helping_keys_disjoint_XS",
+    "helping_keys_disjoint_DD",
+    "helping_keys_disjoint_OutX",
+    "alive_tag",
+    "recentalive_tag_bounded",
+    "WA_tag",
+    "recentalive_reader",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

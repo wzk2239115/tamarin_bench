@@ -1,0 +1,85 @@
+theory RYY
+begin
+
+builtins: bilinear-pairing
+
+functions: kdf/1, hp/1
+
+section{* RYY : UM-like identity based key exchange protocol *}
+
+/*
+ * Protocol:	RYY
+ * Modeler: 	Benedikt Schmidt
+ * Date: 	July 2012
+ * Source:	Boyd overview identity based key exchange protocols
+ *
+ * Status: 	Working
+ */
+
+// Key generation center
+
+rule KGC_Setup:
+  [ Fr(msk) ]
+  -->
+  [ !MSK( msk ) ]
+
+rule KGC_request:
+  [ !MSK( s ) ]
+  -->
+  [ !LTK( $ID, pmult(s, hp($ID)) ) ]
+
+// Reveals
+
+rule Reveal_ltk:
+  [ !LTK( $ID, skID ) ]
+  --[ LtkRev($ID) ]->
+  [ Out(skID) ]
+
+rule Reveal_master_key:
+  [ !MSK( msk ) ]
+  --[ MskRev() ]->
+  [ Out( msk ) ]
+
+rule Reveal_session_key:
+  [ !Sessk( ~ey, sek ) ]
+  --[ SesskRev( ~ey ) ]->
+  [ Out( sek ) ]
+
+// Protocol
+
+rule Init_1:
+  [ Fr( ~ex ) ]
+  -->
+  [ Init( ~ex, $A, $B )
+  , Out( 'g'^~ex )
+  ]
+
+rule Init_2:
+  let X = 'g'^~ex
+      sessKey = kdf( Y^~ex, em(hp($B), skA), $A, $B, X, Y )
+  in
+  [ Init( ~ex, $A, $B )
+  , !LTK( $A, skA )
+  , In( Y )
+  ]
+  --[ Accept( ~ex, sessKey )
+    , Sid(    ~ex, <$A,$B,X,Y,'Init'> )
+    ]->
+  [ !Sessk( ~ex, sessKey )]
+
+rule Resp_1:
+  let Y = 'g'^~ey
+      sessKey = kdf(X^~ey, em(skB, hp($A)), $A, $B, X, Y)
+  in
+  [ Fr( ~ey )
+  , !LTK( $B, skB )
+  , In( X )
+  ]
+  --[ Accept( ~ey, sessKey )
+    , Sid(    ~ey, <$B,$A,Y,X,'Resp'> )
+    ]->
+  [ Out( Y )
+  , !Sessk( ~ey, sessKey )
+  ]
+
+end

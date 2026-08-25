@@ -1,0 +1,178 @@
+/*
+ * Protocol:    Counter-based detection example
+ * Modeler:     Kevin Milner
+ * Date:        May 2016
+ * Source:      Original
+ */
+
+theory counter_example
+begin
+heuristic: I
+builtins: signing, hashing
+functions: S/1
+
+restriction Eq_testing: "All x y #i. Eq(x,y) @ i ==> x = y"
+restriction InEq_testing: "All x y #i. InEq(x,y) @ i ==> not(x = y)"
+
+//There's one id, per role, per direction.
+restriction pairings_unique:
+    "All id1 id2 role ki kr #i #j.
+        Paired(id1,role,ki,kr) @ i & Paired(id2,role,ki,kr) @ j
+    ==> #i = #j"
+
+rule RegisterKey:
+    [ Fr(~ltkA) ]
+  --[ Key(~ltkA) ]->
+    [ !F_AgentKey(~ltkA), Out(pk(~ltkA)) ]
+
+rule CompromiseKey:
+    [ !F_AgentKey(~ltk) ]
+  --[ Compromise(pk(~ltk)) ]->
+    [ Out(~ltk) ]
+
+/* Models an agent adding anothers public key out-of-band, we assume
+ * that all relationships set up this way are 'sane' in that both of the
+ * keys involved were generated fresh. */
+rule BindState_Init:
+    [ !F_AgentKey(~ltkA)
+    , !F_AgentKey(~ltkB)
+    , Fr(~id)
+    ]--[
+      Paired(~id, 'I', ~ltkA, ~ltkB)
+    , Counter(~id, '0')
+    , F_InvariantSource_I(~id,~ltkA,pk(~ltkB))
+    ]->
+    [ /* For search efficiency, state is divided into
+       * an invariant portion and a variant portion. This
+       * allows tamarin to immediately bind the keys back
+       * to this initial pairing rule. The fresh ~id is used
+       * to identify this pairing. */
+      St_I(~id, ~ltkA, pk(~ltkB), 'm0', '0')
+    ]
+
+rule BindState_Resp:
+    [ !F_AgentKey(~ltkA)
+    , !F_AgentKey(~ltkB)
+    , Fr(~id)
+    ]--[
+      Paired(~id, 'R', ~ltkA, ~ltkB)
+    , Counter(~id, '0')
+    , F_InvariantSource_R(~id,~ltkA,pk(~ltkB))
+    ]->
+    [ St_R(~id, ~ltkA, pk(~ltkB), 'm1', '0')
+    ]
+
+//////////////////////////////////////////
+//   Message rules
+rule I_m0:
+    [ St_I(~id, ~ltkI, pkR, 'm0', ic)
+    , Fr(~ni)
+    ]--[
+      Begin('I', <pk(~ltkI),pkR>, S(ic))
+    , Counter(<~id,'m0'>, ic)
+    , Gen(~ni)
+    , Injectivity(~id,ic,~ni)
+
+    , Invariant_I(~id,~ltkI,pkR)
+    ]->
+    [ St_I(~id, ~ltkI, pkR, <'m2',~ni>, ic)
+    , Out(~ni)
+    ]
+
+rule R_m1:
+    let m1 = <'1', pk(~ltkR), pkI, ni, ~nr, S(rc)> in
+    [ St_R(~id, ~ltkR, pkI, 'm1', rc)
+    , Fr(~nr)
+    , In(ni)
+    ]--[
+      Begin('R', <pkI,pk(~ltkR)>, S(rc))
+    , Counter(<~id,'m1'>, rc)
+    , Nonces(~id,ni,~nr)
+    , Gen(~nr)
+    , Injectivity(~id,rc,~nr)
+
+    , Invariant_R(~id,~ltkR,pkI)
+    ]->
+    [ St_R(~id, ~ltkR, pkI, <'m2', ni, ~nr>, S(rc))
+    , Out(<m1, sign{m1}~ltkR>) 
+    ]
+
+rule I_m2:
+    let m1 = <'1', pkR, pk(~ltkI), ni, nr, src>
+        m2 = <'2', pk(~ltkI), pkR, ni, nr, src> in
+    [ St_I(~id, ~ltkI, pkR, <'m2', ni>, ic)
+    , In(<m1, sig>) 
+    ]--[
+      Eq(verify(sig,m1,pkR), true)
+    , Eq(S(ic),src)
+    , Counter(~id,S(ic))
+    , Nonces(~id,ni,nr)
+    , Session('I', <pk(~ltkI),pkR>, <ni, nr>, src)
+    , Injectivity(~id,ni,S(ic))
+
+    , Invariant_I(~id,~ltkI,pkR)
+    ]->
+    [ St_I(~id, ~ltkI, pkR, 'm0', S(ic))
+    , Out(<m2, sign{m2}~ltkI>) 
+    ]  
+
+rule I_detect:
+    let m1 = <'1', pkR, pk(~ltkI), ni, nr, src>
+        m2 = <'2', pk(~ltkI), pkR, ni, nr, src> in
+    [ St_I(~id, ~ltkI, pkR, <'m2', ni>, ic)
+    , In(<m1, sig>) 
+    ]--[
+      Eq(verify(sig,m1,pkR), true)
+    , InEq(S(ic),src)
+    , Detect(<pk(~ltkI),pkR>)
+    , Counter(~id,S(ic))
+    , Nonces(~id,ni,nr)
+    , Session('I', <pk(~ltkI),pkR>, <ni, nr>, src)
+    , Injectivity(~id,ni,S(ic))
+
+    , Invariant_I(~id,~ltkI,pkR)
+    ]->
+    [ Remediate_Compromise(~id, ~ltkI, pkR, 'm0', S(ic))
+    , Out(<m2, sign{m2}~ltkI>) 
+    ]  
+
+/*
+rule R_detect:
+    let m2 = <'2', pkI, pk(~ltkR), ni, nr, sic> in
+    [ St_R(~id, ~ltkR, pkI, <'m2', ni, nr>, rc)
+    , Fr(~inj)
+    , In(<m2, sig>) 
+    ]--[
+      Eq(verify(sig,m2,pkI), true)
+    , InEq(S(rc), sic)
+    , Detect(<pkI,pk(~ltkR)>)
+    , Session('R', <pkI,pk(~ltkR)>, <ni,nr>, sic)
+    , Counter(~id,S(rc))
+    , Injectivity(~id,nr,S(rc))
+
+    , Invariant_R(~id,~ltkR,pkI)
+    ]->
+    [ Remediate_Compromise(~id, ~ltkR, pkI, 'm1', S(rc))
+    ]
+*/
+rule R_m2:
+    let m2 = <'2', pkI, pk(~ltkR), ni, nr, src> in
+    [ St_R(~id, ~ltkR, pkI, <'m2', ni, nr>, src)
+    , Fr(~inj)
+    , In(<m2, sig>)
+    ]--[
+      Eq(verify(sig,m2,pkI), true)
+    , Completed(~id)
+    , Session('R', <pkI,pk(~ltkR)>, <ni,nr>, src)
+    , Counter(~id,src)
+    , Injectivity(~id,nr,src)
+
+    , Invariant_R(~id,~ltkR,pkI)
+    ]->
+    [ St_R(~id, ~ltkR, pkI, 'm1', src)
+    ]
+
+//////////////////////////////////////////
+//   Helper Lemmas:
+
+end

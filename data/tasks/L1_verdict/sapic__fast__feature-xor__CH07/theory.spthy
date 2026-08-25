@@ -1,0 +1,74 @@
+theory CH07
+
+begin
+
+/*
+  CH07 RFID protocol model based on
+  "Attacks on RFID protocols" v1.1 from Aug 6, 2009, by Ton van Deursen and Sasa Radomirovic
+  This model focuses on authentication properties (recent aliveness and
+  agreement.)
+
+  Adapted from tamarin file to SAPIC.
+
+  Reader R, Tag T, shared knowledge k, ID.
+
+  R: knows(k,ID)
+  T: knows(k,ID)
+  R: fresh(r1)
+  R -> T: r1
+  T: fresh(r2)
+  T -> R: r2,lh(rot(ID,h(r1⊕r2⊕k))⊕h(r1⊕r2⊕k))
+  R -> T: rh(rot(ID,h(r1⊕r2⊕k))⊕h(r1⊕r2⊕k))
+
+*/
+
+builtins: xor, hashing
+functions: rot/2, lh/1, rh/1
+
+let Reader =
+   new ~r1;
+   event Challenge( ~r1, 'Reader' );
+   out( ~r1 );
+   in( <r2, x> );
+   if x = lh(rot(~id, h((~r1 XOR r2 XOR ~k))) XOR h((~r1 XOR r2 XOR ~k))) then
+     (
+      event Alive( ~k, 'Tag' );
+      event Response(~k, 'Reader');
+      event Running(<'T','R',<~k XOR ~r1 XOR r2>>);
+//    event Running(<'T','R',<~k, ~r1, r2>>);
+      event Commit(<'R','T',<~k XOR ~r1 XOR r2>>);
+//    event Commit(<'R','T',<~k, ~r1, r2>>);
+      out( rh(rot(~id,h((~r1 XOR r2 XOR ~k))) XOR h((~r1 XOR r2 XOR ~k))) )
+      )
+    else 0
+
+let Tag =
+   in( r1 );
+   new ~r2;
+   event Response( ~k, 'Tag' );
+   event Challenge(~r2, 'Tag');
+   event Running(<'R','T',<~k XOR r1 XOR ~r2>>);
+// event Running(<'R','T',<~k, r1, ~r2>>);
+   out( <~r2,lh(rot(~id, h((r1 XOR ~r2 XOR ~k))) XOR  h((r1 XOR ~r2 XOR ~k)) )>);
+   in( rh(rot(=~id, h((=r1 XOR =~r2 XOR =~k))) XOR  h((=r1 XOR =~r2 XOR =~k))) );
+   event Alive( ~k, 'Reader' );
+   event Commit(<'T','R',<~k XOR r1 XOR ~r2>>)
+
+process:
+! new ~k; new ~id; ! (Reader || Tag)
+
+// FINDS ATTACK AUTOMATICALLY
+/* lemma recentalive_tag: */
+/*   all-traces "∀ x #i. (Alive( x, 'Tag' ) @ #i) ⇒ (∃ y #j #k. Challenge(y, 'Reader') @k & Response( x, 'Tag' ) @ #j & k < j & j < i)" */
+
+// Negated and rephrased as exist-trace, to be used for regression testing...
+
+end
+
+/* analyzed: examples/sapic/xor/CH07.sapic */
+
+/*   recentalive_tag (all-traces): falsified - found trace (10 steps) */
+/*   recentalive_reader (all-traces): verified (24 steps) */
+/*   noninjectiveagreement_tag (all-traces): verified (87 steps) */
+/*   noninjectiveagreement_reader (all-traces): verified (77 steps) */
+/*   executable (exists-trace): verified (11 steps) */

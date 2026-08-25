@@ -1,0 +1,41 @@
+theory CombinedHashPubEncDecTest begin
+
+/*
+ * Protocol:	 Combination of Hash, Public, Encryption and Decryption operators
+ * Modeler: 	 Jannik Dreier and Ralf Sasse
+ * Described in: 
+ * Date: 	 April 2015
+ *
+ * Status: 	 working
+ */
+
+functions: h/1, aenc/2, adec/2, pk/1
+equations: adec(aenc(m, pk(k)), k) = m
+
+rule Out_Hash:
+  [ Fr(~ltk) ]
+  -->
+  [ Out(diff(h(~ltk),~ltk)) ]
+
+rule Out_pub:
+  [ ]
+  -->
+  [ Out(diff($A,$B)) ]
+
+rule Out_Enc:
+  [ Fr(~ltk) ]
+  --[ OUT_I_1(aenc(diff($A,$B),pk(~ltk))), LTK(~ltk) ]->
+  [ !Key(~ltk), Out(aenc(diff($A,$B),pk(~ltk))) ]
+
+rule Out_Dec:
+  [ !Key(ltk), In(aenc(m,pk(ltk))) ]
+  --[ IN_R_1_ni(m, aenc(m,pk(ltk))) ]->
+  [ Out(m) ]
+  
+// This lemma uses an automatically generated Fact "DiffProtoOut_Dec"
+// which the parser does not know about, and thus complains, which can be
+// safely ignored.
+  
+  
+  
+end

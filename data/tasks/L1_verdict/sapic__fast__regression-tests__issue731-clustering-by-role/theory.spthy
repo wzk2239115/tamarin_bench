@@ -1,0 +1,17 @@
+theory issue731
+
+begin
+
+let A = event Nothing(); event AA()
+let B = event BB()
+let C = event CC()
+let D = event DD()
+
+let Resp = C | D
+let Init = A | B
+
+process:
+    !Init | Resp
+
+end
+

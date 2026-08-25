@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:post17__needham_schroeder_symmetric_cbc",
+  "level": "L1_verdict",
+  "name": "post17__needham_schroeder_symmetric_cbc",
+  "protocol": "nsscbc",
+  "source_file": "post17/needham_schroeder_symmetric_cbc.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

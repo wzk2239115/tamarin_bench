@@ -1,0 +1,29 @@
+{
+  "task_id": "L1:sapic__export__States__secure-device",
+  "level": "L1_verdict",
+  "name": "sapic__export__States__secure-device",
+  "protocol": "StatVerif_Security_Device",
+  "source_file": "sapic/export/States/secure-device.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "source",
+    "reachability_left",
+    "reachability_right",
+    "initnott",
+    "uniqInit",
+    "initdev2",
+    "initdev3",
+    "secrecyleft",
+    "secrecyright",
+    "secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

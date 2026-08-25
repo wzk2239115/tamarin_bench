@@ -1,0 +1,43 @@
+theory AKE
+
+// Works with both Tamarin and Proverif
+
+begin
+
+builtins: asymmetric-encryption,locations-report
+
+functions: first/1
+
+equations: first(<x,y>)=x
+
+predicates: Report(x,y) <=> not(first(y) = 'loc')
+
+let r=                            // IEE sides
+        in(pkV);
+        !(                        // For every pk received, an instance is launched at the corresponding trusted location
+        new k;
+	event SessionP(pkV,k);
+        let signed = report(aenc(k,pkV)) in
+        event Poutput(aenc(k,pkV),signed);
+	    out(<aenc(k,pkV),signed>)
+        )@<'loc',pkV>
+
+let v =                                   // Initiator of the Key Exchange
+    new skV:skey;
+    event HonestP(pk(skV), 'pubkey');
+    out(pk(skV));                         // publish its public keys
+    in(<cypher,signed>);  // receives the shared key and checks the report
+    let k = adec(cypher,skV) in
+       event Test();
+    if  cypher = check_rep(signed,<'loc',pk(skV)>) then
+       (event Voutput(aenc(k,pk(skV)),signed);
+	   event SessionV(pk(skV),k)
+
+        )
+
+process:
+( (!r) || (!v))
+
+/* First some auxilliary lemmas, for sanity or to help in other proofs */
+
+end

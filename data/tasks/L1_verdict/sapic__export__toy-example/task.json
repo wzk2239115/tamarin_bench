@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:sapic__export__toy-example",
+  "level": "L1_verdict",
+  "name": "sapic__export__toy-example",
+  "protocol": "Toy",
+  "source_file": "sapic/export/toy-example.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Auth"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

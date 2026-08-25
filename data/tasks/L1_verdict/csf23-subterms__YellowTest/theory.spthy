@@ -1,0 +1,23 @@
+theory YellowTest
+begin
+
+rule Start:
+    [Fr(~s)]
+  --[Start(~s, <~s,~s>)]->
+    [State(~s, <~s,~s>)]
+
+rule Start2:
+    [Fr(~s)]
+  --[Start(~s, fst(~s))]->
+    [State(~s, ~s)]
+
+rule End:
+    [State(s, t)]
+  --[End(s, t)]->
+    []
+
+restriction Start2Complication:
+"∀ s t #i. Start(s, t)@i ==> s ⊏ t"
+
+end
+

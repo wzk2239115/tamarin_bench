@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:asiaccs20-eccDAA__SIGN__SP5_SP6_ObsEqui__SP6_UserControlledUnlinkability_SIGN_ObsEquiv_BSN",
+  "level": "L1_verdict",
+  "name": "asiaccs20-eccDAA__SIGN__SP5_SP6_ObsEqui__SP6_UserControlledUnlinkability_SIGN_ObsEquiv_BSN",
+  "protocol": "SP6_UserControlledUnlinkability_ObsEquiv_withBSN",
+  "source_file": "asiaccs20-eccDAA/SIGN/SP5_SP6_ObsEqui/SP6_UserControlledUnlinkability_SIGN_ObsEquiv_BSN.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "diff_signatures_no_verify"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

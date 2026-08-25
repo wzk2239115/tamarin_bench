@@ -1,0 +1,25 @@
+{
+  "task_id": "L1:sapic__fast__SCADA__opc_ua_secure_conversation",
+  "level": "L1_verdict",
+  "name": "sapic__fast__SCADA__opc_ua_secure_conversation",
+  "protocol": "OPC_UA_Secure_Communication",
+  "source_file": "sapic/fast/SCADA/opc_ua_secure_conversation.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Executable",
+    "all_received_were_sent",
+    "all_received_were_sent_injective",
+    "order",
+    "delivery_wo_order",
+    "delivery_order"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

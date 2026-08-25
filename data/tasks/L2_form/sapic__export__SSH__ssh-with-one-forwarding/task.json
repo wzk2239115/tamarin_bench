@@ -1,0 +1,24 @@
+{
+  "task_id": "L2:sapic__export__SSH__ssh-with-one-forwarding",
+  "level": "L2_form",
+  "name": "sapic__export__SSH__ssh-with-one-forwarding",
+  "protocol": "SSH",
+  "source_file": "sapic/export/SSH/ssh-with-one-forwarding.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "reach",
+    "reach_nested",
+    "secretP",
+    "injPS",
+    "injSP",
+    "secretS"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

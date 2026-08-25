@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:features__equivalence__future__ake_simpNXPR",
+  "level": "L1_verdict",
+  "name": "features__equivalence__future__ake_simpNXPR",
+  "protocol": "ake_simpNXPR",
+  "source_file": "features/equivalence/future/ake_simpNXPR.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executable"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

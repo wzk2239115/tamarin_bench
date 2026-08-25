@@ -1,0 +1,40 @@
+{
+  "task_id": "L1:accountability__csf21-acc-unbounded__mixvote__mixvote_SmHh-multi-session",
+  "level": "L1_verdict",
+  "name": "accountability__csf21-acc-unbounded__mixvote__mixvote_SmHh-multi-session",
+  "protocol": "mixvote_SmHh_acc_multi",
+  "source_file": "accountability/csf21-acc-unbounded/mixvote/mixvote_SmHh-multi-session.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "onlyonce1",
+    "onlyonce2",
+    "onlyonce3",
+    "onlyonce4",
+    "onlyonce5",
+    "onlyonce6",
+    "onlyonce7",
+    "onlyonce8",
+    "onlyonce9",
+    "onlyonce10",
+    "functional",
+    "indivVerif",
+    "VoterC",
+    "TimelyP",
+    "Uniqueness",
+    "secretSskD",
+    "ballotsFromVoters",
+    "TalliedAsRecorded",
+    "EligVerif",
+    "acc_VoterC",
+    "acc_TimelyP"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

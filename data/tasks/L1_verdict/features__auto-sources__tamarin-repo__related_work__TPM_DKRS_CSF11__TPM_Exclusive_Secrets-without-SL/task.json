@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:features__auto-sources__tamarin-repo__related_work__TPM_DKRS_CSF11__TPM_Exclusive_Secrets-without-SL",
+  "level": "L1_verdict",
+  "name": "features__auto-sources__tamarin-repo__related_work__TPM_DKRS_CSF11__TPM_Exclusive_Secrets-without-SL",
+  "protocol": "TPM_Exclusive_Secrets",
+  "source_file": "features/auto-sources/tamarin-repo/related_work/TPM_DKRS_CSF11/TPM_Exclusive_Secrets-without-SL.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Unbind_PCR_charn",
+    "exclusive_secrets",
+    "left_reachable",
+    "right_reachable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,90 @@
+{
+  "protocol": "L1:accountability__masters-thesis-morio__CentralizedMonitor",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "acc_invalidReqD_suff",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 12
+    },
+    {
+      "name": "acc_invalidReqDC_suff",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 19
+    },
+    {
+      "name": "acc_verif_empty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 34
+    },
+    {
+      "name": "acc_invalidReqD_verif_nonempty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 4
+    },
+    {
+      "name": "acc_invalidReqDC_verif_nonempty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 4
+    },
+    {
+      "name": "acc_invalidReqD_min",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 4
+    },
+    {
+      "name": "acc_invalidReqDC_min",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 18
+    },
+    {
+      "name": "acc_invalidReqD_uniq",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 13
+    },
+    {
+      "name": "acc_invalidReqDC_uniq",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 36
+    },
+    {
+      "name": "acc_invalidReqD_inj",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1
+    },
+    {
+      "name": "acc_invalidReqDC_inj",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 4
+    },
+    {
+      "name": "acc_invalidReqD_single",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 12
+    },
+    {
+      "name": "acc_invalidReqDC_single",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 19
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 5.28,
+  "requires_diff": false,
+  "validated": true
+}

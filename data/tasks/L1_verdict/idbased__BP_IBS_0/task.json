@@ -1,0 +1,34 @@
+{
+  "task_id": "L1:idbased__BP_IBS_0",
+  "level": "L1_verdict",
+  "name": "idbased__BP_IBS_0",
+  "protocol": "BP_IBS_0",
+  "source_file": "idbased/BP_IBS_0.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "secrecy_session_key",
+    "session_escrow",
+    "Weak_Forward_Secrecy_key",
+    "Strong_Forward_Secrecy_key",
+    "alivenessInitiatorNoAuthReveal",
+    "alivenessInitiatorNoSignReveal",
+    "weakagreementInitiatorNoSignReveal",
+    "noninjectiveagreemenInitiatorNoSignReveal",
+    "injectiveagreementInitiatorNoSignReveal",
+    "alivenessResponderNoAuthReveal",
+    "alivenessResponderNoSignReveal",
+    "weakagreementResponderNoSignReveal",
+    "noninjectiveagreemenResponderNoSignReveal",
+    "injectiveagreementResponderNoSignReveal",
+    "executability_lemma"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

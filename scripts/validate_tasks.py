@@ -48,12 +48,14 @@ def run_one(
     known_lemma_names: list[str] | None = None,
 ) -> dict:
     """Run Tamarin on one solution inside a fresh container; return raw results."""
+    oracle = solution_spthy.parent / "oracle"
     res = run_tamarin_in_docker(
         solution_spthy,
         image=image,
         timeout_s=timeout_s,
         retry_diff=True,
         known_lemma_names=known_lemma_names,
+        oracle_path=oracle if oracle.is_file() else None,
     )
     return {
         "task_id": task_id,
@@ -141,7 +143,9 @@ def main() -> None:
         "get ground_truth updates)",
     )
     ap.add_argument(
-        "--prune", action="store_true", help="drop broken tasks from v0.txt"
+        "--prune",
+        action="store_true",
+        help="drop broken tasks from the tasks file (v0.txt if no --tasks-file)",
     )
     args = ap.parse_args()
 
@@ -240,12 +244,16 @@ def main() -> None:
             for r in reports
             if r.get("status") == "done" and not r.get("timeout")
         }
-        ids_path = REPO_ROOT / "data" / "task_ids" / "v0.txt"
+        ids_path = (
+            args.tasks_file
+            if args.tasks_file is not None
+            else REPO_ROOT / "data" / "task_ids" / "v0.txt"
+        )
         ids = [line for line in ids_path.read_text().splitlines() if line.strip()]
         kept = [i for i in ids if i in good]
         dropped = [i for i in ids if i not in good]
         ids_path.write_text("\n".join(kept) + "\n")
-        print(f"pruned {len(dropped)} tasks from v0.txt: {dropped}")
+        print(f"pruned {len(dropped)} tasks from {ids_path}: {dropped}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,11 @@
+{
+  "protocol": "C8_NoLocalAuth_CopyIAD_OnlinePIN_Low",
+  "overall_verdict": "UNKNOWN",
+  "lemmas": [],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": null,
+  "runtime_seconds": null,
+  "requires_diff": false,
+  "validated": false
+}

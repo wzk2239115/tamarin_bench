@@ -1,0 +1,14 @@
+theory AssImmediateTestAll
+begin
+
+process:
+new x; out(x);
+event A();
+in(x,=x);
+event B()
+
+// ass_immediate guarantees that K(x) is between A() and B()
+
+// should verifiy and trigger addition of ass_immediate
+
+end

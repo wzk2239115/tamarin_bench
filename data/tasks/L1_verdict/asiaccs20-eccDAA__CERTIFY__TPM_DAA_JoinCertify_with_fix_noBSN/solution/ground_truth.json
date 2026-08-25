@@ -1,0 +1,11 @@
+{
+  "protocol": "TPM_DAA_JoinCertify_with_fix_noBSN",
+  "overall_verdict": "UNKNOWN",
+  "lemmas": [],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": null,
+  "runtime_seconds": null,
+  "requires_diff": false,
+  "validated": false
+}

@@ -1,0 +1,43 @@
+// toy example from the paper
+
+/*
+
+Reachability query verified with
+ $ tamarin-prover toy-example.spthy --prove
+ $ tamarin-prover toy-example.spthy -m=proverif > te-reach.pv; proverif te-reach.pv
+
+Unlinkability query "cannot be proved" with
+ $ tamarin-prover toy-example.spthy -m=proverifequiv > te-un.pv; proverif te-un.pv
+
+Unlinkability disproved with:
+ $ tamarin-prover toy-example.spthy -m=deepsec > te-un.ds; deepsec te-un.ds
+
+*/
+
+theory Toy
+
+begin
+
+builtins: dest-pairing
+
+functions: dec/2 [destructor], enc/2
+
+equations: dec(enc(m, k), k) = m
+
+let P(sk,key) =
+
+    event Honest(key);
+    out(enc( <key,'hs'>,sk ))
+
+let Q(sk) =
+   in(cypher);
+   let <key,'hs'>=dec(cypher,sk) in
+     event Accept(key);
+     out('accept')
+   else
+     out('abort')
+
+process:
+!new ~sk; event SharedKey(~sk); (! new key; P(~sk,key) || !Q(~sk))
+
+end

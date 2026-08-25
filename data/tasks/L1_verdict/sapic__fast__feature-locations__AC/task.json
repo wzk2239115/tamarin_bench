@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:sapic__fast__feature-locations__AC",
+  "level": "L1_verdict",
+  "name": "sapic__fast__feature-locations__AC",
+  "protocol": "AttestedComputation",
+  "source_file": "sapic/fast/feature-locations/AC.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "can_run_v",
+    "simp",
+    "attested_comput"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

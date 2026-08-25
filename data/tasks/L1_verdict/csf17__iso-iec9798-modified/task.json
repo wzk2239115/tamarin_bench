@@ -1,0 +1,32 @@
+{
+  "task_id": "L1:csf17__iso-iec9798-modified",
+  "level": "L1_verdict",
+  "name": "csf17__iso-iec9798-modified",
+  "protocol": "ISO_IEC9798_3_3_Modified",
+  "source_file": "csf17/iso-iec9798-modified.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "invariant_sources",
+    "commit_unique",
+    "token_compromise_source",
+    "force_nonce_ordering",
+    "exists_session",
+    "exists_second_session",
+    "exists_detect_no_I_compromise",
+    "detect_sound",
+    "correct_dolevyao",
+    "matching_detects_prior_misuse",
+    "sent_commit_implies_generated",
+    "sessions_injective",
+    "matching_detects_later_misuse"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

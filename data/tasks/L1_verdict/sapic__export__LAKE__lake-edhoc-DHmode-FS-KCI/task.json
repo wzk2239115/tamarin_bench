@@ -1,0 +1,26 @@
+{
+  "task_id": "L1:sapic__export__LAKE__lake-edhoc-DHmode-FS-KCI",
+  "level": "L1_verdict",
+  "name": "sapic__export__LAKE__lake-edhoc-DHmode-FS-KCI",
+  "protocol": "edhoc",
+  "source_file": "sapic/export/LAKE/lake-edhoc-DHmode-FS-KCI.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executableR1",
+    "executableR2",
+    "executableI",
+    "secretR",
+    "secretI",
+    "honnestauthRI",
+    "honnestauthIR"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

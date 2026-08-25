@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:sapic__fast__basic__match_new",
+  "level": "L1_verdict",
+  "name": "sapic__fast__basic__match_new",
+  "protocol": "Test",
+  "source_file": "sapic/fast/basic/match_new.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "no_acceptP",
+    "acceptQ"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,26 @@
+{
+  "task_id": "L1:sapic__deprecated__accountability-old__OCSPS",
+  "level": "L1_verdict",
+  "name": "sapic__deprecated__accountability-old__OCSPS",
+  "protocol": "OCSPS",
+  "source_file": "sapic/deprecated/accountability-old/OCSPS.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "acc_S_excl_0_1",
+    "acc_S_exh",
+    "acc_S_suf_0_0",
+    "acc_S_ver_empty_1",
+    "acc_S_ver_nonempty_0",
+    "acc_S_min_0_0_0",
+    "acc_S_uniq_0"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

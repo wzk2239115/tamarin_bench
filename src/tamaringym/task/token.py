@@ -34,6 +34,7 @@ __all__ = [
     "generate_token",
     "verify_token",
     "generate_verdict_key",
+    "generate_flag",
 ]
 
 MAX_TASK_ID_LENGTH = 63
@@ -118,3 +119,16 @@ def generate_verdict_key(task_id: str, *, seed: str) -> str:
         raise ValueError("seed must be a non-empty per-deployment secret")
     mac = hmac.new(seed.encode(), task_id.encode(), hashlib.sha256).hexdigest()
     return f"tvk-{mac[:32]}"
+
+
+def generate_flag(task_id: str, *, seed: str) -> str:
+    """Derive a deterministic flag for a B-level (exploit) task.
+
+    Mirrors ExploitGym: the flag is a secret string the agent must capture
+    from the target by exploiting the protocol. It is derived via HMAC so
+    nothing is guessable and different deployments produce different flags.
+    """
+    if not seed:
+        raise ValueError("seed must be a non-empty per-deployment secret")
+    mac = hmac.new(seed.encode(), task_id.encode(), hashlib.sha256).hexdigest()
+    return f"flag{{{mac[:32]}}}"

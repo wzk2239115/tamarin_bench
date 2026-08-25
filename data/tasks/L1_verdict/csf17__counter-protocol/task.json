@@ -1,0 +1,31 @@
+{
+  "task_id": "L1:csf17__counter-protocol",
+  "level": "L1_verdict",
+  "name": "csf17__counter-protocol",
+  "protocol": "counter_example",
+  "source_file": "csf17/counter-protocol.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "invariant_sources",
+    "count_unique",
+    "nonces_unique",
+    "force_nonce_ordering",
+    "exists_session",
+    "exists_second_session",
+    "exists_detect_no_R_compromise",
+    "exists_detect_no_I_compromise",
+    "injectivity",
+    "detect_sound",
+    "correct_dolevyao",
+    "unmatching_implies_detect_with_R_uncompromised"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

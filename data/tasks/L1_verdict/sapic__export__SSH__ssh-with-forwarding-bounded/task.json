@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:sapic__export__SSH__ssh-with-forwarding-bounded",
+  "level": "L1_verdict",
+  "name": "sapic__export__SSH__ssh-with-forwarding-bounded",
+  "protocol": "SSH",
+  "source_file": "sapic/export/SSH/ssh-with-forwarding-bounded.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "secretShares",
+    "injPS",
+    "injSP",
+    "secretS"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

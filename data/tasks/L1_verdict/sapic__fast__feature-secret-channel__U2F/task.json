@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:sapic__fast__feature-secret-channel__U2F",
+  "level": "L1_verdict",
+  "name": "sapic__fast__feature-secret-channel__U2F",
+  "protocol": "U2F",
+  "source_file": "sapic/fast/feature-secret-channel/U2F.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "auth"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

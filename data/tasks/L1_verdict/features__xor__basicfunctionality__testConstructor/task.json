@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:features__xor__basicfunctionality__testConstructor",
+  "level": "L1_verdict",
+  "name": "features__xor__basicfunctionality__testConstructor",
+  "protocol": "testConstructor",
+  "source_file": "features/xor/basicfunctionality/testConstructor.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "secret1",
+    "secret2",
+    "secret3"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

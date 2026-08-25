@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:features__multiset__minimal_multiset",
+  "level": "L1_verdict",
+  "name": "features__multiset__minimal_multiset",
+  "protocol": "minimal_multiset",
+  "source_file": "features/multiset/minimal_multiset.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Reachable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

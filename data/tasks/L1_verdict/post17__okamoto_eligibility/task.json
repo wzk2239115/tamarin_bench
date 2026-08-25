@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:post17__okamoto_eligibility",
+  "level": "L1_verdict",
+  "name": "post17__okamoto_eligibility",
+  "protocol": "Okamoto_Eligibilty",
+  "source_file": "post17/okamoto_eligibility.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "types",
+    "exec",
+    "eligibility"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

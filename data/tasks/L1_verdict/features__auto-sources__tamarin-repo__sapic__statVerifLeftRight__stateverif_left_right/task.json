@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:features__auto-sources__tamarin-repo__sapic__statVerifLeftRight__stateverif_left_right",
+  "level": "L1_verdict",
+  "name": "features__auto-sources__tamarin-repo__sapic__statVerifLeftRight__stateverif_left_right",
+  "protocol": "StatVerif_Security_Device",
+  "source_file": "features/auto-sources/tamarin-repo/sapic/statVerifLeftRight/stateverif_left_right.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "source",
+    "reachability_left",
+    "reachability_right",
+    "secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

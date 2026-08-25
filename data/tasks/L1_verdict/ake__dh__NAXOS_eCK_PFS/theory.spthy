@@ -1,0 +1,103 @@
+theory NAXOS_eCK
+begin
+
+builtins: diffie-hellman
+
+section{* NAXOS *}
+
+/*
+ * Protocol:	NAXOS
+ * Modeler: 	Cas Cremers, Benedikt Schmidt
+ * Date: 	January 2012/April 2012/October 2012
+ * Source:	"Stronger Security of Authenticated Key Exchange"
+ * 		LaMacchia, Lauter, Mityagin, 2007
+ * Property: 	eCK security + PFS
+ *
+ * Status: 	Working
+ */
+
+functions: h1/1
+functions: h2/1
+
+/* Protocol rules */
+
+/* In the description in the paper, we omitted the sorts. 
+ * In this description they are made explicit.
+ * '$A' is equivalent to 'A:pub'
+ * '~x' is equivalent to 'x:fresh'
+ */
+
+/* Generate long-term keypair */
+rule generate_ltk:
+  let pkA = 'g'^~ea 
+  in
+  [ Fr(~ea) ] 
+  --[ RegKey($A) ]->
+  [ !Ltk( $A, ~ea ), !Pk( $A, pkA ), Out( pkA ) ]
+
+/* Initiator */
+rule Init_1:
+  let X = 'g'^h1(<~ex, ~ea >)
+  in
+  [ Fr( ~ex ), !Ltk( $A, ~ea ) ]
+  -->
+  [ Init_1( ~ex, $A, $B, ~ea )
+  , !Ephk(~ex, ~ex)
+  , Out( X ) ]
+
+rule Init_2:
+  let KB  = 'g'^~eb
+      X = 'g'^h1(<~ex, ~ea >)
+      exp = h1(< ~ex, ~ea >)
+      key = h2(< Y^~ea, KB^exp, Y^exp, $A, $B >) 
+  in
+  [ Init_1( ~ex, $A, $B, ~ea)
+  , !Pk( $B, KB ), In( Y ) ]
+  --[ Accept( ~ex, key)
+    , Sid( ~ex, < $A, $B, X, Y, 'Init' >)
+    ]->
+   [ !Sessk( ~ex, key) ]
+
+/* Responder */
+rule Resp_1:
+  let KA  = 'g'^~lkI
+      exp = h1(< ~ey, ~eb >)
+      Y   = 'g'^exp
+      key = h2(< KA^exp, X^~eb, X^exp, $A, $B >) 
+  in
+   [   Fr( ~ey ), !Ltk($B, ~eb), !Pk($A, KA), In( X ) ]
+   --[ Accept( ~ey, key )
+     , Sid( ~ey, < $B, $A, Y, X, 'Resp' > )
+     ]->
+   [   Out( Y ),
+       !Ephk(~ey, ~ey),
+       !Sessk( ~ey, key) ]
+
+/* Key Reveals for the eCK model */
+rule Sessk_reveal: 
+   [ !Sessk(~s, k) ] --[ RevealSessk(~s) ]-> [ Out(k) ]
+
+rule Ltk_reveal:
+   [ !Ltk($A, ea) ] --[ RevealLtk($A) ]-> [ Out(ea) ]
+
+rule Ephk_reveal:
+   [ !Ephk(~s, ~ek) ] --[ RevealEphk(~s) ]-> [ Out(~ek) ]
+
+/* Security properties */
+/*
+lemma eCK_same_key:
+  " // If every agent registered at most one public key
+  (All A #i #j. RegKey(A)@i & RegKey(A)@j ==> (#i = #j))
+  ==> // then matching sessions accept the same key
+  (not (Ex #i1 #i2 #i3 #i4 s ss k kk A B minfo .
+              Accept(s, A, B, k ) @ i1
+	    & Accept(ss, B, A, kk) @ i2
+	    & Sid(s, minfo) @ i3
+	    & Match(ss, minfo) @i4
+	    & not( k = kk )
+  ) )"
+*/
+
+// This property is not satisfied by NAXOS.
+
+end

@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:features__equivalence__future__ake_KEAplus",
+  "level": "L1_verdict",
+  "name": "features__equivalence__future__ake_KEAplus",
+  "protocol": "ake_KEAplus",
+  "source_file": "features/equivalence/future/ake_KEAplus.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

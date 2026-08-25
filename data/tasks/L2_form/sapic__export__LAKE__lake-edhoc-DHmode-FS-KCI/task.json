@@ -1,0 +1,25 @@
+{
+  "task_id": "L2:sapic__export__LAKE__lake-edhoc-DHmode-FS-KCI",
+  "level": "L2_form",
+  "name": "sapic__export__LAKE__lake-edhoc-DHmode-FS-KCI",
+  "protocol": "edhoc",
+  "source_file": "sapic/export/LAKE/lake-edhoc-DHmode-FS-KCI.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "executableR1",
+    "executableR2",
+    "executableI",
+    "secretR",
+    "secretI",
+    "honnestauthRI",
+    "honnestauthIR"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

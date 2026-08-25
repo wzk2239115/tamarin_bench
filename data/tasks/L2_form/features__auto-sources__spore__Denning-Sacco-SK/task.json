@@ -1,0 +1,22 @@
+{
+  "task_id": "L2:features__auto-sources__spore__Denning-Sacco-SK",
+  "level": "L2_form",
+  "name": "features__auto-sources__spore__Denning-Sacco-SK",
+  "protocol": "Denning_Sacco_SK",
+  "source_file": "features/auto-sources/spore/Denning-Sacco-SK.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "executability",
+    "secrecy",
+    "noninjectiveagreement_B",
+    "injectiveagreement_B"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Model the protocol from the natural-language spec, verify, find attacks."
+}

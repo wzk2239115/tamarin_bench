@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:features__auto-sources__tamarin-repo__related_work__StatVerif_ARR_CSF11__StatVerif_Security_Device-without-SL",
+  "level": "L1_verdict",
+  "name": "features__auto-sources__tamarin-repo__related_work__StatVerif_ARR_CSF11__StatVerif_Security_Device-without-SL",
+  "protocol": "StatVerif_Security_Device",
+  "source_file": "features/auto-sources/tamarin-repo/related_work/StatVerif_ARR_CSF11/StatVerif_Security_Device-without-SL.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "reachability_left",
+    "reachability_right",
+    "secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

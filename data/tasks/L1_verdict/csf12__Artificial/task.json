@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:csf12__Artificial",
+  "level": "L1_verdict",
+  "name": "csf12__Artificial",
+  "protocol": "Artificial",
+  "source_file": "csf12/Artificial.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Characterize_Fin",
+    "Fin_unique",
+    "Keys_must_be_revealed"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

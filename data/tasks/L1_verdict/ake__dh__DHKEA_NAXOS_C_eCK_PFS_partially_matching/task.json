@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:ake__dh__DHKEA_NAXOS_C_eCK_PFS_partially_matching",
+  "level": "L1_verdict",
+  "name": "ake__dh__DHKEA_NAXOS_C_eCK_PFS_partially_matching",
+  "protocol": "DHKEA_NAXOS_C_eCK_PFS_partially_matching",
+  "source_file": "ake/dh/DHKEA_NAXOS_C_eCK_PFS_partially_matching.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "execution_match_same_key_NAXOS",
+    "eCK_key_secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

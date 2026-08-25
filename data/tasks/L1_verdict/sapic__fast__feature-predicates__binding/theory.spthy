@@ -1,0 +1,10 @@
+theory PredicatesBinding
+begin
+
+predicates:
+          Added(x)   <=> Ex #a. A(x)@a & #a < #NOW
+
+process:
+new a; ( event A(a) | if Added(a) then event C())
+
+end

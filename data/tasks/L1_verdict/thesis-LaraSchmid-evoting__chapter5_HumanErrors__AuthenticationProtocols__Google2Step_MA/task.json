@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:thesis-LaraSchmid-evoting__chapter5_HumanErrors__AuthenticationProtocols__Google2Step_MA",
+  "level": "L1_verdict",
+  "name": "thesis-LaraSchmid-evoting__chapter5_HumanErrors__AuthenticationProtocols__Google2Step_MA",
+  "protocol": "Google2Step_MA",
+  "source_file": "thesis-LaraSchmid-evoting/chapter5_HumanErrors/AuthenticationProtocols/Google2Step_MA.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "functional",
+    "message_authentication"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

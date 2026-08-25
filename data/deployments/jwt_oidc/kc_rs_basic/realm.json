@@ -1,0 +1,72 @@
+{
+  "realm": "tamarindemo",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": false,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "administrator role (not assigned to any user)",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "tamarindemo"
+      },
+      {
+        "name": "user",
+        "description": "default user role",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "tamarindemo"
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "attacker",
+      "enabled": true,
+      "email": "attacker@example.com",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "attacker-pass",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "demo",
+      "name": "Demo Public Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"],
+      "defaultClientScopes": ["profile", "email", "roles", "web-origins", "acr"],
+      "optionalClientScopes": ["address", "phone", "offline_access", "microprofile-jwt"]
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "acr",
+      "description": "OpenID Connect context class reference",
+      "protocol": "openid-connect",
+      "attributes": {},
+      "mappers": []
+    }
+  ]
+}

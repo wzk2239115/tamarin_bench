@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:sapic__slow__encWrapDecUnwrap__encwrapdecunwrap-nolocks",
+  "level": "L1_verdict",
+  "name": "sapic__slow__encWrapDecUnwrap__encwrapdecunwrap-nolocks",
+  "protocol": "EncWrapDecUnwrap",
+  "source_file": "sapic/slow/encWrapDecUnwrap/encwrapdecunwrap-nolocks.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "can_obtain_key"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

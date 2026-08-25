@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:jcs19-xor__diff-models__LD07_UK3_proof",
+  "level": "L1_verdict",
+  "name": "jcs19-xor__diff-models__LD07_UK3_proof",
+  "protocol": "LD07_UK3_proof",
+  "source_file": "jcs19-xor/diff-models/LD07_UK3_proof.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executable",
+    "executable",
+    "Observational_equivalence"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

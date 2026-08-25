@@ -1,0 +1,185 @@
+/*
+ * Protocol:    Modified Keyless SSL protocol for Client Detection
+ * Modeler: 	Kevin Milner
+ * Source:	    Original
+ */
+
+theory Keyless_SSL_Modified
+begin
+
+builtins: signing, hashing
+functions: S/1
+
+restriction Eq_testing: "All x y #i. Eq(x,y) @ i ==> x = y"
+restriction InEq_testing: "All x y #i. InEq(x,y) @ i ==> not(x = y)"
+
+//There's one id, per role, per direction.
+restriction pairings_unique:
+    "All id1 id2 role ka kb #i #j.
+        Paired(id1,role,ka,kb) @ i & Paired(id2,role,ka,kb) @ j
+    ==> #i = #j"
+
+rule RegisterKey:
+    [ Fr(~ltk) ]
+    --[Key(~ltk)]->
+    [!F_AgentKey(~ltk), Out(pk(~ltk))]
+
+rule CompromiseKey:
+    [!F_AgentKey(~ltk)]
+    --[ Compromise(pk(~ltk)) ]->
+    [Out(~ltk)]
+
+/* Models an agent adding anothers public key out-of-band, we assume
+ * that all relationships set up this way are 'sane' and both of the
+ * keys involved were generated fresh. */
+rule BindState_C:
+    [ !F_AgentKey(~ltkA)
+    , !F_AgentKey(~ltkB)
+    , Fr(~id)
+    ]--[
+      Paired(~id, 'C', ~ltkA, ~ltkB)
+    , Counter(~id, '0')
+    , Injectivity(~id,'nonce','0')
+    ]->
+    [ /* For search efficiency, state is divided into
+       * an invariant portion and a variant portion. This
+       * allows tamarin to immediately bind the keys back
+       * to this initial pairing rule. The fresh ~id is used
+       * to identify this pairing. */
+      St_C(~id, 'm0', '0')
+    , !F_StateInvariants(~id, 'C', ~ltkA, pk(~ltkB))
+    ]
+
+rule BindState_W:
+    [ !F_AgentKey(~ltkA)
+    , !F_AgentKey(~ltkB)
+    , Fr(~id)
+    ]--[
+      Paired(~id, 'W', ~ltkA, ~ltkB)
+    , Counter(~id, '0')
+    , Injectivity(~id,'nonce','0')
+    ]->
+    [ St_W(~id, 'm1', '0')
+    , !F_StateInvariants(~id, 'W', ~ltkA, pk(~ltkB))
+    ]
+
+//////////////////////////////////////////
+// MESSAGE RULES
+rule C_0:
+    let m1 = <'1',pk(~ltkA), pkB,~nc> in
+    [ St_C(~id, 'm0', cc)
+    , !F_StateInvariants(~id, 'C', ~ltkA, pkB)
+    , Fr(~nc)
+    ]--[
+      Gen(~nc)
+    , Injectivity(~id,cc,~nc)
+    ]->
+    [ St_C(~id, <'m2', ~nc>, cc)
+    , Out(m1)
+    ]
+
+rule W_0:
+    let pkB = pk(~ltkB)
+        m1 = <'1',pkA,pkB,nc>
+        m2 = <'2',pkB,pkA,nc,~nw> in
+    [ St_W(~id, 'm1', cw)
+    , !F_StateInvariants(~id, 'W', ~ltkB, pkA)
+    , Fr(~nw)
+    , In(m1)
+    ]--[
+      Nonces(~id,nc,~nw)
+    , Counter(<~id,'m1'>, cw)
+    , Gen(~nw)
+    , Begin('W', <pkA,pkB>, S(cw))
+    , Injectivity(~id,cw,~nw)
+    ]->
+    [ St_W(~id, <'m3', nc, ~nw>, cw)
+    , Out(<m2,sign{m2}~ltkB>)
+    ]
+
+rule C_1:
+    let pkA = pk(~ltkA)
+        m1 = <'1',pkA,pkB,nc>
+        m2 = <'2',pkB,pkA,nc,nw>
+        m3 = <'3',pkA,pkB,h(<m1,m2>),S(cc)> in
+    [ St_C(~id, <'m2', nc>, cc)
+    , !F_StateInvariants(~id, 'C', ~ltkA, pkB)
+    , In(<m2,sig>)
+    , Fr(~inj) // Just for maintaining injectivity actions
+    ]--[
+      Eq(verify(sig,m2,pkB), true)
+    , Nonces(~id,nc,nw)
+    , Counter(<~id,'m3'>, S(cc))
+    , Injectivity(~id,nc,~inj)
+    , Begin('C', <pkA,pkB>, S(cc))
+    , Session('C', <pkA,pkB>, <nc,nw>, S(cc))
+    ]->
+    [ St_C(~id, <'m4', nc, nw, ~inj>, S(cc))
+    , Out(<m3, sign{m3}~ltkA>) 
+    ]
+
+rule W_detect:
+    let pkB = pk(~ltkB)
+        m1 = <'1',pkA,pkB,nc>
+        m2 = <'2',pkB,pkA,nc,nw>
+        m3 = <'3',pkA,pkB,h(<m1,m2>),scc>
+        m4 = <'4',pkB,pkA,h(<m1,m2,m3>)> in
+    [ St_W(~id, <'m3', nc, nw>, cw)
+    , !F_StateInvariants(~id, 'W', ~ltkB, pkA)
+    , In(<m3, sig>)
+    ]--[
+      Eq(verify(sig,m3,pkA), true)
+    , InEq(scc, S(cw))
+    , Detect(<pkA,pkB>)
+    , Session('W', <pkA,pkB>, <nc,nw>, scc)
+    , Counter(<~id, 'm4'>, S(cw))
+    , Injectivity(~id,nw,S(cw))
+    ]->
+    [ Remediate_W(~id, 'm1', scc)
+    , Discard(<m4, sign{m4}~ltkB>) 
+    ]
+
+rule W_session:
+    let pkB = pk(~ltkB)
+        m1 = <'1',pkA,pkB,nc>
+        m2 = <'2',pkB,pkA,nc,nw>
+        m3 = <'3',pkA,pkB,h(<m1,m2>),scc>
+        m4 = <'4',pkB,pkA,h(<m1,m2,m3>)> in
+    [ St_W(~id, <'m3', nc, nw>, cw)
+    , !F_StateInvariants(~id, 'W', ~ltkB, pkA)
+    , In(<m3, sig>)
+    ]--[
+      Eq(verify(sig,m3,pkA), true)
+    , Eq(scc, S(cw))
+    , Completed(~id)
+    , Session('W', <pkA,pkB>, <nc,nw>, scc)
+    , Counter(<~id, 'm4'>, S(cw))
+    , Injectivity(~id,nw,S(cw))
+    ]->
+    [ St_W(~id, 'm1', scc)
+    , Out(<m4, sign{m4}~ltkB>) 
+    ]
+
+rule C_2:
+    let pkA = pk(~ltkA)
+        m1 = <'1',pkA,pkB,nc>
+        m2 = <'2',pkB,pkA,nc,nw>
+        m3 = <'3',pkA,pkB,h(<m1,m2>),scc>
+        m4 = <'4',pkB,pkA,h(<m1,m2,m3>)> in
+    [ St_C(~id, <'m4', nc, nw, ~inj>, scc)
+    , !F_StateInvariants(~id, 'C', ~ltkA, pkB)
+    , In(<m4, sig>) 
+    , Fr(~injc)
+    ]--[
+      Eq(verify(sig,m4,pkB), true)
+    , Counter(<~id,'m4'>, scc)
+    , Complete('C', <pkA,pkB>, <nc,nw>, scc)
+    , Injectivity(~id,~inj,scc)
+    ]->
+    [ St_C(~id, 'm0', scc)
+    ]
+
+//////////////////////////////////////////
+//   Helper Lemmas:
+
+end

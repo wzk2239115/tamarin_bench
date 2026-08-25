@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:classic__NSLPK3_untagged",
+  "level": "L1_verdict",
+  "name": "classic__NSLPK3_untagged",
+  "protocol": "NSLPK3_untagged",
+  "source_file": "classic/NSLPK3_untagged.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "types",
+    "nonce_secrecy",
+    "session_key_setup_possible"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

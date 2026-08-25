@@ -1,0 +1,117 @@
+theory LD07
+begin
+
+builtins: xor, hashing
+
+/*
+LD07: Readers R_i for i>0, RFID tag T
+      Reader R_i knows k_0, k_i, k_{i+1} for i >= 1
+      Tag T knows alpha := k_0 XOR k_i
+
+We model the sequence of readers by updating the Reader(~k,~k) fact.
+
+   Ri: knows(k0, ki, ksi)
+   T: let alpha := k0 XOR ki
+   T: knows(alpha)
+   Ri: fresh(r1)
+Ri->T: r1
+   T: let alpha := k0 XOR ki
+T->Ri: h(r1 XOR alpha)
+   Ri: let  a := ki XOR ksi
+   Ri: let  b := h(a XOR k0 XOR ki)
+Ri->T: a, b
+   T: if b = h(a XOR k0 XOR ki) then let alpha' := alpha XOR a else alpha'=alpha
+   T: knows(alpha')
+
+This is a stateful protocol for the tag. The tag's knowledge is updated. 
+Protocol satisfies recent aliveness of the tag, but not untracability.
+Recent aliveness of reader is not satisfied. 
+
+*/
+
+rule Setup:
+   [ Fr( ~k0 ), Fr(~k1 )
+   ]
+ --[ Setup(~k0), KeyS(~k0), KeyS(~k1), OnlyOnce( ) ]-> 
+   [ Reader( ~k0, ~k1 )
+   , Tag( ~k0, ~k0 XOR ~k1 ) 
+   ]
+
+rule reader1:
+   [ Fr( ~r1 ) ]
+ --[ ChallengeReader( ~r1 ), Ch(~r1) ]->
+   [ Out( ~r1 )
+   , Initiated( ~r1 ) 
+   ]
+
+rule tag1:
+   [ In( r1 )
+   , Tag( ~k, x ) ]
+ --[ ResponseTag( ~k, x, r1 )
+   , TagKey(~k, x)
+   , Response( ~k, 'Tag' )
+   , ChallengeTag( x )
+   , Tag( ~k, x)
+   , Running( ~k, 'Tag', x)
+   , KeyTag(x)
+   , Tag1rule()
+   , InEq(r1, zero)
+   ]->
+   [ Out( h(x XOR r1) )
+   , Tag( ~k, x )
+   , TagRunning( ~k, x )
+   ]
+
+rule reader2:
+   [ Initiated( ~r1 )
+   , Reader( ~k, ~kp )
+   , In( xoredhash )
+   , Fr(~k1)  // this is the subsequent reader's key
+   ]
+ --[ Reader( ~k, ~kp ) 
+   , AliveTag( ~k, ~k XOR ~kp, ~r1, ~kp XOR ~r1 )
+   , Commit( ~k, 'Reader', ~kp)
+   , Response( ~k, 'Reader' )
+   , Eq( xoredhash, h(~k XOR ~kp XOR ~r1) )
+   , KeyS(~k), KeyS(~k1), KeyS(~kp)
+   , KeyD(~kp)
+   , KeyX(~kp XOR ~r1) // Needed for recent aliveness
+   , OutK(~kp XOR ~k1) // used for meta-reasoning proving  keys_reader_are_secret_XOR
+   , Ch(~r1)
+   , Reader2rule()
+   ]->
+   [ Out( <~kp XOR ~k1, h(~k XOR ~k1)>) 
+   , Reader( ~k, ~k1 )
+   ]
+
+rule tag2:
+   [ In( <newkey, newhash> )
+   , Tag( ~k, x ) 
+   , TagRunning( ~k, x )
+   ]
+ --[ Update( ~k, x XOR newkey, 'Tag' )
+   , Eq(h(newkey XOR x),newhash) 
+   , AliveReader( ~k )
+   , KeyTag(x XOR newkey)
+   ]->
+   [ Tag( ~k, x XOR newkey )
+   ]
+
+rule desynchronized:
+  [ Reader(~k, x), Tag(~k, y) ]
+--[ InEq(x XOR ~k,y)
+  , Desynch(~k) ]->
+  [ ]
+
+restriction equality:
+  "∀ x y #i. (Eq( x, y ) @ #i) ⇒ (x = y)"
+
+restriction inequality:
+  "∀ x #i. (InEq( x, x ) @ #i) ⇒ F"
+
+restriction unique:
+  "∀ #i #j. ((OnlyOnce( ) @ #i) ∧ (OnlyOnce( ) @ #j)) ⇒ (#i = #j)"
+
+// AUTOPROOF (instant with oracle): holds
+
+end

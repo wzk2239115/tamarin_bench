@@ -1,0 +1,69 @@
+/*
+Experiment: Directly modelling the intruder rules
+=================================================
+
+Authors: 	Simon Meier, Benedikt Schmidt
+Date: 	        April 2012
+
+Status: WIP (induction invariant is rather tough)
+
+An experiment
+
+*/
+
+theory CR_direct_intruder
+begin
+
+functions: h/1, aenc/2, adec/2, pk/1
+equations: adec(aenc(m, pk(k)), k) = m
+
+// The intruder
+rule apply_adec: [!N(m), !N(k)] --[!N(adec{m}k)]-> [!N(adec{m}k)]
+// rule apply_aenc: [!N(m), !N(k)] --[!N(aenc{m}k)]-> [!N(aenc{m}k)]
+
+// Registering a public key
+rule Register_pk:
+  [ Fr(~ltk) ]
+  -->
+  [ !Ltk($A, ~ltk), !Pk($A, pk(~ltk)) ]
+
+rule Get_pk: [ !Pk(A, pk) ] --> [ !N(pk) ]
+
+rule Reveal_ltk:
+    [ !Ltk(A, ltk) ]
+  --[ LtkReveal(A) ]->
+    [ !N(ltk) ]
+
+// Start a new thread executing the client role, choosing the server
+// non-deterministically.
+rule Client_1:
+    [ Fr(~k)         // choose fresh key
+    , !Pk($S, pkS)   // lookup public-key of server
+    ]
+  --[ ClientKey($S, ~k) ]->
+    [ Client_1( $S, ~k )       // Store server and key for next step of thread
+    , !N( aenc{'1', ~k}pkS )  // Send the encrypted session key to the server
+                               // We add the tag '1' to the request to allow
+                               // the server to check whether the decryption
+                               // was successful.
+    ]
+
+/*
+rule Client_2:
+    [ Client_1(S, k)   // Retrieve server and session key from previous step
+    , !N( h(k) )       // Receive hashed session key from network
+    ]
+  --[ SessKeyC( S, k ) ]-> // State that the session key 'k'
+    []                     // was setup with server 'S'
+
+// A server thread answering in one-step to a session-key setup request from
+// some client.
+rule Serv_1:
+    [ !Ltk($S, ~ltkS)                          // lookup the private-key
+    , !N( aenc{'1',k}pk(~ltkS) )             // receive a request
+    ]
+   -->
+    [ !N( h(~ltkS) ) ]                       // Return the hash of the
+*/                                             // decrypted request.
+
+end

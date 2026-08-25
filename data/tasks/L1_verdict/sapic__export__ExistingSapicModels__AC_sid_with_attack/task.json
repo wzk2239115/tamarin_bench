@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:sapic__export__ExistingSapicModels__AC_sid_with_attack",
+  "level": "L1_verdict",
+  "name": "sapic__export__ExistingSapicModels__AC_sid_with_attack",
+  "protocol": "AC_sid",
+  "source_file": "sapic/export/ExistingSapicModels/AC_sid_with_attack.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "attested_comput"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

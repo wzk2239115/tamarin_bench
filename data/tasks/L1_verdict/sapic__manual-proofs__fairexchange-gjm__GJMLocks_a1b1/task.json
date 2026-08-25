@@ -1,0 +1,27 @@
+{
+  "task_id": "L1:sapic__manual-proofs__fairexchange-gjm__GJMLocks_a1b1",
+  "level": "L1_verdict",
+  "name": "sapic__manual-proofs__fairexchange-gjm__GJMLocks_a1b1",
+  "protocol": "GJMLocks",
+  "source_file": "sapic/manual-proofs/fairexchange-gjm/GJMLocks_a1b1.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "sanity_a4b3",
+    "sanity_a1b1",
+    "sanity_a2b2",
+    "sanity_a3b3",
+    "timelinessA",
+    "timelinessB",
+    "fullfairnessA",
+    "fullfairnessB"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

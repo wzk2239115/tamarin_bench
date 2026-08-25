@@ -1,0 +1,29 @@
+{
+  "task_id": "L1:sapic__export__LAKE__lake-edhoc",
+  "level": "L1_verdict",
+  "name": "sapic__export__LAKE__lake-edhoc",
+  "protocol": "edhoc",
+  "source_file": "sapic/export/LAKE/lake-edhoc.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "secretR",
+    "secretI",
+    "executableR",
+    "executableI",
+    "executableIhonnest",
+    "executableRhonnest",
+    "false_dishonnestnoauthRI",
+    "false_dishonnestnoauthIR",
+    "honnestauthRI",
+    "honnestauthIR"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}
