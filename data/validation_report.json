@@ -1,0 +1,1993 @@
+[
+  {
+    "task_id": "L1:Artificial",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.5,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "Characterize_Fin",
+        "verified"
+      ],
+      [
+        "Fin_unique",
+        "verified"
+      ],
+      [
+        "Keys_must_be_revealed",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:BP_ABSTRACT_IBE_toyExample",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.1,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "secrecy_session_key",
+        "verified"
+      ],
+      [
+        "nonInjectiveAgreementChallenge_Initiator_Acompro",
+        "verified"
+      ],
+      [
+        "nonInjectiveAgreementChallenge_Initiator_ABcompro",
+        "falsified"
+      ],
+      [
+        "executability_lemma",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:3",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.2,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "message_authentication",
+        "falsified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:9",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.4,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "secrecy",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:CHx",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.1,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "recentalive_tag",
+        "falsified"
+      ],
+      [
+        "recentalive_reader",
+        "verified"
+      ],
+      [
+        "executable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:CR",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.5,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "alive",
+        "verified"
+      ],
+      [
+        "recentalive",
+        "verified"
+      ],
+      [
+        "executable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:DH_Message_Deduction",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.5,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "key_deducible",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:CH07",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.9,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "recentalive_tag",
+        "falsified"
+      ],
+      [
+        "recentalive_reader",
+        "verified"
+      ],
+      [
+        "noninjectiveagreement_tag",
+        "verified"
+      ],
+      [
+        "noninjectiveagreement_reader",
+        "verified"
+      ],
+      [
+        "executable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:Example-R",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.6,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "Client_session_key_secrecy",
+        "verified"
+      ],
+      [
+        "Client_auth",
+        "verified"
+      ],
+      [
+        "Client_auth_injective",
+        "verified"
+      ],
+      [
+        "Client_session_key_honest_setup",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:JCS12_Typing_Example",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.8,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "typing_assertion",
+        "verified"
+      ],
+      [
+        "Client_session_key_secrecy_raw",
+        "verified"
+      ],
+      [
+        "Client_session_key_secrecy",
+        "verified"
+      ],
+      [
+        "Client_auth",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:Ex1_solution",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.6,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "executable",
+        "verified"
+      ],
+      [
+        "secrecyA",
+        "verified"
+      ],
+      [
+        "secrecyB",
+        "verified"
+      ],
+      [
+        "alivesness_B",
+        "verified"
+      ],
+      [
+        "non_inj_agreement_B",
+        "verified"
+      ],
+      [
+        "non_inj_agreement_A",
+        "verified"
+      ],
+      [
+        "FinishedA_unique",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:Google2Step_EA",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.4,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "functional",
+        "verified"
+      ],
+      [
+        "entity_authentication",
+        "verified"
+      ],
+      [
+        "device_authentication",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:CCITT-X509-R",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 3.4,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "Secrecy",
+        "verified"
+      ],
+      [
+        "injectiveagreement_B",
+        "falsified"
+      ],
+      [
+        "agreement_B",
+        "verified"
+      ],
+      [
+        "Session_key_honest_setup",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:Google2Step_MA",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.7,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "functional",
+        "verified"
+      ],
+      [
+        "message_authentication",
+        "falsified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:Ex2_a_solution",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 2.4,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "ClientWellfounded",
+        "verified"
+      ],
+      [
+        "Secrecy",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:KAS1",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.0,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "KAS1_key_secrecy",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:JKL_TS2_2008_KI_wPFS",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.4,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "JKL2008_2_initiator_key",
+        "verified"
+      ],
+      [
+        "JKL2008_2_responder_key",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:Keyserver",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.6,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "Knows_Honest_Key_imp_Revoked",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:KEA_plus_KI_KCI",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.0,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "keaplus_initiator_key",
+        "verified"
+      ],
+      [
+        "keaplus_responder_key",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:KCL07",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.3,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "recentalive_tag",
+        "verified"
+      ],
+      [
+        "executable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:Minimal_HashChain",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.8,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "Loop_Start",
+        "verified"
+      ],
+      [
+        "Loop_Success_ord",
+        "verified"
+      ],
+      [
+        "Loop_charn",
+        "verified"
+      ],
+      [
+        "Helper_Loop_and_success",
+        "verified"
+      ],
+      [
+        "Loop_and_success",
+        "verified"
+      ],
+      [
+        "Helper_Success_charn",
+        "verified"
+      ],
+      [
+        "Success_charn",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:MPAuth_MA_NoTellOK",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.9,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "functional",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:OTPoverSMS_EA",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.3,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "functional",
+        "verified"
+      ],
+      [
+        "entity_authentication",
+        "verified"
+      ],
+      [
+        "device_authentication",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:PR1_ShHm",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.6,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "functional",
+        "verified"
+      ],
+      [
+        "AuthP",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:Pattern_matching_and_destructors",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.6,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "type_assertion",
+        "verified"
+      ],
+      [
+        "Responder_secrecy",
+        "verified"
+      ],
+      [
+        "Public_part_public",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:NAXOS_eCK",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 2.6,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "eCK_key_secrecy",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:NSLPK3",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 2.6,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "types",
+        "verified"
+      ],
+      [
+        "nonce_secrecy",
+        "verified"
+      ],
+      [
+        "injective_agree",
+        "verified"
+      ],
+      [
+        "session_key_setup_possible",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:RFID_Simple",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.9,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "types",
+        "verified"
+      ],
+      [
+        "Device_ToBob",
+        "verified"
+      ],
+      [
+        "Device_Init_Use_Set",
+        "verified"
+      ],
+      [
+        "reachability_left",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:NSPK3",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 3.4,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "types",
+        "verified"
+      ],
+      [
+        "nonce_secrecy",
+        "falsified"
+      ],
+      [
+        "injective_agree",
+        "falsified"
+      ],
+      [
+        "session_key_setup_possible",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:SAKE",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 2.3,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "secrecyV",
+        "verified"
+      ],
+      [
+        "weak_agreement",
+        "verified"
+      ],
+      [
+        "recent_aliveness",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:StatVerif_GM_Contract_Signing",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.3,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "aborted_and_resolved_exclusive",
+        "verified"
+      ],
+      [
+        "aborted_contract_reachable",
+        "verified"
+      ],
+      [
+        "resolved1_contract_reachable",
+        "verified"
+      ],
+      [
+        "resolved2_contract_reachable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:STS_MAC_fix1",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 4.4,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "KI_Perfect_Forward_Secrecy_I",
+        "verified"
+      ],
+      [
+        "KI_Perfect_Forward_Secrecy_R",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:RYY",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 7.7,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "key_agreement_reachable",
+        "verified"
+      ],
+      [
+        "key_secrecy_WPFS",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:TESLA_Scheme1",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 3.9,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "authentic",
+        "verified"
+      ],
+      [
+        "authentic_reachable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:RYY_PFS",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 7.7,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "key_agreement_reachable",
+        "verified"
+      ],
+      [
+        "key_secrecy_PFS",
+        "falsified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:Typing_and_Destructors",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.7,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "type_assertion",
+        "verified"
+      ],
+      [
+        "Responder_secrecy",
+        "verified"
+      ],
+      [
+        "Public_part_public",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:Joux",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 13.0,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "session_key_establish",
+        "verified"
+      ],
+      [
+        "Session_Key_Secrecy_PFS",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:UM_wPFS",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.3,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "wPFS_initiator_key",
+        "verified"
+      ],
+      [
+        "wPFS_responder_key",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:ake_KEAplus",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.8,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "executable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:TPM_Exclusive_Secrets",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 2.3,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "types",
+        "verified"
+      ],
+      [
+        "Unbind_PCR_charn",
+        "verified"
+      ],
+      [
+        "exclusive_secrets",
+        "verified"
+      ],
+      [
+        "left_reachable",
+        "verified"
+      ],
+      [
+        "right_reachable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:final_protocol_and_property-6",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.8,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "message_authentication",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:injectivity",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.4,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "injectivity_check",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:issue193",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.6,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": true,
+    "lemmas": [
+      [
+        "debug",
+        "verified"
+      ],
+      [
+        "Observational_equivalence",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:TLS_Handshake",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 8.0,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "session_key_secrecy",
+        "verified"
+      ],
+      [
+        "injective_agree",
+        "verified"
+      ],
+      [
+        "session_key_setup_possible",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:alethea_sel_SmHh",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 4.2,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "functional",
+        "verified"
+      ],
+      [
+        "functional2",
+        "verified"
+      ],
+      [
+        "functional3",
+        "verified"
+      ],
+      [
+        "indivVerif_ps",
+        "verified"
+      ],
+      [
+        "indivVerif_sel",
+        "verified"
+      ],
+      [
+        "univVerif_sel",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:dh_alternative",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 4.7,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "key_secret",
+        "falsified"
+      ],
+      [
+        "key_secretA",
+        "falsified"
+      ],
+      [
+        "key_secretB",
+        "falsified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:probEnc",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.5,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": true,
+    "lemmas": [
+      [
+        "Observational_equivalence",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:sig",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.5,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "executable",
+        "verified"
+      ],
+      [
+        "signature_sent_by_agent",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:Scott",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 14.0,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "key_agreement_reachable",
+        "verified"
+      ],
+      [
+        "key_secrecy",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:mls-04a",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 2.5,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "HonestServerTrace",
+        "verified"
+      ],
+      [
+        "HonestTrace",
+        "verified"
+      ],
+      [
+        "KeySecrecy",
+        "verified"
+      ],
+      [
+        "ServerLiveness",
+        "verified"
+      ],
+      [
+        "ClientLiveness",
+        "verified"
+      ],
+      [
+        "InjectiveAgreement",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:thirdAttestation",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 0.8,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "sanity_check",
+        "verified"
+      ],
+      [
+        "cannot_Verify_A_Bad_EAT_or_Compromised_Attester",
+        "verified"
+      ],
+      [
+        "attester_private_key_compromised",
+        "verified"
+      ],
+      [
+        "verifier_private_key_compromised",
+        "verified"
+      ],
+      [
+        "nonce_freshness_across_sessions",
+        "verified"
+      ],
+      [
+        "attester_does_not_agree_on_nonce_origin",
+        "verified"
+      ],
+      [
+        "adversary_learns_the_EAT_information",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:signed_dh",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 2.1,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "key_secret",
+        "verified"
+      ],
+      [
+        "key_secretA",
+        "verified"
+      ],
+      [
+        "key_secretB",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L2:3",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.2,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "message_authentication",
+        "falsified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L2:BP_ABSTRACT_IBE_toyExample",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.0,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "secrecy_session_key",
+        "verified"
+      ],
+      [
+        "nonInjectiveAgreementChallenge_Initiator_Acompro",
+        "verified"
+      ],
+      [
+        "nonInjectiveAgreementChallenge_Initiator_ABcompro",
+        "falsified"
+      ],
+      [
+        "executability_lemma",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:katz-yung",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 5.0,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "HonestTrace",
+        "verified"
+      ],
+      [
+        "KeySecrecy",
+        "verified"
+      ],
+      [
+        "ServerLiveness",
+        "verified"
+      ],
+      [
+        "ClientLiveness",
+        "verified"
+      ],
+      [
+        "InjectiveAgreement",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L2:CHx",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.1,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "recentalive_tag",
+        "falsified"
+      ],
+      [
+        "recentalive_reader",
+        "verified"
+      ],
+      [
+        "executable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L2:CH07",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.9,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "recentalive_tag",
+        "falsified"
+      ],
+      [
+        "recentalive_reader",
+        "verified"
+      ],
+      [
+        "noninjectiveagreement_tag",
+        "verified"
+      ],
+      [
+        "noninjectiveagreement_reader",
+        "verified"
+      ],
+      [
+        "executable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L2:Google2Step_MA",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.7,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "functional",
+        "verified"
+      ],
+      [
+        "message_authentication",
+        "falsified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:exADH-kn",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 10.3,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "Executability",
+        "verified"
+      ],
+      [
+        "ExecutabilityEqS",
+        "verified"
+      ],
+      [
+        "ExecutabilityAdvActiveB",
+        "verified"
+      ],
+      [
+        "ExecutabilityAdvActiveA_SHOULD_BE_FALSIFIED",
+        "falsified"
+      ],
+      [
+        "ResponderKeySecrecy",
+        "verified"
+      ],
+      [
+        "InitiatorKeySecrecy",
+        "verified"
+      ],
+      [
+        "SendMsgSecrecy",
+        "verified"
+      ],
+      [
+        "AgreementOnKey",
+        "verified"
+      ],
+      [
+        "AgreementOnKey2_SHOULD_BE_FALSIFIED",
+        "falsified"
+      ],
+      [
+        "KeysAreNotFreshPerRun",
+        "verified"
+      ],
+      [
+        "ThereIsMoreThanOneRunPerParty",
+        "verified"
+      ],
+      [
+        "PKICorrectness",
+        "verified"
+      ],
+      [
+        "PKIValidation",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L2:CCITT-X509-R",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 3.3,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "Secrecy",
+        "verified"
+      ],
+      [
+        "injectiveagreement_B",
+        "falsified"
+      ],
+      [
+        "agreement_B",
+        "verified"
+      ],
+      [
+        "Session_key_honest_setup",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L1:sigma-1",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 5.7,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "HonestTrace",
+        "verified"
+      ],
+      [
+        "KeySecrecy",
+        "verified"
+      ],
+      [
+        "ServerLiveness",
+        "verified"
+      ],
+      [
+        "ClientLiveness",
+        "verified"
+      ],
+      [
+        "InjectiveAgreement",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L3:BP_ABSTRACT_IBE_toyExample",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.0,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "secrecy_session_key",
+        "verified"
+      ],
+      [
+        "nonInjectiveAgreementChallenge_Initiator_Acompro",
+        "verified"
+      ],
+      [
+        "nonInjectiveAgreementChallenge_Initiator_ABcompro",
+        "falsified"
+      ],
+      [
+        "executability_lemma",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L2:NSPK3",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 3.4,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "types",
+        "verified"
+      ],
+      [
+        "nonce_secrecy",
+        "falsified"
+      ],
+      [
+        "injective_agree",
+        "falsified"
+      ],
+      [
+        "session_key_setup_possible",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L3:CHx",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.1,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "recentalive_tag",
+        "falsified"
+      ],
+      [
+        "recentalive_reader",
+        "verified"
+      ],
+      [
+        "executable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L3:CH07",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.9,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "recentalive_tag",
+        "falsified"
+      ],
+      [
+        "recentalive_reader",
+        "verified"
+      ],
+      [
+        "noninjectiveagreement_tag",
+        "verified"
+      ],
+      [
+        "noninjectiveagreement_reader",
+        "verified"
+      ],
+      [
+        "executable",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L3:CCITT-X509-R",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 3.4,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "Secrecy",
+        "verified"
+      ],
+      [
+        "injectiveagreement_B",
+        "falsified"
+      ],
+      [
+        "agreement_B",
+        "verified"
+      ],
+      [
+        "Session_key_honest_setup",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L2:dh_alternative",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 4.6,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "key_secret",
+        "falsified"
+      ],
+      [
+        "key_secretA",
+        "falsified"
+      ],
+      [
+        "key_secretB",
+        "falsified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L3:KAS1",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.0,
+    "overall_verdict": "SAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "KAS1_key_secrecy",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L3:Google2Step_MA",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 1.8,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "functional",
+        "verified"
+      ],
+      [
+        "message_authentication",
+        "falsified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L2:RYY_PFS",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 7.9,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "key_agreement_reachable",
+        "verified"
+      ],
+      [
+        "key_secrecy_PFS",
+        "falsified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L3:NSPK3",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 3.4,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "types",
+        "verified"
+      ],
+      [
+        "nonce_secrecy",
+        "falsified"
+      ],
+      [
+        "injective_agree",
+        "falsified"
+      ],
+      [
+        "session_key_setup_possible",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L3:dh_alternative",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 4.7,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": false,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "key_secret",
+        "falsified"
+      ],
+      [
+        "key_secretA",
+        "falsified"
+      ],
+      [
+        "key_secretB",
+        "falsified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L2:exADH-kn",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 10.2,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "Executability",
+        "verified"
+      ],
+      [
+        "ExecutabilityEqS",
+        "verified"
+      ],
+      [
+        "ExecutabilityAdvActiveB",
+        "verified"
+      ],
+      [
+        "ExecutabilityAdvActiveA_SHOULD_BE_FALSIFIED",
+        "falsified"
+      ],
+      [
+        "ResponderKeySecrecy",
+        "verified"
+      ],
+      [
+        "InitiatorKeySecrecy",
+        "verified"
+      ],
+      [
+        "SendMsgSecrecy",
+        "verified"
+      ],
+      [
+        "AgreementOnKey",
+        "verified"
+      ],
+      [
+        "AgreementOnKey2_SHOULD_BE_FALSIFIED",
+        "falsified"
+      ],
+      [
+        "KeysAreNotFreshPerRun",
+        "verified"
+      ],
+      [
+        "ThereIsMoreThanOneRunPerParty",
+        "verified"
+      ],
+      [
+        "PKICorrectness",
+        "verified"
+      ],
+      [
+        "PKIValidation",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L3:RYY_PFS",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 8.4,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "key_agreement_reachable",
+        "verified"
+      ],
+      [
+        "key_secrecy_PFS",
+        "falsified"
+      ]
+    ],
+    "timeout": false
+  },
+  {
+    "task_id": "L3:exADH-kn",
+    "status": "done",
+    "exit_code": "0",
+    "wall_seconds": 12.0,
+    "overall_verdict": "UNSAFE",
+    "wellformedness_ok": true,
+    "tamarin_version": null,
+    "requires_diff": false,
+    "lemmas": [
+      [
+        "Executability",
+        "verified"
+      ],
+      [
+        "ExecutabilityEqS",
+        "verified"
+      ],
+      [
+        "ExecutabilityAdvActiveB",
+        "verified"
+      ],
+      [
+        "ExecutabilityAdvActiveA_SHOULD_BE_FALSIFIED",
+        "falsified"
+      ],
+      [
+        "ResponderKeySecrecy",
+        "verified"
+      ],
+      [
+        "InitiatorKeySecrecy",
+        "verified"
+      ],
+      [
+        "SendMsgSecrecy",
+        "verified"
+      ],
+      [
+        "AgreementOnKey",
+        "verified"
+      ],
+      [
+        "AgreementOnKey2_SHOULD_BE_FALSIFIED",
+        "falsified"
+      ],
+      [
+        "KeysAreNotFreshPerRun",
+        "verified"
+      ],
+      [
+        "ThereIsMoreThanOneRunPerParty",
+        "verified"
+      ],
+      [
+        "PKICorrectness",
+        "verified"
+      ],
+      [
+        "PKIValidation",
+        "verified"
+      ]
+    ],
+    "timeout": false
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "task_id": "L1:Google2Step_MA",
+  "level": "L1_verdict",
+  "name": "Google2Step_MA",
+  "protocol": "Google2Step_MA",
+  "source_file": "SPTHY-1/Google2Step_MA.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "functional",
+    "message_authentication"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

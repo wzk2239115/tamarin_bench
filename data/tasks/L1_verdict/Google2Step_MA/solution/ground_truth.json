@@ -1,0 +1,51 @@
+{
+  "protocol": "L1:Google2Step_MA",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "functional",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "message_authentication",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 8
+    }
+  ],
+  "attack_traces": {
+    "message_authentication": [
+      [
+        "Setup",
+        "S_6",
+        "S_2",
+        "Setup",
+        "Setup",
+        "passworddistribution",
+        "H_send",
+        "H_receive_S2",
+        "ChanIn_S",
+        "ChanOut_S",
+        "D_3",
+        "Setup",
+        "ChanIn_C",
+        "passworddistribution",
+        "ChanOut_C",
+        "passworddistribution",
+        "passworddistribution",
+        "H_1",
+        "Setup",
+        "H_1",
+        "Setup",
+        "passworddistribution"
+      ]
+    ]
+  },
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 1.41,
+  "requires_diff": false,
+  "validated": true
+}

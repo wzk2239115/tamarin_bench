@@ -1,0 +1,18 @@
+{
+  "task_id": "L1:RYY_PFS",
+  "level": "L1_verdict",
+  "name": "RYY_PFS",
+  "protocol": "RYY",
+  "source_file": "SPTHY-1/RYY_PFS.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "key_agreement_reachable",
+    "key_secrecy_PFS"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

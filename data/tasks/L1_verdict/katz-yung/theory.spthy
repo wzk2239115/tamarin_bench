@@ -1,0 +1,98 @@
+theory Katz_Yung
+begin
+
+builtins: diffie-hellman, signing
+
+// PKI Provisioning
+rule RegisterPK:
+  [ Fr(~ltk) ]
+  -->
+  [
+    !Ltk($A, ~ltk),
+    !Pk($A, pk(~ltk)),
+    Out(pk(~ltk))
+  ]
+
+rule RevealLTK:
+  [ !Ltk(A, ltk) ]
+  --[ LtkReveal(A) ]->
+  [ Out(ltk) ]
+
+// C->S: C, rC
+// S->C: S, rS, g^x, Sig_S(g^x | C | rC | S | rS)
+// C->S: g^y, Sig_C(g^y | C | rC | S | rS)
+
+// Client logic
+rule ClientInit:
+  [
+    !Ltk(C, ltkC),
+    Fr(~rC)
+  ]
+  --[ ClientSentRequest(C, $S, ~rC) ]->
+  [
+    ClientWait(C, $S, ~rC, ltkC),
+    Out(~rC)
+  ]
+
+rule ClientFinish:
+  let
+    msgIn = <gx, C, rC, S, rS>
+    msgOut = <'g'^~y, C, rC, S, rS>
+    sigOut = sign(msgOut, ltkC)
+    k = gx^~y
+  in
+  [
+    In(<gx, S, rS, sigIn>),
+    ClientWait(C, S, rC, ltkC),
+    !Pk(S, pkS),
+    Fr(~y)
+  ]
+  --[ Eq(verify(sigIn, msgIn, pkS), true),
+      ClientDone(C, S, gx, 'g'^~y, k) ]->
+  [
+    Out(<'g'^~y, sigOut>)
+  ]
+
+// Server logic
+rule ServerInit:
+  let
+    msg = <'g'^~x, C, rC, S, ~rS>
+    sig = sign(msg, ltkS)
+  in
+  [
+    In(<C, rC>),
+    !Ltk(S, ltkS),
+    Fr(~rS),
+    Fr(~x)
+  ]
+  --[ ServerResponded(S, C, 'g'^~x) ]->
+  [
+    ServerWait(S, C, rC, ~rS, ~x),
+    Out(<'g'^~x, S, ~rS, sig>)
+  ]
+
+rule ServerFinish:
+  let
+    msg = <gy, C, rC, S, rS>
+    k = gy^x
+  in
+  [
+    In(<gy, sig>),
+    !Pk(C, pkC),
+    ServerWait(S, C, rC, rS, x)
+  ]
+  --[ Neq(gy, 'g'^x),
+      Eq(verify(sig, msg, pkC), true),
+      ServerDone(S, C, 'g'^x, gy, k) ]->
+  []
+
+// Restrictions
+restriction Equality:
+  "All x y #i. Eq(x,y) @i ==> x = y"
+
+restriction Inequality:
+  "All x y #i. Neq(x,y) @i ==> not(x = y)"
+
+// Functionality test
+
+end

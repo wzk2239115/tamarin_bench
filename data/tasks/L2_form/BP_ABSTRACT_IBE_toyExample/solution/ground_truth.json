@@ -1,0 +1,47 @@
+{
+  "protocol": "L2:BP_ABSTRACT_IBE_toyExample",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "secrecy_session_key",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 38
+    },
+    {
+      "name": "nonInjectiveAgreementChallenge_Initiator_Acompro",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 15
+    },
+    {
+      "name": "nonInjectiveAgreementChallenge_Initiator_ABcompro",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 8
+    },
+    {
+      "name": "executability_lemma",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 5
+    }
+  ],
+  "attack_traces": {
+    "nonInjectiveAgreementChallenge_Initiator_ABcompro": [
+      [
+        "Alice_recv",
+        "Alice_send",
+        "create_IB_identity",
+        "create_IB_PrivateKeyGenerator",
+        "Reveal_IB_privkey",
+        "create_IB_identity"
+      ]
+    ]
+  },
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.7,
+  "requires_diff": false,
+  "validated": true
+}

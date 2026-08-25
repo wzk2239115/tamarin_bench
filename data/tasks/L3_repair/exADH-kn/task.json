@@ -1,0 +1,29 @@
+{
+  "task_id": "L3:exADH-kn",
+  "level": "L3_repair",
+  "name": "exADH-kn",
+  "protocol": "ExerciseADH",
+  "source_file": "SPTHY-1/exADH-kn.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "broken.spthy",
+    "error_hint.txt"
+  ],
+  "lemma_names": [
+    "Executability",
+    "ExecutabilityEqS",
+    "ExecutabilityAdvActiveB",
+    "ExecutabilityAdvActiveA_SHOULD_BE_FALSIFIED",
+    "ResponderKeySecrecy",
+    "InitiatorKeySecrecy",
+    "SendMsgSecrecy",
+    "AgreementOnKey",
+    "AgreementOnKey2_SHOULD_BE_FALSIFIED",
+    "KeysAreNotFreshPerRun",
+    "ThereIsMoreThanOneRunPerParty",
+    "PKICorrectness",
+    "PKIValidation"
+  ],
+  "uses_diff_terms": false,
+  "description": "Repair the broken theory, verify with Tamarin, and determine whether the protocol satisfies its goals."
+}

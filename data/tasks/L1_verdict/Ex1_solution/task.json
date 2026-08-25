@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:Ex1_solution",
+  "level": "L1_verdict",
+  "name": "Ex1_solution",
+  "protocol": "Ex1_solution",
+  "source_file": "SPTHY-1/Ex1_solution.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executable",
+    "secrecyA",
+    "secrecyB",
+    "alivesness_B",
+    "non_inj_agreement_B",
+    "non_inj_agreement_A",
+    "FinishedA_unique"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

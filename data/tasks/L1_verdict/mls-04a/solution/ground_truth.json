@@ -1,0 +1,48 @@
+{
+  "protocol": "L1:mls-04a",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "HonestServerTrace",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "HonestTrace",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 12
+    },
+    {
+      "name": "KeySecrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 7
+    },
+    {
+      "name": "ServerLiveness",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 7
+    },
+    {
+      "name": "ClientLiveness",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 7
+    },
+    {
+      "name": "InjectiveAgreement",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 2.18,
+  "requires_diff": false,
+  "validated": true
+}

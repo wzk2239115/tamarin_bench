@@ -1,0 +1,54 @@
+{
+  "protocol": "L1:Minimal_HashChain",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "Loop_Start",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 7
+    },
+    {
+      "name": "Loop_Success_ord",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 12
+    },
+    {
+      "name": "Loop_charn",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 7
+    },
+    {
+      "name": "Helper_Loop_and_success",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 48
+    },
+    {
+      "name": "Loop_and_success",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 9
+    },
+    {
+      "name": "Helper_Success_charn",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 28
+    },
+    {
+      "name": "Success_charn",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 7
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.47,
+  "requires_diff": false,
+  "validated": true
+}

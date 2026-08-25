@@ -1,0 +1,20 @@
+{
+  "task_id": "L3:BP_ABSTRACT_IBE_toyExample",
+  "level": "L3_repair",
+  "name": "BP_ABSTRACT_IBE_toyExample",
+  "protocol": "BP_ABSTRACT_IBE_toyExample",
+  "source_file": "SPTHY-1/BP_ABSTRACT_IBE_toyExample.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "broken.spthy",
+    "error_hint.txt"
+  ],
+  "lemma_names": [
+    "secrecy_session_key",
+    "nonInjectiveAgreementChallenge_Initiator_Acompro",
+    "nonInjectiveAgreementChallenge_Initiator_ABcompro",
+    "executability_lemma"
+  ],
+  "uses_diff_terms": false,
+  "description": "Repair the broken theory, verify with Tamarin, and determine whether the protocol satisfies its goals."
+}

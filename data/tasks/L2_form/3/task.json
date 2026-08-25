@@ -1,0 +1,16 @@
+{
+  "task_id": "L2:3",
+  "level": "L2_form",
+  "name": "3",
+  "protocol": "three",
+  "source_file": "SPTHY-1/3.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "message_authentication"
+  ],
+  "uses_diff_terms": false,
+  "description": "Model the protocol from the natural-language spec in Tamarin, verify it, and find the attack."
+}

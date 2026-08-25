@@ -1,0 +1,95 @@
+theory NSPK3
+begin
+
+builtins: asymmetric-encryption
+
+// Public key infrastructure
+rule Register_pk:
+  [ Fr(~ltk) ]
+  -->
+  [ !Ltk($A, ~ltk), !Pk($A, pk(~ltk)), Out(pk(~ltk)) ]
+
+// Initiator role - first message
+rule I_1:
+  let m1 = aenc(<'1', ~ni, $I>, pkR)
+  in
+  [ Fr(~ni), !Pk($R, pkR) ]
+  -->
+  [ Out(m1), St_I_1($I, $R, ~ni) ]
+
+// Responder role - second message
+rule R_1:
+  let m1 = aenc(<'1', ni, I>, pk(~ltkR))
+      m2 = aenc(<'2', ni, ~nr>, pkI)
+  in
+  [ In(m1), !Ltk($R, ~ltkR), !Pk(I, pkI), Fr(~nr) ]
+  -->
+  [ Out(m2), St_R_1($R, I, ni, ~nr) ]
+
+// Initiator role - third message
+rule I_2:
+  let m2 = aenc(<'2', ni, nr>, pk(~ltkI))
+      m3 = aenc(<'3', nr>, pkR)
+  in
+  [ In(m2), St_I_1(I, R, ni), !Ltk(I, ~ltkI), !Pk(R, pkR) ]
+  -->
+  [ Out(m3), St_I_2(I, R, ni, nr), !SessionI(I, R, ni, nr) ]
+
+// Responder role - receiving third message
+rule R_2:
+  let m3 = aenc(<'3', nr>, pk(~ltkR))
+  in
+  [ In(m3), St_R_1(R, I, ni, nr), !Ltk(R, ~ltkR) ]
+  -->
+  [ !SessionR(R, I, ni, nr) ]
+
+/* Security Properties */
+
+// Nonce Secrecy - Initiator's nonce
+lemma nonce_secrecy_I:
+  "All I R ni nr #i.
+    SessionI(I, R, ni, nr) @i ==>
+    not(Ex #j. K(ni) @j)
+    | (Ex X #r. Reveal(X) @r & Honest(X) @i)"
+
+// Nonce Secrecy - Responder's nonce
+lemma nonce_secrecy_R:
+  "All I R ni nr #i.
+    SessionR(R, I, ni, nr) @i ==>
+    not(Ex #j. K(nr) @j)
+    | (Ex X #r. Reveal(X) @r & Honest(X) @i)"
+
+// Injective Agreement - Initiator's perspective
+lemma injective_agree_I:
+  "All I R ni nr #i.
+    SessionI(I, R, ni, nr) @i ==>
+    (Ex #j. SessionR(R, I, ni, nr) @j & j < i)
+    | (Ex X #r. Reveal(X) @r & Honest(X) @i)"
+
+// Injective Agreement - Responder's perspective
+lemma injective_agree_R:
+  "All I R ni nr #i.
+    SessionR(R, I, ni, nr) @i ==>
+    (Ex #j. SessionI(I, R, ni, nr) @j & j < i)
+    | (Ex X #r. Reveal(X) @r & Honest(X) @i)"
+
+// Session Key Setup Possible
+lemma session_key_setup_possible:
+  exists-trace
+  "Ex I R ni nr #i #j.
+    SessionI(I, R, ni, nr) @i & SessionR(R, I, ni, nr) @j
+    & not(Ex X #r. Reveal(X) @r)"
+
+// Revelation of long-term keys
+rule Reveal_ltk:
+  [ !Ltk(A, ltk) ]
+  --[ Reveal(A) ]->
+  [ Out(ltk) ]
+
+// Action fact to mark agents as honest
+rule Honest_agent:
+  [ ]
+  --[ Honest($A) ]->
+  [ ]
+
+end

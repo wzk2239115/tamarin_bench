@@ -1,0 +1,18 @@
+{
+  "protocol": "L1:MPAuth_MA_NoTellOK",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "functional",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 7
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 1.6,
+  "requires_diff": false,
+  "validated": true
+}

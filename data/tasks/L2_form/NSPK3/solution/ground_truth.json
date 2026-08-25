@@ -1,0 +1,75 @@
+{
+  "protocol": "L2:NSPK3",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "types",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 32
+    },
+    {
+      "name": "nonce_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 16
+    },
+    {
+      "name": "injective_agree",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 14
+    },
+    {
+      "name": "session_key_setup_possible",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 5
+    }
+  ],
+  "attack_traces": {
+    "nonce_secrecy": [
+      [
+        "Secrecy_claim",
+        "R_2",
+        "R_1",
+        "Register_pk",
+        "Register_pk",
+        "Register_pk",
+        "I_2",
+        "I_1",
+        "Register_pk",
+        "Register_pk",
+        "Reveal_ltk",
+        "I_2",
+        "I_1",
+        "Register_pk",
+        "Register_pk",
+        "Reveal_ltk",
+        "R_1",
+        "Register_pk",
+        "Reveal_ltk"
+      ]
+    ],
+    "injective_agree": [
+      [
+        "R_2",
+        "R_1",
+        "Register_pk",
+        "Register_pk",
+        "Register_pk",
+        "I_2",
+        "I_1",
+        "Register_pk",
+        "Register_pk",
+        "Reveal_ltk",
+        "Reveal_ltk"
+      ]
+    ]
+  },
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 3.1,
+  "requires_diff": false,
+  "validated": true
+}

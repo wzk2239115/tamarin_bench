@@ -1,0 +1,18 @@
+{
+  "task_id": "L3:RYY_PFS",
+  "level": "L3_repair",
+  "name": "RYY_PFS",
+  "protocol": "RYY",
+  "source_file": "SPTHY-1/RYY_PFS.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "broken.spthy",
+    "error_hint.txt"
+  ],
+  "lemma_names": [
+    "key_agreement_reachable",
+    "key_secrecy_PFS"
+  ],
+  "uses_diff_terms": false,
+  "description": "Repair the broken theory, verify with Tamarin, and determine whether the protocol satisfies its goals."
+}

@@ -1,0 +1,18 @@
+{
+  "protocol": "L1:Keyserver",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "Knows_Honest_Key_imp_Revoked",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 6
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 0.24,
+  "requires_diff": false,
+  "validated": true
+}

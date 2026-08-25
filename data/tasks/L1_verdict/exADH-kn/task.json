@@ -1,0 +1,29 @@
+{
+  "task_id": "L1:exADH-kn",
+  "level": "L1_verdict",
+  "name": "exADH-kn",
+  "protocol": "ExerciseADH",
+  "source_file": "SPTHY-1/exADH-kn.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Executability",
+    "ExecutabilityEqS",
+    "ExecutabilityAdvActiveB",
+    "ExecutabilityAdvActiveA_SHOULD_BE_FALSIFIED",
+    "ResponderKeySecrecy",
+    "InitiatorKeySecrecy",
+    "SendMsgSecrecy",
+    "AgreementOnKey",
+    "AgreementOnKey2_SHOULD_BE_FALSIFIED",
+    "KeysAreNotFreshPerRun",
+    "ThereIsMoreThanOneRunPerParty",
+    "PKICorrectness",
+    "PKIValidation"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,36 @@
+{
+  "protocol": "L1:JCS12_Typing_Example",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "typing_assertion",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 15
+    },
+    {
+      "name": "Client_session_key_secrecy_raw",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "Client_session_key_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 4
+    },
+    {
+      "name": "Client_auth",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 12
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.41,
+  "requires_diff": false,
+  "validated": true
+}

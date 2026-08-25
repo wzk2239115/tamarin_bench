@@ -1,0 +1,54 @@
+{
+  "protocol": "L1:Ex1_solution",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "executable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 15
+    },
+    {
+      "name": "secrecyA",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "secrecyB",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 18
+    },
+    {
+      "name": "alivesness_B",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 17
+    },
+    {
+      "name": "non_inj_agreement_B",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 17
+    },
+    {
+      "name": "non_inj_agreement_A",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 30
+    },
+    {
+      "name": "FinishedA_unique",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 8
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 1.3,
+  "requires_diff": false,
+  "validated": true
+}

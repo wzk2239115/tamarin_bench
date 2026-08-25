@@ -1,0 +1,18 @@
+{
+  "task_id": "L2:dh_alternative",
+  "level": "L2_form",
+  "name": "dh_alternative",
+  "protocol": "DIFFIE_HELLMAN",
+  "source_file": "SPTHY-1/dh_alternative.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "key_secret",
+    "key_secretA",
+    "key_secretB"
+  ],
+  "uses_diff_terms": false,
+  "description": "Model the protocol from the natural-language spec in Tamarin, verify it, and find the attack."
+}

@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:thirdAttestation",
+  "level": "L1_verdict",
+  "name": "thirdAttestation",
+  "protocol": "ThirdEATImplementation",
+  "source_file": "SPTHY-1/thirdAttestation.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "sanity_check",
+    "cannot_Verify_A_Bad_EAT_or_Compromised_Attester",
+    "attester_private_key_compromised",
+    "verifier_private_key_compromised",
+    "nonce_freshness_across_sessions",
+    "attester_does_not_agree_on_nonce_origin",
+    "adversary_learns_the_EAT_information"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

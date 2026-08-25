@@ -1,0 +1,104 @@
+{
+  "protocol": "L2:exADH-kn",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "Executability",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 19
+    },
+    {
+      "name": "ExecutabilityEqS",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 15
+    },
+    {
+      "name": "ExecutabilityAdvActiveB",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 9
+    },
+    {
+      "name": "ExecutabilityAdvActiveA_SHOULD_BE_FALSIFIED",
+      "quantifier": "exists-trace",
+      "verdict": "falsified",
+      "steps": 36
+    },
+    {
+      "name": "ResponderKeySecrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 32
+    },
+    {
+      "name": "InitiatorKeySecrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 56
+    },
+    {
+      "name": "SendMsgSecrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 59
+    },
+    {
+      "name": "AgreementOnKey",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 36
+    },
+    {
+      "name": "AgreementOnKey2_SHOULD_BE_FALSIFIED",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 9
+    },
+    {
+      "name": "KeysAreNotFreshPerRun",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 78
+    },
+    {
+      "name": "ThereIsMoreThanOneRunPerParty",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 26
+    },
+    {
+      "name": "PKICorrectness",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "PKIValidation",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    }
+  ],
+  "attack_traces": {
+    "AgreementOnKey2_SHOULD_BE_FALSIFIED": [
+      [
+        "B_Init",
+        "Ltk",
+        "Ltk",
+        "A_Init",
+        "Ltk",
+        "A_Init",
+        "Ltk",
+        "A_Init",
+        "Ltk"
+      ]
+    ]
+  },
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 9.77,
+  "requires_diff": false,
+  "validated": true
+}

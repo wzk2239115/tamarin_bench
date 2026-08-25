@@ -1,0 +1,17 @@
+{
+  "task_id": "L1:final_protocol_and_property-6",
+  "level": "L1_verdict",
+  "name": "final_protocol_and_property-6",
+  "protocol": "Protocol3",
+  "source_file": "SPTHY-1/final_protocol_and_property-6.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "message_authentication"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

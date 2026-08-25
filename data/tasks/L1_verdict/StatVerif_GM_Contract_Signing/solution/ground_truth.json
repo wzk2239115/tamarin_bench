@@ -1,0 +1,36 @@
+{
+  "protocol": "L1:StatVerif_GM_Contract_Signing",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "aborted_and_resolved_exclusive",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 7
+    },
+    {
+      "name": "aborted_contract_reachable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "resolved1_contract_reachable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 9
+    },
+    {
+      "name": "resolved2_contract_reachable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 9
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 0.93,
+  "requires_diff": false,
+  "validated": true
+}

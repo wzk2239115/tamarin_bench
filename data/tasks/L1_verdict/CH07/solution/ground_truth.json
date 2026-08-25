@@ -1,0 +1,51 @@
+{
+  "protocol": "L1:CH07",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "recentalive_tag",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 11
+    },
+    {
+      "name": "recentalive_reader",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 23
+    },
+    {
+      "name": "noninjectiveagreement_tag",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 19
+    },
+    {
+      "name": "noninjectiveagreement_reader",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 15
+    },
+    {
+      "name": "executable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 12
+    }
+  ],
+  "attack_traces": {
+    "recentalive_tag": [
+      [
+        "reader2",
+        "reader1",
+        "Setup",
+        "tag1"
+      ]
+    ]
+  },
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 1.48,
+  "requires_diff": false,
+  "validated": true
+}

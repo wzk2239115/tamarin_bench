@@ -1,0 +1,19 @@
+{
+  "task_id": "L1:CR",
+  "level": "L1_verdict",
+  "name": "CR",
+  "protocol": "CR",
+  "source_file": "SPTHY-1/CR.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "alive",
+    "recentalive",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

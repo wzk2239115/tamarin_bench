@@ -1,0 +1,19 @@
+{
+  "task_id": "L2:BP_ABSTRACT_IBE_toyExample",
+  "level": "L2_form",
+  "name": "BP_ABSTRACT_IBE_toyExample",
+  "protocol": "BP_ABSTRACT_IBE_toyExample",
+  "source_file": "SPTHY-1/BP_ABSTRACT_IBE_toyExample.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "secrecy_session_key",
+    "nonInjectiveAgreementChallenge_Initiator_Acompro",
+    "nonInjectiveAgreementChallenge_Initiator_ABcompro",
+    "executability_lemma"
+  ],
+  "uses_diff_terms": false,
+  "description": "Model the protocol from the natural-language spec in Tamarin, verify it, and find the attack."
+}

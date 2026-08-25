@@ -1,0 +1,19 @@
+{
+  "task_id": "L3:CHx",
+  "level": "L3_repair",
+  "name": "CHx",
+  "protocol": "CHx",
+  "source_file": "SPTHY-1/CHx.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "broken.spthy",
+    "error_hint.txt"
+  ],
+  "lemma_names": [
+    "recentalive_tag",
+    "recentalive_reader",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "description": "Repair the broken theory, verify with Tamarin, and determine whether the protocol satisfies its goals."
+}

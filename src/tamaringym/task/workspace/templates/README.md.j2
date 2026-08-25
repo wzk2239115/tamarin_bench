@@ -1,0 +1,96 @@
+# Tamarin Protocol Verification Task — Level 1: Property Formulation & Verdict
+
+You are a formal verification engineer. Your workspace contains:
+
+{% if has_theory %}
+- `theory.spthy` — a Tamarin security protocol theory. **All security lemmas
+  have been removed.** The rules, restrictions, functions and equations are
+  complete and must not be altered.
+{% endif %}
+{% if has_goals %}
+- `goals.md` — the security goals you must formalize (lemma names and
+  quantifiers are binding), plus a natural-language protocol description.
+{% endif %}
+{% if has_spec %}
+- `spec.md` — a natural-language specification of the protocol.
+{% endif %}
+{% if has_broken %}
+- `broken.spthy` — a Tamarin theory that is broken (it may fail to parse or
+  to pass wellformedness, or it may be a subtly wrong model that masks real
+  behavior). You must repair it.
+- `error_hint.txt` — a hint about what is wrong.
+{% endif %}
+
+## Your objective
+
+Produce, inside this workspace:
+
+1. **`final.spthy`** — your complete Tamarin theory:
+   - Level 1: the given theory plus the lemmas you formulated for every
+     goal in `goals.md` (you may add helper/source lemmas).
+   - Level 2: the full model you built from `spec.md`.
+   - Level 3: the repaired theory (restore correct modeling; the protocol
+     rules should again faithfully implement the protocol).
+2. **`verdict.json`** — your verdict, exactly this schema:
+
+   ```json
+   {
+     "overall": "SAFE" | "UNSAFE",
+     "lemmas": {"<lemma name>": "verified" | "falsified", ...},
+     "attack_lemmas": ["<lemma name>", ...],
+     "notes": "<short free-text justification>"
+   }
+   ```
+
+   `overall` is `UNSAFE` iff at least one security lemma is falsified.
+3. **`attack_report.md`** (required only when `overall` is `UNSAFE`) — a
+   concrete attack narrative: which party the intruder impersonates or
+   compromises, the ordered message flow, and the exact sequence of
+   **protocol rule names** exercised by the attack trace.
+
+## Ground rules
+
+- The verdict must come from **actually running Tamarin** on
+  `final.spthy`. Your work is re-verified in a clean environment: the
+  harness re-runs Tamarin on your `final.spthy` and compares against its
+  own ground truth. A claimed verdict your theory cannot reproduce scores
+  zero.
+- Do not modify the given protocol rules, restrictions, or equations
+  (Levels 1 and 3). Adding or weakening them invalidates the task.
+- Do not weaken or drop goals. Each goal in `goals.md` must appear as a
+  lemma with the given name and quantifier.
+- Helper lemmas, source lemmas, `--auto-sources`, heuristics
+  (`--heuristic=s` etc.) and oracles are all fair game — driving the
+  prover to termination is part of the task.
+
+## Working with Tamarin
+
+`tamarin-prover` is installed. Useful invocations:
+
+```bash
+# full automatic analysis of all lemmas (what the harness runs):
+tamarin-prover final.spthy --prove
+
+# serialize found attack traces to JSON (for the attack report):
+tamarin-prover final.spthy --prove --output-json=traces.json
+
+# observational-equivalence theories (diff terms) need:
+tamarin-prover final.spthy --diff --prove
+
+# other useful flags: --auto-sources, --heuristic=..., --stop-on-trace
+```
+
+Practical tips:
+
+- Some proofs do not terminate automatically. Typical remedies: add source
+  lemmas, restate the property over explicit session facts, or bound the
+  proof search (`-b`). Manage your time: a lemma that cannot be finished
+  should be reported honestly rather than guessed.
+- Wellformedness warnings matter: a rule whose variables are not derivable
+  from its premises usually means the modeling is wrong. Investigate them
+  before trusting results.
+- Long-running commands: wrap with `timeout <seconds> ...`.
+
+Work entirely inside this directory. When you are done, make sure
+`final.spthy`, `verdict.json`, and (if unsafe) `attack_report.md` exist and
+are final.

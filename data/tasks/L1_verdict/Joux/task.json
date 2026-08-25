@@ -1,0 +1,18 @@
+{
+  "task_id": "L1:Joux",
+  "level": "L1_verdict",
+  "name": "Joux",
+  "protocol": "Joux",
+  "source_file": "SPTHY-1/Joux.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "session_key_establish",
+    "Session_Key_Secrecy_PFS"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

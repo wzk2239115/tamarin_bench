@@ -1,0 +1,20 @@
+{
+  "task_id": "L3:CCITT-X509-R",
+  "level": "L3_repair",
+  "name": "CCITT-X509-R",
+  "protocol": "CCITT_X509_R",
+  "source_file": "SPTHY-1/CCITT-X509-R.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "broken.spthy",
+    "error_hint.txt"
+  ],
+  "lemma_names": [
+    "Secrecy",
+    "injectiveagreement_B",
+    "agreement_B",
+    "Session_key_honest_setup"
+  ],
+  "uses_diff_terms": false,
+  "description": "Repair the broken theory, verify with Tamarin, and determine whether the protocol satisfies its goals."
+}

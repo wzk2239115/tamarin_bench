@@ -1,0 +1,26 @@
+theory Sig
+
+begin
+
+builtins: signing
+
+rule LtkGen:// PKI
+    [ Fr(~ltk) ]
+  -->
+    [ !Ltk($A, ~ltk), !Pk($A , pk(~ltk)) , Out(pk(~ltk)) ]
+
+// protocol rules
+rule Send_Signature:
+    [ Fr(~n), !Ltk($A, ltkA) ]
+  --[ Send($A,~n) ]->
+    [ Out(<~n, sign{~n}ltkA>) ]
+
+rule Recv_Signature:
+    [ !Pk($A, pkA), In(<n, sig>) ]
+  --[ Recv($A, n), Eq(verify(sig, n, pkA), true) ]->
+    [ ]
+
+restriction equal:// needed for signature verification
+  "All a b #i . Eq(a, b )@i ==> a = b "
+
+end

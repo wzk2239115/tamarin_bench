@@ -1,0 +1,155 @@
+theory StatVerif_GM_Contract_Signing begin
+
+/*
+   Protocol:    Contract Signing Protocol (Example 2 from [1])
+   Modeler:     Simon Meier <iridcode@gmail.com>
+   Date:        September 2012
+
+   Status:      working
+
+   This is the contract signing example presented in Section V.B of the
+   following paper.
+
+   [1] M. Arapinis, E. Ritter and M. Ryan. StatVerif: Verification of Stateful
+   Processes. In CSF'11. IEEE Computer Society Press, pages 33-47 , 2011.
+
+   It models the two-party version of the contract signing protocol proposed
+   in
+
+   [2] Juan A. Garay, Markus Jakobsson, and Philip D. MacKenzie. Abuse-free
+   optimistic contract signing. In Michael J. Wiener, editor, CRYPTO, volume
+   1666 of Lecture Notes in Computer Science, pages 449–466. Springer, 1999.
+
+   Note that in contrast to [1], we do not require any protocol-specific
+   abstraction, as we support reasoning about state under replication.
+
+*/
+
+functions:
+  pk/1, sign/2, pcs/3, check_getmsg/2, checkpcs/5, true/0, convertpcs/2
+
+equations:
+  // Checking and getting the message in a standard signature
+    check_getmsg(pk(xsk), sign(xsk, xm)) = xm
+
+  , checkpcs(xc, pk(xsk), ypk, zpk, pcs(sign(xsk, xc), ypk, zpk)) = true()
+
+  , convertpcs(zsk, pcs(sign(xsk, xc), ypk, pk(zsk))) = sign(xsk, xc)
+  /*
+    The above two equations are inspired by the following design decisions.
+    We model a private signature of a contract 'xc' that is
+      - meant for 'y' identified by his public key 'ypk'
+      - privately signed by 'x' using his private key 'xsk'
+      - to be converted by the trusted party 'z' identified by its public key
+        'zpk'
+     using the term 'pcs(sign(xsk, xc), ypk, zpk)'.
+
+     This term chan be checked against 'xc', 'pk(xsk)', ypk, and zpk using
+     the 'checkpcs' algorithm.
+
+     It can be converted to a standard signature using the 'convertpcs'
+     algorithm provided one has access to the private key of the trusted
+     party.
+
+     Note that we embedd the proper standard signature immediately into the
+     'pcs' term, as the resulting equational theory is not subterm-convergent
+     otherwise.
+  */
+
+// Setting up the trusted third party, i.e., choose its signing key
+rule Setup_TTP:
+  [ Fr(seed) ] --> [ !TTP(seed), Out(pk(seed)) ]
+
+// Our goal is to check that the TTP cannot be abused to provide the adversary
+// with both a certificate that the contract was resolved and a certificate
+// that the contract was aborted.
+
+// The TTP answering an 'abort' request.
+rule Abort1:
+  let msg      = <ct, pk1, pk2, pcsig1>
+      abortSig = sign(skT, pcsig1)
+  in
+    [ !TTP(skT)
+    , In(<'abort', msg>)
+    ]
+  --[ // The TTP answers at most once per contract.
+      Answered(ct)
+      // Check signatures. This is essential. Try uncommenting it and check
+      // the resulting attacks.
+    , Eq(checkpcs(ct, pk1, pk2, pk(skT), pcsig1), true)
+      // Log this action for referencing it in properties
+    , Abort1(ct)
+    ]->
+    [ Out(abortSig) ]
+
+// We refrain from modelling the repeated answering with the same answer.
+// It would be easy to model, but does obviously not strengthen the adversary.
+
+// The TTP answering a resolve request by party 2.
+rule Resolve2:
+  let msg        = <ct, pk1, pk2, pcsig1, sig2>
+      sig1       = convertpcs(skT, pcsig1)
+      resolveSig = sign(skT, <sig1, sig2>)
+  in
+    [ !TTP(skT)
+    , In(<'resolve2', msg>)
+    ]
+  --[ // The TTP answers at most once per contract.
+      Answered(ct)
+      // Check signatures
+    , Eq(check_getmsg(pk2, sig2), ct)
+    , Eq(checkpcs(ct, pk1, pk2, pk(skT), pcsig1), true)
+      // Log this action for referencing it in properties
+    , Resolve2(ct)
+    ]->
+    [ Out(resolveSig) ]
+
+// The TTP answering a resolve request by party 1.
+rule Resolve1:
+  let msg        = <ct, pk1, pk2, sig1, pcsig2>
+      sig2       = convertpcs(skT, pcsig2)
+      resolveSig = sign(skT, <sig1, sig2>)
+  in
+    [ !TTP(skT)
+    , In(<'resolve1', msg>)
+    ]
+  --[ // The TTP answers at most once per contract.
+      Answered(ct)
+      // Check signatures
+    , Eq(check_getmsg(pk1, sig1), ct)
+    , Eq(checkpcs(ct, pk2, pk1, pk(skT), pcsig2), true)
+      // Log this action for referencing it in properties
+    , Resolve1(ct)
+    ]->
+    [ Out(resolveSig) ]
+
+// Witnessing aborted contracts.
+rule Witness_Aborted:
+  let abortC = sign(skT, pcs(sign(sk1, ct), pk(ysk), pk(skT)))
+  in
+    [ In(abortC), !TTP(skT) ] --[ AbortCert(ct) ]-> []
+
+// Witnessing resolved contracts.
+rule Witness_Resolved:
+  let resolveC = sign(skT, <sign(sk1, ct), sign(sk2, ct)>)
+  in
+    [ In(resolveC), !TTP(skT) ] --[ ResolveCert(ct) ]-> []
+
+// Axiom: the TTP does not answer any request twice
+restriction Answered_unique:
+    "All x #i #j. Answered(x) @ i & Answered(x) @ j ==> #i = #j"
+
+// Axiom: the TTP stops if an equality check fails
+restriction Eq_checks_succeed: "All x y #i. Eq(x,y) @ i ==> x = y"
+
+/*
+Our desired goal: there is not contract where the adversary can present
+both an abort-certificate and a resolve-certificate. This is what is
+verified in [1]. It is almost trivial, as it only relies on the uniqueness
+check and properly checking the signatures.
+
+TODO: Investigate more interesting properties. Especially properties from the
+perspective of the local agents.
+*/
+
+end

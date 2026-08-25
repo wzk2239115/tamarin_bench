@@ -1,0 +1,17 @@
+{
+  "task_id": "L1:Keyserver",
+  "level": "L1_verdict",
+  "name": "Keyserver",
+  "protocol": "Keyserver",
+  "source_file": "SPTHY-1/Keyserver.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Knows_Honest_Key_imp_Revoked"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

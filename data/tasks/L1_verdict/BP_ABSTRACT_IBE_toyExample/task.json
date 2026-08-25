@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:BP_ABSTRACT_IBE_toyExample",
+  "level": "L1_verdict",
+  "name": "BP_ABSTRACT_IBE_toyExample",
+  "protocol": "BP_ABSTRACT_IBE_toyExample",
+  "source_file": "SPTHY-1/BP_ABSTRACT_IBE_toyExample.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "secrecy_session_key",
+    "nonInjectiveAgreementChallenge_Initiator_Acompro",
+    "nonInjectiveAgreementChallenge_Initiator_ABcompro",
+    "executability_lemma"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

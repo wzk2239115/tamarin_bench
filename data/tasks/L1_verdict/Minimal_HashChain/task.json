@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:Minimal_HashChain",
+  "level": "L1_verdict",
+  "name": "Minimal_HashChain",
+  "protocol": "Minimal_HashChain",
+  "source_file": "SPTHY-1/Minimal_HashChain.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Loop_Start",
+    "Loop_Success_ord",
+    "Loop_charn",
+    "Helper_Loop_and_success",
+    "Loop_and_success",
+    "Helper_Success_charn",
+    "Success_charn"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

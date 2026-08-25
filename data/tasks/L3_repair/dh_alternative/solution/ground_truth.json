@@ -1,0 +1,67 @@
+{
+  "protocol": "L3:dh_alternative",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "key_secret",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 6
+    },
+    {
+      "name": "key_secretA",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 4
+    },
+    {
+      "name": "key_secretB",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 7
+    }
+  ],
+  "attack_traces": {
+    "key_secret": [
+      [
+        "dh_3_A",
+        "dh_3_B",
+        "dh_2_A",
+        "dh_1_A",
+        "Init_Knowledge",
+        "Asymmetric_key_setup",
+        "Asymmetric_key_setup",
+        "dh_2_B",
+        "dh_1_B",
+        "Init_Knowledge",
+        "Asymmetric_key_setup",
+        "Asymmetric_key_setup"
+      ]
+    ],
+    "key_secretA": [
+      [
+        "dh_3_A",
+        "dh_2_A",
+        "dh_1_A",
+        "Init_Knowledge",
+        "Asymmetric_key_setup",
+        "Asymmetric_key_setup"
+      ]
+    ],
+    "key_secretB": [
+      [
+        "dh_3_B",
+        "dh_2_B",
+        "dh_1_B",
+        "Init_Knowledge",
+        "Asymmetric_key_setup",
+        "Asymmetric_key_setup"
+      ]
+    ]
+  },
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 4.35,
+  "requires_diff": false,
+  "validated": true
+}

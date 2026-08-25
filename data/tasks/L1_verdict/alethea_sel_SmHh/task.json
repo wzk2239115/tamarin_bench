@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:alethea_sel_SmHh",
+  "level": "L1_verdict",
+  "name": "alethea_sel_SmHh",
+  "protocol": "alethea_sel_SmHh",
+  "source_file": "SPTHY-1/alethea_sel_SmHh.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "functional",
+    "functional2",
+    "functional3",
+    "indivVerif_ps",
+    "indivVerif_sel",
+    "univVerif_sel"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

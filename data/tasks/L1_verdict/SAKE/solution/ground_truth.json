@@ -1,0 +1,30 @@
+{
+  "protocol": "L1:SAKE",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "secrecyV",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "weak_agreement",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "recent_aliveness",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 2.01,
+  "requires_diff": false,
+  "validated": true
+}

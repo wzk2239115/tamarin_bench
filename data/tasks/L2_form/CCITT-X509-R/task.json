@@ -1,0 +1,19 @@
+{
+  "task_id": "L2:CCITT-X509-R",
+  "level": "L2_form",
+  "name": "CCITT-X509-R",
+  "protocol": "CCITT_X509_R",
+  "source_file": "SPTHY-1/CCITT-X509-R.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "Secrecy",
+    "injectiveagreement_B",
+    "agreement_B",
+    "Session_key_honest_setup"
+  ],
+  "uses_diff_terms": false,
+  "description": "Model the protocol from the natural-language spec in Tamarin, verify it, and find the attack."
+}

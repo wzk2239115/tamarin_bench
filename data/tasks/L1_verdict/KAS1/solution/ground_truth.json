@@ -1,0 +1,18 @@
+{
+  "protocol": "L1:KAS1",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "KAS1_key_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 38
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.64,
+  "requires_diff": false,
+  "validated": true
+}

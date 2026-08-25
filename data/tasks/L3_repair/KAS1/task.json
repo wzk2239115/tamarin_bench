@@ -1,0 +1,17 @@
+{
+  "task_id": "L3:KAS1",
+  "level": "L3_repair",
+  "name": "KAS1",
+  "protocol": "KAS1",
+  "source_file": "SPTHY-1/KAS1.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "broken.spthy",
+    "error_hint.txt"
+  ],
+  "lemma_names": [
+    "KAS1_key_secrecy"
+  ],
+  "uses_diff_terms": false,
+  "description": "Repair the broken theory, verify with Tamarin, and determine whether the protocol satisfies its goals."
+}

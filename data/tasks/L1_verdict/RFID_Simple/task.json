@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:RFID_Simple",
+  "level": "L1_verdict",
+  "name": "RFID_Simple",
+  "protocol": "RFID_Simple",
+  "source_file": "SPTHY-1/RFID_Simple.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "types",
+    "Device_ToBob",
+    "Device_Init_Use_Set",
+    "reachability_left"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,20 @@
+# LLM API endpoints allowed while the agent runs.
+# Squid dstdomain: '.domain' matches the domain and all subdomains.
+# NOTE: squid 6 rejects redundant entries (a subdomain listed alongside its
+# dotted parent), so keep the list minimal.
+
+# Anthropic (Claude Code direct)
+.anthropic.com
+
+# OpenAI (Codex CLI)
+.openai.com
+
+# 360 (native Anthropic-protocol routing)
+.360.cn
+
+# DeepSeek (official Anthropic endpoint)
+.deepseek.com
+
+# Z.AI / Zhipu
+.z.ai
+.bigmodel.cn

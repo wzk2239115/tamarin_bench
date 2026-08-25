@@ -1,0 +1,19 @@
+{
+  "task_id": "L1:OTPoverSMS_EA",
+  "level": "L1_verdict",
+  "name": "OTPoverSMS_EA",
+  "protocol": "OTPoverSMS_EA",
+  "source_file": "SPTHY-1/OTPoverSMS_EA.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "functional",
+    "entity_authentication",
+    "device_authentication"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

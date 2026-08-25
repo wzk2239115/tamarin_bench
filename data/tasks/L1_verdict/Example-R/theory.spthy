@@ -1,0 +1,57 @@
+/*
+Initial Example for the Tamarin Manual
+======================================
+
+Authors: 	Simon Meier, Benedikt Schmidt
+Updated by: 	Jannik Dreier, Ralf Sasse
+Date: 	        June 2016
+
+This file is documented in the Tamarin user manual.
+
+*/
+
+theory running_ex_R
+begin
+
+builtins: hashing, asymmetric-encryption
+
+// Registering a public key
+rule Register_pk:
+    [ Fr(~ltk) ]
+  -->
+    [ !Ltk($A, ~ltk), !Pk($A, pk(~ltk)) ]
+
+rule Get_pk:
+    [ !Pk(A, pubkey) ]
+  -->
+    [ Out(pubkey) ]
+
+rule Reveal_ltk:
+    [ !Ltk(A, ltk) ]
+  --[ LtkReveal(A) ]->
+    [ Out(ltk) ]
+
+// Start a new thread executing the client role, choosing the server
+// non-deterministically.
+rule Client_1:
+    [ Fr(~k)
+    // lookup public-key of server
+    , !Pk($S, pkS)   ]
+  -->
+    [ Client_1( $S, ~k )    // Store server and key for next step of thread
+    , Out( aenc(~k, pkS) ) ]
+
+rule Client_2:
+    [ Client_1(S, k)   // Retrieve server and session key from previous step
+    , In( h(k) ) ]
+  --[ SessKeyC( S, k ) ]-> // State that the session key 'k'
+    []                     // was setup with server 'S'
+
+rule Serv_1:
+    [ !Ltk($S, ~ltkS)
+    , In( request ) ]
+  --[ AnswerRequest($S, adec(request, ~ltkS)) ]-> // Explanation below
+    [ Out( h(adec(request, ~ltkS)) ) ]            // Return the hash of the
+                                                  // decrypted request.
+
+end

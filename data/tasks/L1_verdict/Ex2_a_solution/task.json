@@ -1,0 +1,18 @@
+{
+  "task_id": "L1:Ex2_a_solution",
+  "level": "L1_verdict",
+  "name": "Ex2_a_solution",
+  "protocol": "Ex2_a_solution",
+  "source_file": "SPTHY-1/Ex2_a_solution.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "ClientWellfounded",
+    "Secrecy"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

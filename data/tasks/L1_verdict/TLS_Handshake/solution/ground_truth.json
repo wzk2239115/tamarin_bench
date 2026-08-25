@@ -1,0 +1,30 @@
+{
+  "protocol": "L1:TLS_Handshake",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "session_key_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 95
+    },
+    {
+      "name": "injective_agree",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 44
+    },
+    {
+      "name": "session_key_setup_possible",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 11
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 7.61,
+  "requires_diff": false,
+  "validated": true
+}

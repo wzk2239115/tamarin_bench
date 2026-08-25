@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:NSLPK3",
+  "level": "L1_verdict",
+  "name": "NSLPK3",
+  "protocol": "NSLPK3",
+  "source_file": "SPTHY-1/NSLPK3.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "types",
+    "nonce_secrecy",
+    "injective_agree",
+    "session_key_setup_possible"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

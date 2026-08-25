@@ -1,0 +1,30 @@
+{
+  "protocol": "L1:Typing_and_Destructors",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "type_assertion",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 26
+    },
+    {
+      "name": "Responder_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 17
+    },
+    {
+      "name": "Public_part_public",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 5
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 0.3,
+  "requires_diff": false,
+  "validated": true
+}

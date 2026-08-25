@@ -1,0 +1,19 @@
+{
+  "task_id": "L1:CHx",
+  "level": "L1_verdict",
+  "name": "CHx",
+  "protocol": "CHx",
+  "source_file": "SPTHY-1/CHx.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "recentalive_tag",
+    "recentalive_reader",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

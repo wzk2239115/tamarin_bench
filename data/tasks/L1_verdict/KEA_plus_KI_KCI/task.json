@@ -1,0 +1,18 @@
+{
+  "task_id": "L1:KEA_plus_KI_KCI",
+  "level": "L1_verdict",
+  "name": "KEA_plus_KI_KCI",
+  "protocol": "KEA_plus_KI_KCI",
+  "source_file": "SPTHY-1/KEA_plus_KI_KCI.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "keaplus_initiator_key",
+    "keaplus_responder_key"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,24 @@
+{
+  "protocol": "L1:Scott",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "key_agreement_reachable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "key_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 452
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 13.62,
+  "requires_diff": false,
+  "validated": true
+}

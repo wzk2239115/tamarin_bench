@@ -1,0 +1,19 @@
+{
+  "task_id": "L1:SAKE",
+  "level": "L1_verdict",
+  "name": "SAKE",
+  "protocol": "SAKE",
+  "source_file": "SPTHY-1/SAKE.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "secrecyV",
+    "weak_agreement",
+    "recent_aliveness"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

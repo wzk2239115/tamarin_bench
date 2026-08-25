@@ -1,0 +1,24 @@
+{
+  "protocol": "L1:JKL_TS2_2008_KI_wPFS",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "JKL2008_2_initiator_key",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 40
+    },
+    {
+      "name": "JKL2008_2_responder_key",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 55
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 1.0,
+  "requires_diff": false,
+  "validated": true
+}

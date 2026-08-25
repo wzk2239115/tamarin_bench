@@ -1,0 +1,18 @@
+{
+  "task_id": "L2:CHx",
+  "level": "L2_form",
+  "name": "CHx",
+  "protocol": "CHx",
+  "source_file": "SPTHY-1/CHx.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "recentalive_tag",
+    "recentalive_reader",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "description": "Model the protocol from the natural-language spec in Tamarin, verify it, and find the attack."
+}

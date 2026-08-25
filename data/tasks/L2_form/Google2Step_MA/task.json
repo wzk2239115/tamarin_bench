@@ -1,0 +1,17 @@
+{
+  "task_id": "L2:Google2Step_MA",
+  "level": "L2_form",
+  "name": "Google2Step_MA",
+  "protocol": "Google2Step_MA",
+  "source_file": "SPTHY-1/Google2Step_MA.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "functional",
+    "message_authentication"
+  ],
+  "uses_diff_terms": false,
+  "description": "Model the protocol from the natural-language spec in Tamarin, verify it, and find the attack."
+}

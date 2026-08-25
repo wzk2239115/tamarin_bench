@@ -1,0 +1,97 @@
+// Solution proposal for Ex2 in IRFT UFMRG workshop on Tamarin
+// https://github.com/felixlinker/tamarin-workshop/tree/main
+// Prove with tamarin-prover --prove exADH-kn.spthy
+// Karl Norrman, Ericsson Research and KTH Royal Institute of Technology, 2023-10-25
+theory ExerciseADH
+begin
+
+builtins: symmetric-encryption, diffie-hellman
+
+// Assume:
+//  - Unique keys and unique names => adv cannot register arbitrary keys/names
+//  - Unique pairs of (key, id) => adv cannot register arbitrary bindings (key, name)
+//  - Ids and keys are different name spaces
+rule Ltk:
+  let
+    sk = ~x            // Secret key shorthand
+    pk = 'g'^~x        // Public key shorthand
+  in
+  [ Fr(sk), Fr(~id)]   // Create fresh secret key and id => uniqueness
+  --[
+    // Prefixing action facts with A to get different "namespace" compared
+    // to regular facts.  Dicipline to prevent accidental use of non-action
+    // facts in lemmas.
+    APk(~id, pk)       // Action fact for trace
+  , ASk(~id, sk)       // Action fact for trace
+  ]->
+  [ Out(<~id, pk>)     // Public keys are public => give pk to adv
+  , !Pk(~id, pk)       // Store pk indefinitely and securely from adv
+  , !Sk(~id, sk)       // Store sk indefinitely and securely from adv
+  ]
+
+rule A_Init:
+  let
+    m1 = <idA, idB, pkA>  // KE message m1
+  in
+  [ !Pk(idA, pkA)       // Obtain own ID, anyone will do
+  , !Pk(idB, pkB)       // Obtain a peer ID, anyone will do
+  ]
+  --[ AReachAInit() ]-> 
+  [ Out(m1)             // Send m1 via adv
+  , St_A(idA, idB)      // Keep state for "next invocation"
+  ]
+
+rule B_Init:
+  let 
+    s = pkA^~skB                         // established shared secret
+    m1 = <idA, idB, pkA>                 // KE message m1
+    m2 = <senc('ack', s), idA, idB, pkB> // KE message m2
+  in
+  [ In(m1)              // Read m1 from "interface", i.e., from adv
+  , !Sk(idB, ~skB)      // Look up own sk
+  , !Pk(idB, pkB)       // Look up own pk
+  , !Pk(idA, pkA)       // Look up peer id-to-pk binding, vfy pkA by matching and
+                        //   uniquness assumptions on PKI (see Ltk rule)
+  ]
+  --[ AReachBInit()
+    , AResponderKey(s)  // Write established key to trace
+    , AResponderKey2(idA, idB, s) // Write established key to trace for lemma on eq keys
+    ]->
+  [ Out(m2)
+  ]
+
+rule A_SendMsg:
+  let
+    s = pkB^~skA        // Established shared secret, DH thy takes care of term-eq
+    m2 = <senc('ack', s), idA, idB, pkB> // KE message m2, implicit vfy of s by
+                                         //   matching on senc of s because
+                                         //   senc term can't be constructed without
+                                         //   knowing s
+    m3 = senc(~m, s)
+  in
+  [ In(m2)
+  , St_A(idA, idB)
+  , Fr(~m)
+  , !Sk(idA, ~skA)    // Look up own sk
+  , !Pk(idB, pkB)     // Look up peer id-to-pk binding
+  ]
+  --[ AReachASendMsg()
+    , AMessageWasSent(~m)
+    , AInitiatorKey(s) // Write established key to trace
+    , AInitiatorKey2(idA, idB, s) // Write established key to trace for lemma on eq keys
+    ]->
+  [ Out(m3)
+  ]
+
+// This restriction allows you to use the Eq action fact in rules to constrain
+// that two terms must be equal. This is used to "compare" two messages or
+// terms, e.g., to check that signature verification is equal to true.
+// This rule is only commented out right now to suppress a warning that Eq is
+// referenced but not used. Un-comment it whenever you want!
+// restriction Eq:
+//   "All t1 t2 #x. Eq(t1, t2) @ #x ==> t1 = t2"
+
+// The default smart (s) heuristic runs out of memory
+heuristic: c
+
+end

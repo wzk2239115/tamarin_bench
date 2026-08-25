@@ -1,0 +1,19 @@
+{
+  "task_id": "L1:Artificial",
+  "level": "L1_verdict",
+  "name": "Artificial",
+  "protocol": "Artificial",
+  "source_file": "SPTHY-1/Artificial.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Characterize_Fin",
+    "Fin_unique",
+    "Keys_must_be_revealed"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

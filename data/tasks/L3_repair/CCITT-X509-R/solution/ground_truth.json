@@ -1,0 +1,46 @@
+{
+  "protocol": "L3:CCITT-X509-R",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "Secrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 15
+    },
+    {
+      "name": "injectiveagreement_B",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 14
+    },
+    {
+      "name": "agreement_B",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 7
+    },
+    {
+      "name": "Session_key_honest_setup",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 12
+    }
+  ],
+  "attack_traces": {
+    "injectiveagreement_B": [
+      [
+        "B_receive",
+        "B_receive",
+        "Register_pk",
+        "Register_pk",
+        "A_send"
+      ]
+    ]
+  },
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 3.04,
+  "requires_diff": false,
+  "validated": true
+}

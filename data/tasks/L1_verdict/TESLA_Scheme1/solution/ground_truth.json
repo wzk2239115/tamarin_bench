@@ -1,0 +1,24 @@
+{
+  "protocol": "L1:TESLA_Scheme1",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "authentic",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 157
+    },
+    {
+      "name": "authentic_reachable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 12
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 3.55,
+  "requires_diff": false,
+  "validated": true
+}

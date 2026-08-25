@@ -1,0 +1,28 @@
+{
+  "task_id": "L2:exADH-kn",
+  "level": "L2_form",
+  "name": "exADH-kn",
+  "protocol": "ExerciseADH",
+  "source_file": "SPTHY-1/exADH-kn.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "Executability",
+    "ExecutabilityEqS",
+    "ExecutabilityAdvActiveB",
+    "ExecutabilityAdvActiveA_SHOULD_BE_FALSIFIED",
+    "ResponderKeySecrecy",
+    "InitiatorKeySecrecy",
+    "SendMsgSecrecy",
+    "AgreementOnKey",
+    "AgreementOnKey2_SHOULD_BE_FALSIFIED",
+    "KeysAreNotFreshPerRun",
+    "ThereIsMoreThanOneRunPerParty",
+    "PKICorrectness",
+    "PKIValidation"
+  ],
+  "uses_diff_terms": false,
+  "description": "Model the protocol from the natural-language spec in Tamarin, verify it, and find the attack."
+}

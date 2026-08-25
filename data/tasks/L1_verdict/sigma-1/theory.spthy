@@ -1,0 +1,103 @@
+theory SIGMA
+begin
+
+builtins: diffie-hellman, signing
+
+// MAC
+functions: mac/2
+
+// PKI Provisioning
+rule RegisterPK:
+  [ Fr(~ltk) ]
+  -->
+  [
+    !Ltk($A, ~ltk),
+    !Pk($A, pk(~ltk)),
+    Out(pk(~ltk))
+  ]
+
+rule RevealLTK:
+  [ !Ltk(A, ltk) ]
+  --[ LtkReveal(A) ]->
+  [ Out(ltk) ]
+
+// C->S: g^x
+// S->C: g^y, S, Sig_S(g^x, g^y) MAC_k(S)
+// C->S: C, Sig_C(g^y, g^x) MAC_k(C)
+
+// Client logic
+rule ClientInit:
+  [
+    !Ltk(C, ltkC),
+    Fr(~x)
+  ]
+  --[ ClientSentRequest(C, $S, ~x) ]->
+  [
+    ClientWait(C, $S, ~x, ltkC),
+    Out('g'^~x)
+  ]
+
+rule ClientFinish:
+  let
+    msgIn = <'g'^x, gy>
+    msgOut = <gy, 'g'^x>
+    sigOut = sign(msgOut, ltkC)
+    k = gy^x
+    macOut = mac(C, k)
+  in
+  [
+    In(<gy, sigIn, macIn>),
+    ClientWait(C, S, x, ltkC),
+    !Pk(S, pkS)
+  ]
+  --[ Neq(gy, 'g'^x),
+      Eq(mac(k, S), macIn),
+      Eq(verify(sigIn, msgIn, pkS), true),
+      ClientDone(C, S, 'g'^x, gy, k) ]->
+  [
+    Out(<C, sigOut, macOut>)
+  ]
+
+// Server logic
+rule ServerInit:
+  let
+    msg = <gx, 'g'^~y>
+    sig = sign(msg, ltkS)
+    k = gx^~y
+    macVal = mac(k, S)
+  in
+  [
+    In(<gx>),
+    !Ltk(S, ltkS),
+    Fr(~y)
+  ]
+  --[ ServerResponded(S, gx, 'g'^~y) ]->
+  [
+    ServerWait(S, gx, ~y, k),
+    Out(<'g'^~y, sig, macVal>)
+  ]
+
+rule ServerFinish:
+  let
+    msg = <'g'^y, gx>
+  in
+  [
+    In(<C, sig, macVal>),
+    !Pk(C, pkC),
+    ServerWait(S, gx, y, k)
+  ]
+  --[ Eq(mac(k, C), macVal),
+      Eq(verify(sig, msg, pkC), true),
+      ServerDone(S, C, gx, 'g'^y, k) ]->
+  []
+
+// Restrictions
+restriction Equality:
+  "All x y #i. Eq(x,y) @i ==> x = y"
+
+restriction Inequality:
+  "All x y #i. Neq(x,y) @i ==> not(x = y)"
+
+// Functionality test
+
+end

@@ -1,0 +1,30 @@
+{
+  "protocol": "L1:OTPoverSMS_EA",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "functional",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "entity_authentication",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "device_authentication",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 6
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 0.96,
+  "requires_diff": false,
+  "validated": true
+}

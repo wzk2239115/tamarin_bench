@@ -1,0 +1,33 @@
+{
+  "protocol": "L1:RYY_PFS",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "key_agreement_reachable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 11
+    },
+    {
+      "name": "key_secrecy_PFS",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 12
+    }
+  ],
+  "attack_traces": {
+    "key_secrecy_PFS": [
+      [
+        "Init_2",
+        "Init_1",
+        "KGC_Setup",
+        "Reveal_ltk"
+      ]
+    ]
+  },
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 7.31,
+  "requires_diff": false,
+  "validated": true
+}

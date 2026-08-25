@@ -1,0 +1,21 @@
+{
+  "task_id": "L1:katz-yung",
+  "level": "L1_verdict",
+  "name": "katz-yung",
+  "protocol": "Katz_Yung",
+  "source_file": "SPTHY-1/katz-yung.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "HonestTrace",
+    "KeySecrecy",
+    "ServerLiveness",
+    "ClientLiveness",
+    "InjectiveAgreement"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

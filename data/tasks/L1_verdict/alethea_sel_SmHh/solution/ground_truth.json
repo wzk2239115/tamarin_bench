@@ -1,0 +1,48 @@
+{
+  "protocol": "L1:alethea_sel_SmHh",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "functional",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 28
+    },
+    {
+      "name": "functional2",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 28
+    },
+    {
+      "name": "functional3",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 28
+    },
+    {
+      "name": "indivVerif_ps",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 23
+    },
+    {
+      "name": "indivVerif_sel",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "univVerif_sel",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 6
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 3.82,
+  "requires_diff": false,
+  "validated": true
+}

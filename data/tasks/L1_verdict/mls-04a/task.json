@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:mls-04a",
+  "level": "L1_verdict",
+  "name": "mls-04a",
+  "protocol": "MLS04",
+  "source_file": "SPTHY-1/mls-04a.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "HonestServerTrace",
+    "HonestTrace",
+    "KeySecrecy",
+    "ServerLiveness",
+    "ClientLiveness",
+    "InjectiveAgreement"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

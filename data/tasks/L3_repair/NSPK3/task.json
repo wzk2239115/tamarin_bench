@@ -1,0 +1,20 @@
+{
+  "task_id": "L3:NSPK3",
+  "level": "L3_repair",
+  "name": "NSPK3",
+  "protocol": "NSPK3",
+  "source_file": "SPTHY-1/NSPK3.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "broken.spthy",
+    "error_hint.txt"
+  ],
+  "lemma_names": [
+    "types",
+    "nonce_secrecy",
+    "injective_agree",
+    "session_key_setup_possible"
+  ],
+  "uses_diff_terms": false,
+  "description": "Repair the broken theory, verify with Tamarin, and determine whether the protocol satisfies its goals."
+}

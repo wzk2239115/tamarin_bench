@@ -1,0 +1,17 @@
+{
+  "task_id": "L1:3",
+  "level": "L1_verdict",
+  "name": "3",
+  "protocol": "three",
+  "source_file": "SPTHY-1/3.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "message_authentication"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

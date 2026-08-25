@@ -1,0 +1,18 @@
+{
+  "protocol": "L1:ake_KEAplus",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "executable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 7
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 0.42,
+  "requires_diff": false,
+  "validated": true
+}

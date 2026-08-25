@@ -1,0 +1,29 @@
+{
+  "protocol": "L2:3",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "message_authentication",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 7
+    }
+  ],
+  "attack_traces": {
+    "message_authentication": [
+      [
+        "m3_B",
+        "m2_B",
+        "m1_B",
+        "Init_Knowledge",
+        "Asymmetric_key_setup",
+        "Asymmetric_key_setup"
+      ]
+    ]
+  },
+  "tamarin_version": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 0.86,
+  "requires_diff": false,
+  "validated": true
+}

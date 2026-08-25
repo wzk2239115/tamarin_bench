@@ -1,0 +1,18 @@
+{
+  "task_id": "L1:sig",
+  "level": "L1_verdict",
+  "name": "sig",
+  "protocol": "Sig",
+  "source_file": "SPTHY-1/sig.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "executable",
+    "signature_sent_by_agent"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

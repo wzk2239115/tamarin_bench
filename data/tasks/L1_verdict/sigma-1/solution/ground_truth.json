@@ -1,0 +1,42 @@
+{
+  "protocol": "L1:sigma-1",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "HonestTrace",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 12
+    },
+    {
+      "name": "KeySecrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 15
+    },
+    {
+      "name": "ServerLiveness",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 16
+    },
+    {
+      "name": "ClientLiveness",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 47
+    },
+    {
+      "name": "InjectiveAgreement",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 110
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 5.32,
+  "requires_diff": false,
+  "validated": true
+}

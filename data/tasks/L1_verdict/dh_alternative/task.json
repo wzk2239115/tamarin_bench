@@ -1,0 +1,19 @@
+{
+  "task_id": "L1:dh_alternative",
+  "level": "L1_verdict",
+  "name": "dh_alternative",
+  "protocol": "DIFFIE_HELLMAN",
+  "source_file": "SPTHY-1/dh_alternative.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "key_secret",
+    "key_secretA",
+    "key_secretB"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

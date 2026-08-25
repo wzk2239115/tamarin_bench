@@ -1,0 +1,21 @@
+{
+  "task_id": "L3:CH07",
+  "level": "L3_repair",
+  "name": "CH07",
+  "protocol": "CH07",
+  "source_file": "SPTHY-1/CH07.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "broken.spthy",
+    "error_hint.txt"
+  ],
+  "lemma_names": [
+    "recentalive_tag",
+    "recentalive_reader",
+    "noninjectiveagreement_tag",
+    "noninjectiveagreement_reader",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "description": "Repair the broken theory, verify with Tamarin, and determine whether the protocol satisfies its goals."
+}

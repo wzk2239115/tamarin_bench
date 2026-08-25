@@ -1,0 +1,17 @@
+{
+  "task_id": "L2:RYY_PFS",
+  "level": "L2_form",
+  "name": "RYY_PFS",
+  "protocol": "RYY",
+  "source_file": "SPTHY-1/RYY_PFS.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "key_agreement_reachable",
+    "key_secrecy_PFS"
+  ],
+  "uses_diff_terms": false,
+  "description": "Model the protocol from the natural-language spec in Tamarin, verify it, and find the attack."
+}

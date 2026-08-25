@@ -1,0 +1,17 @@
+{
+  "task_id": "L1:issue193",
+  "level": "L1_verdict",
+  "name": "issue193",
+  "protocol": "RevealingSignatures",
+  "source_file": "SPTHY-1/issue193.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "debug"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

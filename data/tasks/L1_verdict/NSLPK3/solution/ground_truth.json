@@ -1,0 +1,36 @@
+{
+  "protocol": "L1:NSLPK3",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "types",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 32
+    },
+    {
+      "name": "nonce_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 54
+    },
+    {
+      "name": "injective_agree",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 92
+    },
+    {
+      "name": "session_key_setup_possible",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 5
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 2.23,
+  "requires_diff": false,
+  "validated": true
+}

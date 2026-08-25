@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:StatVerif_GM_Contract_Signing",
+  "level": "L1_verdict",
+  "name": "StatVerif_GM_Contract_Signing",
+  "protocol": "StatVerif_GM_Contract_Signing",
+  "source_file": "SPTHY-1/StatVerif_GM_Contract_Signing.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "aborted_and_resolved_exclusive",
+    "aborted_contract_reachable",
+    "resolved1_contract_reachable",
+    "resolved2_contract_reachable"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

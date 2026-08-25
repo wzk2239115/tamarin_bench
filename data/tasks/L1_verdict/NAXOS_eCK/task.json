@@ -1,0 +1,17 @@
+{
+  "task_id": "L1:NAXOS_eCK",
+  "level": "L1_verdict",
+  "name": "NAXOS_eCK",
+  "protocol": "NAXOS_eCK",
+  "source_file": "SPTHY-1/NAXOS_eCK.spthy",
+  "source_dataset": "generation",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "eCK_key_secrecy"
+  ],
+  "uses_diff_terms": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

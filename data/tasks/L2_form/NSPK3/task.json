@@ -1,0 +1,19 @@
+{
+  "task_id": "L2:NSPK3",
+  "level": "L2_form",
+  "name": "NSPK3",
+  "protocol": "NSPK3",
+  "source_file": "SPTHY-1/NSPK3.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "types",
+    "nonce_secrecy",
+    "injective_agree",
+    "session_key_setup_possible"
+  ],
+  "uses_diff_terms": false,
+  "description": "Model the protocol from the natural-language spec in Tamarin, verify it, and find the attack."
+}

@@ -1,0 +1,54 @@
+{
+  "protocol": "L1:thirdAttestation",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "sanity_check",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "cannot_Verify_A_Bad_EAT_or_Compromised_Attester",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "attester_private_key_compromised",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 5
+    },
+    {
+      "name": "verifier_private_key_compromised",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 5
+    },
+    {
+      "name": "nonce_freshness_across_sessions",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "attester_does_not_agree_on_nonce_origin",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "adversary_learns_the_EAT_information",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 11
+    }
+  ],
+  "attack_traces": {},
+  "tamarin_version": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.51,
+  "requires_diff": false,
+  "validated": true
+}

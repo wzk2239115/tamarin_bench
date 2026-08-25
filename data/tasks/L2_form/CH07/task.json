@@ -1,0 +1,20 @@
+{
+  "task_id": "L2:CH07",
+  "level": "L2_form",
+  "name": "CH07",
+  "protocol": "CH07",
+  "source_file": "SPTHY-1/CH07.spthy",
+  "source_dataset": "correction",
+  "given_files": [
+    "spec.md"
+  ],
+  "lemma_names": [
+    "recentalive_tag",
+    "recentalive_reader",
+    "noninjectiveagreement_tag",
+    "noninjectiveagreement_reader",
+    "executable"
+  ],
+  "uses_diff_terms": false,
+  "description": "Model the protocol from the natural-language spec in Tamarin, verify it, and find the attack."
+}
