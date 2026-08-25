@@ -19,13 +19,27 @@
 - tamarin 输出编码必须是 UTF-8:容器内固定 `LANG=C.UTF-8`,否则 ∀ 字符触发 commitBuffer 崩溃。
 - **tamarin 版本敏感**:ground truth 用 1.12.0 重验;换版本必须重跑 validate_tasks.py。
 
-## 模型路由(同 exploitgym)
+## 模型路由
 
-- 首选原生 Anthropic 端点(`GLM_PROVIDER=anthropic`),绕开 litellm 翻译层 bug。
+- **360 Proxy**(`https://api.360.cn`)支持 Anthropic 兼容端点(`/v1/messages`):
+  - DeepSeek V4 Flash: `deepseek/deepseek-v4-flash` (128K context, 16K output)
+  - DeepSeek V4 Pro: `deepseek/deepseek-v4-pro`
+  - GLM 系列: `z-ai/glm-5.3` 等
+  - API key: `fk3478068563.OHUdMPAKrhld1EY4CdLNGEhKdp_Jl61v16efaa86`
+  - Claude Code CLI base URL 设 `https://api.360.cn`(不含 `/v1`,CLI 自动追加)
+  - 认证用 `--api-key`(x-api-key header),**不要**用 `ANTHROPIC_AUTH_TOKEN`(Bearer)
+- **z.ai**(`https://api.z.ai/api/anthropic`):仅 GLM 系列,认证用 `ANTHROPIC_AUTH_TOKEN`
 - claude code CLI 跑在 agent 容器 `/data/node/bin/claude-code.sh`(静态 node),
-  本地 data/runtime 目前为空,跑批前先 `scripts/setup/setup_runtime.sh`(从 exploitgym
-  服务器拷贝或重建)。
-- 直连手动调试: `export ANTHROPIC_BASE_URL=...; export ANTHROPIC_AUTH_TOKEN=...`。
+  本地 data/runtime 目前为空,跑批前先 `scripts/setup/setup_runtime.sh`。
+- B1 任务跑 DeepSeek Flash 示例:
+  ```
+  uv run python examples/run_agent.py --tasks-file data/task_ids/b1_sample.txt \
+    --out-dir /tmp/opencode/b1_run --agent claude_code \
+    --claude-model deepseek/deepseek-v4-flash \
+    --api-base-url https://api.360.cn \
+    --api-key "fk3478068563.OHUdMPAKrhld1EY4CdLNGEhKdp_Jl61v16efaa86" \
+    --timeout 3600 --verify-timeout 1800 --mem-limit 16g --max-workers 1
+  ```
 
 ## 跑批/续跑
 
@@ -49,3 +63,6 @@
   若换 tamarin 版本记得重新处理。
 - `--output-json` 的 trace 图可能不止一张(同一 lemma 多 trace),评分取全部图的
   protocol-rule 序列做匹配。
+- **B1 tamarin 验证**:agent 模型若用 `signing` builtin 会导致状态空间爆炸(OOM kill)。
+  prompt 已加"简化模型"指导(3-5 rules, 2-4 lemmas, 用抽象函数替代 builtin)。
+  DeepSeek V4 Flash 首次成功:73 行模型/3 lemmas, tamarin <1s 验证, 得分 60%(SAFE)。

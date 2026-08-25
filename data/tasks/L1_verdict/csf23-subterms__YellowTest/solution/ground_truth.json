@@ -1,11 +1,31 @@
 {
-  "protocol": "YellowTest",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:csf23-subterms__YellowTest",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "GreenYellow",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 3
+    },
+    {
+      "name": "RedYellow",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 3
+    }
+  ],
+  "attack_traces": {
+    "RedYellow": [
+      [
+        "End",
+        "Start"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.12,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

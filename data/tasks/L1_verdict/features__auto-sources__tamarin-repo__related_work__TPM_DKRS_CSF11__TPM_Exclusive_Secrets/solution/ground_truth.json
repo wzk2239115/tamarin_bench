@@ -1,11 +1,42 @@
 {
-  "protocol": "TPM_Exclusive_Secrets",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__auto-sources__tamarin-repo__related_work__TPM_DKRS_CSF11__TPM_Exclusive_Secrets",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "types",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 15
+    },
+    {
+      "name": "Unbind_PCR_charn",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 25
+    },
+    {
+      "name": "exclusive_secrets",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 96
+    },
+    {
+      "name": "left_reachable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 11
+    },
+    {
+      "name": "right_reachable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 11
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 2.11,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

@@ -1,5 +1,5 @@
 {
-  "protocol": "OIDC_Implicit",
+  "protocol": "L1:features__auto-sources__tamarin-repo__asiaccs20-POIDC__OIDC_Implicit-without-SL",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

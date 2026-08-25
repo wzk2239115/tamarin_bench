@@ -1,11 +1,37 @@
 {
-  "protocol": "Joux_EphkRev",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:ake__bilinear__Joux_EphkRev",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "session_key_establish",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 28
+    },
+    {
+      "name": "Session_Key_Secrecy_PFS",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 14
+    }
+  ],
+  "attack_traces": {
+    "Session_Key_Secrecy_PFS": [
+      [
+        "Proto2",
+        "Proto1",
+        "Register_pk",
+        "Register_pk",
+        "Register_pk",
+        "Proto1",
+        "Proto1",
+        "EphkRev"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 18.15,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

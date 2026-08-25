@@ -1,11 +1,29 @@
 {
-  "protocol": "Chen_Kudla",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:ake__bilinear__Chen_Kudla_eCK",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "key_secrecy_eCK_like",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 24
+    }
+  ],
+  "attack_traces": {
+    "key_secrecy_eCK_like": [
+      [
+        "Init_2",
+        "Resp_1",
+        "Init_1",
+        "KGC_Setup",
+        "Reveal_ephemeral_key",
+        "Reveal_ephemeral_key"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 31.25,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

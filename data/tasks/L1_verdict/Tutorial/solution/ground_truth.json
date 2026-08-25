@@ -30,7 +30,7 @@
   "attack_traces": {},
   "tamarin_version": null,
   "wellformedness_ok": true,
-  "runtime_seconds": 0.24,
+  "runtime_seconds": 0.28,
   "requires_diff": false,
   "validated": true
 }

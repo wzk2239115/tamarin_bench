@@ -1,5 +1,5 @@
 {
-  "protocol": "TPM_Envelope",
+  "protocol": "L1:ccs15__TPM_Envelope",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

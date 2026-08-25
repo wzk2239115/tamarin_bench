@@ -1,11 +1,47 @@
 {
-  "protocol": "STS_MAC",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:csf12__STS_MAC",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "KI_Perfect_Forward_Secrecy_I",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 12
+    },
+    {
+      "name": "KI_Perfect_Forward_Secrecy_R",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 13
+    }
+  ],
+  "attack_traces": {
+    "KI_Perfect_Forward_Secrecy_I": [
+      [
+        "Init_2",
+        "Init_1",
+        "Register_pk_clone",
+        "Register_pk_clone",
+        "Resp_1",
+        "Sessionkey_Reveal",
+        "Resp_2"
+      ]
+    ],
+    "KI_Perfect_Forward_Secrecy_R": [
+      [
+        "Resp_2",
+        "Register_pk_clone",
+        "Resp_1",
+        "Register_pk_clone",
+        "Init_2",
+        "Init_1",
+        "Sessionkey_Reveal"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 3.14,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

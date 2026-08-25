@@ -1,11 +1,35 @@
 {
-  "protocol": "UM_one_pass_attack",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:ake__dh__UM_one_pass_attack",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "key_agreement_reachable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "CK_secure",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 19
+    }
+  ],
+  "attack_traces": {
+    "CK_secure": [
+      [
+        "R_Complete",
+        "R_Complete",
+        "R_Expire",
+        "Register_key_honest",
+        "Register_key_honest",
+        "Corrupt_Ltk"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 2.5,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

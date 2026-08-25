@@ -1,5 +1,5 @@
 {
-  "protocol": "LAK06_state_attack_niagree_Reader",
+  "protocol": "L1:csf18-xor__LAK06_state_attack-nonInjectiveAgreementReader",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

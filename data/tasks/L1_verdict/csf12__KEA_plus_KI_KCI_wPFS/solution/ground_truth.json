@@ -1,11 +1,51 @@
 {
-  "protocol": "KEA_plus_KI_KCI_wPFS",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:csf12__KEA_plus_KI_KCI_wPFS",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "keaplus_initiator_key",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 11
+    },
+    {
+      "name": "keaplus_responder_key",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 11
+    }
+  ],
+  "attack_traces": {
+    "keaplus_initiator_key": [
+      [
+        "Init_2",
+        "Init_1",
+        "generate_ltk",
+        "generate_ltk",
+        "Sessk_reveal",
+        "Resp_1",
+        "generate_ltk",
+        "Ltk_reveal",
+        "Ltk_reveal"
+      ]
+    ],
+    "keaplus_responder_key": [
+      [
+        "Resp_1",
+        "generate_ltk",
+        "generate_ltk",
+        "Sessk_reveal",
+        "Init_2",
+        "Init_1",
+        "generate_ltk",
+        "Ltk_reveal",
+        "Ltk_reveal"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 1.6,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

@@ -1,11 +1,35 @@
 {
-  "protocol": "UM_three_pass_combined",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:ake__dh__UM_three_pass_combined",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "key_agreement_reachable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 14
+    },
+    {
+      "name": "CK_secure_UM3",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 13
+    }
+  ],
+  "attack_traces": {
+    "CK_secure_UM3": [
+      [
+        "I_Complete",
+        "I_Activate",
+        "Register_key_honest",
+        "Register_key_honest",
+        "Reveal_SessionKey",
+        "UM1_R_Complete"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 20.73,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

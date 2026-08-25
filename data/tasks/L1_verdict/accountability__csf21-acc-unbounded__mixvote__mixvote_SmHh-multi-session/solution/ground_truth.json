@@ -1,11 +1,210 @@
 {
-  "protocol": "mixvote_SmHh_acc_multi",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:accountability__csf21-acc-unbounded__mixvote__mixvote_SmHh-multi-session",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "onlyonce1",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "onlyonce2",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "onlyonce3",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "onlyonce4",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "onlyonce5",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "onlyonce6",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "onlyonce7",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "onlyonce8",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "onlyonce9",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "onlyonce10",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 18
+    },
+    {
+      "name": "functional",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 30
+    },
+    {
+      "name": "indivVerif",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 29
+    },
+    {
+      "name": "VoterC",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 66
+    },
+    {
+      "name": "TimelyP",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 67
+    },
+    {
+      "name": "Uniqueness",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 15
+    },
+    {
+      "name": "secretSskD",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "ballotsFromVoters",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 272
+    },
+    {
+      "name": "TalliedAsRecorded",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "EligVerif",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 95
+    },
+    {
+      "name": "acc_VoterC_faultyS_strong_H4_suff",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 13
+    },
+    {
+      "name": "acc_VoterC_verif_empty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 66
+    },
+    {
+      "name": "acc_VoterC_faultyS_strong_H4_verif_nonempty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 7
+    },
+    {
+      "name": "acc_VoterC_faultyS_strong_H4_min",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "acc_VoterC_faultyS_strong_H4_uniq",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "acc_VoterC_faultyS_strong_H4_inj",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1
+    },
+    {
+      "name": "acc_VoterC_faultyS_strong_H4_single",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 13
+    },
+    {
+      "name": "acc_TimelyP_faultyS_strong_H2_suff",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 13
+    },
+    {
+      "name": "acc_TimelyP_verif_empty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 67
+    },
+    {
+      "name": "acc_TimelyP_faultyS_strong_H2_verif_nonempty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "acc_TimelyP_faultyS_strong_H2_min",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "acc_TimelyP_faultyS_strong_H2_uniq",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "acc_TimelyP_faultyS_strong_H2_inj",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1
+    },
+    {
+      "name": "acc_TimelyP_faultyS_strong_H2_single",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 13
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 55.87,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

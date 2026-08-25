@@ -1,11 +1,55 @@
 {
-  "protocol": "SignTest",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:experiments__verify_checksign_test",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "test1",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 5
+    },
+    {
+      "name": "test2",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 5
+    },
+    {
+      "name": "test3",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 5
+    },
+    {
+      "name": "test4",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 6
+    },
+    {
+      "name": "test5",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 6
+    }
+  ],
+  "attack_traces": {
+    "test4": [
+      [
+        "B_1_pattern_matching_checksign",
+        "Reg"
+      ]
+    ],
+    "test5": [
+      [
+        "B_1_checksign",
+        "Reg"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 0.45,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

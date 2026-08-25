@@ -1,11 +1,120 @@
 {
-  "protocol": "alethea_votingphase_malS_abstain",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__auto-sources__tamarin-repo__csf18-alethea__alethea_votingphase_malS_abstain",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "functional",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 54
+    },
+    {
+      "name": "indivVerif",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 327
+    },
+    {
+      "name": "Universal_VerProofV_v1",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 681
+    },
+    {
+      "name": "Universal_VerProofV_v2",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 681
+    },
+    {
+      "name": "Universal_VerProofV_v3",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 681
+    },
+    {
+      "name": "Universal_VerProofV_v4",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 681
+    },
+    {
+      "name": "Universal_VerProofV_v5",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 681
+    },
+    {
+      "name": "Universal_VerProofV_v6",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 681
+    },
+    {
+      "name": "Universal_VerProofV_v7",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 681
+    },
+    {
+      "name": "Universal_VerProofV_v8",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 681
+    },
+    {
+      "name": "Universal_VerProofY_v1",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1921
+    },
+    {
+      "name": "Universal_VerProofY_v2",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1921
+    },
+    {
+      "name": "Universal_VerProofY_v3",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1921
+    },
+    {
+      "name": "Universal_VerProofY_v4",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1921
+    },
+    {
+      "name": "Universal_VerProofY_v5",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1921
+    },
+    {
+      "name": "Universal_VerProofY_v6",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1921
+    },
+    {
+      "name": "Universal_VerProofY_v7",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1921
+    },
+    {
+      "name": "Universal_VerProofY_v8",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1921
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 1336.3,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

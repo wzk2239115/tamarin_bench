@@ -48,7 +48,7 @@
   "attack_traces": {},
   "tamarin_version": null,
   "wellformedness_ok": false,
-  "runtime_seconds": 1.21,
+  "runtime_seconds": 1.2,
   "requires_diff": false,
   "validated": true
 }

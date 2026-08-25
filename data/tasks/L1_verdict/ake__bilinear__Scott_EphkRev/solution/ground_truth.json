@@ -1,11 +1,32 @@
 {
-  "protocol": "Scott",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:ake__bilinear__Scott_EphkRev",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "key_agreement_reachable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 12
+    },
+    {
+      "name": "key_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 8
+    }
+  ],
+  "attack_traces": {
+    "key_secrecy": [
+      [
+        "Init_2",
+        "Init_1",
+        "KGC_Setup"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 12.24,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

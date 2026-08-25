@@ -1,11 +1,46 @@
 {
-  "protocol": "CcittX509_1",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:features__auto-sources__spore__CCITT_X509_1",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "Secrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 15
+    },
+    {
+      "name": "injectiveagreement_B",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 14
+    },
+    {
+      "name": "agreement_B",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 7
+    },
+    {
+      "name": "Session_key_honest_setup",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 12
+    }
+  ],
+  "attack_traces": {
+    "injectiveagreement_B": [
+      [
+        "B_receive",
+        "B_receive",
+        "Register_pk",
+        "Register_pk",
+        "A_send"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 4.55,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

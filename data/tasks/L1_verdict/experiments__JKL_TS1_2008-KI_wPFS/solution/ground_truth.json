@@ -1,11 +1,49 @@
 {
-  "protocol": "JKL_TS1_2008",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:experiments__JKL_TS1_2008-KI_wPFS",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "JKL2008_2_initiator_key",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 12
+    },
+    {
+      "name": "JKL2008_2_responder_key",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 11
+    }
+  ],
+  "attack_traces": {
+    "JKL2008_2_initiator_key": [
+      [
+        "Init_2",
+        "Resp_1",
+        "Init_1",
+        "generate_ltk",
+        "generate_ltk",
+        "Ltk_reveal",
+        "generate_ltk",
+        "generate_ltk",
+        "Ltk_reveal"
+      ]
+    ],
+    "JKL2008_2_responder_key": [
+      [
+        "Resp_1",
+        "Init_1",
+        "generate_ltk",
+        "generate_ltk",
+        "Ltk_reveal",
+        "generate_ltk",
+        "Ltk_reveal"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 1.08,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

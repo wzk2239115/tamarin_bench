@@ -1,11 +1,30 @@
 {
-  "protocol": "RFID_Simple",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__auto-sources__tamarin-repo__loops__RFID_Simple-without-SL",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "Device_ToBob",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 11
+    },
+    {
+      "name": "Device_Init_Use_Set",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 17
+    },
+    {
+      "name": "reachability_left",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 8
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 234.61,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

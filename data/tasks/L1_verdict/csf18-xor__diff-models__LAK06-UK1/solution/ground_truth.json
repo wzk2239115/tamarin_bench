@@ -1,11 +1,24 @@
 {
-  "protocol": "LAK06_UK1",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:csf18-xor__diff-models__LAK06-UK1",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "executable",
+      "quantifier": "exists-trace",
+      "verdict": "falsified",
+      "steps": 2119
+    },
+    {
+      "name": "Observational_equivalence",
+      "quantifier": "diff",
+      "verdict": "verified",
+      "steps": 6594
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
-  "requires_diff": false,
-  "validated": false
+  "wellformedness_ok": false,
+  "runtime_seconds": 48.05,
+  "requires_diff": true,
+  "validated": true
 }

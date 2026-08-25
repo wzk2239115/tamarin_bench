@@ -1,11 +1,42 @@
 {
-  "protocol": "UM_PFS",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:csf12__UM_PFS",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "wPFS_initiator_key",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 8
+    },
+    {
+      "name": "wPFS_responder_key",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 8
+    }
+  ],
+  "attack_traces": {
+    "wPFS_initiator_key": [
+      [
+        "Init_2",
+        "Init_1",
+        "generate_ltk",
+        "generate_ltk",
+        "Ltk_reveal"
+      ]
+    ],
+    "wPFS_responder_key": [
+      [
+        "Resp_1",
+        "generate_ltk",
+        "generate_ltk",
+        "Ltk_reveal"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 1.47,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

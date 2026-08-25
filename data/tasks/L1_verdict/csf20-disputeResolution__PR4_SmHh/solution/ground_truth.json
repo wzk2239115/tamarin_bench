@@ -1,11 +1,66 @@
 {
-  "protocol": "PR4_SmHh",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:csf20-disputeResolution__PR4_SmHh",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "onlyonce1",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "onlyonce2",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "onlyonce3",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "onlyonce4",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "onlyonce5",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "onlyonce6",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "onlyonce7",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "functional",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 12
+    },
+    {
+      "name": "TimelyP",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 11
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 1.22,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

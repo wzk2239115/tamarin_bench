@@ -1,11 +1,29 @@
 {
-  "protocol": "NAXOS_eCK",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:ake__dh__NAXOS_eCK_PFS",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "eCK_PFS_key_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 15
+    }
+  ],
+  "attack_traces": {
+    "eCK_PFS_key_secrecy": [
+      [
+        "Init_2",
+        "Init_1",
+        "generate_ltk",
+        "generate_ltk",
+        "Ltk_reveal",
+        "Ltk_reveal"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 2.53,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

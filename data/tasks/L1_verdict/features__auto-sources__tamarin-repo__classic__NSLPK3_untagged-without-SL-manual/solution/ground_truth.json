@@ -1,5 +1,5 @@
 {
-  "protocol": "NSLPK3_untagged",
+  "protocol": "L1:features__auto-sources__tamarin-repo__classic__NSLPK3_untagged-without-SL-manual",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

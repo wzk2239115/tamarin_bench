@@ -1,11 +1,40 @@
 {
-  "protocol": "TAK1",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:ake__bilinear__TAK1_eCK_like",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "session_key_establish",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 17
+    },
+    {
+      "name": "Session_Key_Secrecy",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 21
+    }
+  ],
+  "attack_traces": {
+    "Session_Key_Secrecy": [
+      [
+        "Proto3",
+        "Proto1",
+        "Proto2",
+        "Proto1",
+        "Proto1",
+        "Register_pk",
+        "Register_pk",
+        "Register_pk",
+        "Reveal_ephk",
+        "Reveal_ephk",
+        "Reveal_ltk"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 38.83,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

@@ -1,11 +1,42 @@
 {
-  "protocol": "KEA_plus_eCK",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:csf12__KEA_plus_eCK",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "eCK_initiator_key",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 8
+    },
+    {
+      "name": "eCK_responder_key",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 8
+    }
+  ],
+  "attack_traces": {
+    "eCK_initiator_key": [
+      [
+        "Init_2",
+        "Init_1",
+        "generate_ltk",
+        "generate_ltk",
+        "Ephk_reveal"
+      ]
+    ],
+    "eCK_responder_key": [
+      [
+        "Resp_1",
+        "generate_ltk",
+        "generate_ltk",
+        "Ephk_reveal"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 1.73,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

@@ -1,11 +1,55 @@
 {
-  "protocol": "MTI_C0",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:experiments__MTI_C0",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "Executable",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 9
+    },
+    {
+      "name": "Secrecy_wrt_sesskRev_and_ltk_rev_Initiator",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 7
+    },
+    {
+      "name": "Secrecy_wrt_sesskRev_and_ltk_rev_Responder",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 7
+    }
+  ],
+  "attack_traces": {
+    "Executable": [
+      [
+        "Init_2",
+        "Resp_1",
+        "Init_1",
+        "Register_pk",
+        "Register_pk"
+      ]
+    ],
+    "Secrecy_wrt_sesskRev_and_ltk_rev_Initiator": [
+      [
+        "Init_2",
+        "Init_1",
+        "Register_pk",
+        "Register_pk"
+      ]
+    ],
+    "Secrecy_wrt_sesskRev_and_ltk_rev_Responder": [
+      [
+        "Resp_1",
+        "Register_pk",
+        "Register_pk"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 3.84,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

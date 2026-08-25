@@ -1,11 +1,45 @@
 {
-  "protocol": "LAK06",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:csf18-xor__LAK06",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "executable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 9
+    },
+    {
+      "name": "helpingSecrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "noninjectiveagreementTAG",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 799
+    },
+    {
+      "name": "noninjectiveagreementREADER",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 12
+    }
+  ],
+  "attack_traces": {
+    "noninjectiveagreementREADER": [
+      [
+        "acceptreader",
+        "initiatereader",
+        "setup",
+        "tag1"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 6.18,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

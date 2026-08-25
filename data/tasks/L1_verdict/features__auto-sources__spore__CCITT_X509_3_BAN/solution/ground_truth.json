@@ -1,11 +1,71 @@
 {
-  "protocol": "CcittX509_3_BAN",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:features__auto-sources__spore__CCITT_X509_3_BAN",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "Secrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 24
+    },
+    {
+      "name": "injectiveagreement_B",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 13
+    },
+    {
+      "name": "agreement_B",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 7
+    },
+    {
+      "name": "injectiveagreement_A",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 23
+    },
+    {
+      "name": "agreement_A",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "Session_key_honest_setup",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 23
+    }
+  ],
+  "attack_traces": {
+    "injectiveagreement_B": [
+      [
+        "B_receive_1",
+        "B_receive_1",
+        "Register_pk",
+        "Register_pk",
+        "A_send_1"
+      ]
+    ],
+    "injectiveagreement_A": [
+      [
+        "A_send_2",
+        "A_send_2",
+        "Register_pk",
+        "Register_pk",
+        "A_send_1",
+        "B_receive_1",
+        "Register_pk",
+        "A_send_1",
+        "Reveal_ltk"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 8.96,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

@@ -1,11 +1,32 @@
 {
-  "protocol": "ex1",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:cav13__DH_example",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "Accept_Secret",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 9
+    },
+    {
+      "name": "Accept_Secret_Counter",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 7
+    }
+  ],
+  "attack_traces": {
+    "Accept_Secret_Counter": [
+      [
+        "Step2",
+        "Step1",
+        "RevealKey"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.38,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

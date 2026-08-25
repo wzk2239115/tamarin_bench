@@ -1,5 +1,5 @@
 {
-  "protocol": "SP6_UserControlledUnlinkability_Certify_ObsEqui_noBSN",
+  "protocol": "L1:asiaccs20-eccDAA__CERTIFY__SP5_SP6_ObsEqui__SP6_UserControlledUnlinkability_CERTIFY_ObsEquiv_noBSN",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

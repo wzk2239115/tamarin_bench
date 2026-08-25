@@ -1,5 +1,5 @@
 {
-  "protocol": "OIDC_CodeFlow_no_ClientSecret",
+  "protocol": "L1:asiaccs20-POIDC__OIDC_CodeFlow_no_ClientSecret",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

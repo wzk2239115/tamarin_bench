@@ -1,5 +1,5 @@
 {
-  "protocol": "Nssk",
+  "protocol": "L1:features__auto-sources__spore__Nssk",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

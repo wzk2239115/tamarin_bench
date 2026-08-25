@@ -1,11 +1,83 @@
 {
-  "protocol": "BanConcreteAndrewSecureRPC",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:features__auto-sources__spore__AS_Concrete_RPC",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "secrecy",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 65
+    },
+    {
+      "name": "injectiveagreement_A",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 6
+    },
+    {
+      "name": "injectiveagreement_B",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 7
+    },
+    {
+      "name": "noninjectiveagreement_A",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 6
+    },
+    {
+      "name": "noninjectiveagreement_B",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 7
+    },
+    {
+      "name": "Session_key_honest_setup",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 11
+    }
+  ],
+  "attack_traces": {
+    "injectiveagreement_A": [
+      [
+        "A_2",
+        "Create_Key",
+        "A_1",
+        "B_1"
+      ]
+    ],
+    "injectiveagreement_B": [
+      [
+        "B_2",
+        "B_1",
+        "Create_Key",
+        "A_2",
+        "A_1"
+      ]
+    ],
+    "noninjectiveagreement_A": [
+      [
+        "A_2",
+        "Create_Key",
+        "A_1",
+        "B_1"
+      ]
+    ],
+    "noninjectiveagreement_B": [
+      [
+        "B_2",
+        "B_1",
+        "Create_Key",
+        "A_2",
+        "A_1"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 12.83,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

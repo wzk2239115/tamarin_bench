@@ -1,5 +1,5 @@
 {
-  "protocol": "StatVerif_Security_Device",
+  "protocol": "L1:features__auto-sources__tamarin-repo__related_work__StatVerif_ARR_CSF11__StatVerif_Security_Device-without-SL",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

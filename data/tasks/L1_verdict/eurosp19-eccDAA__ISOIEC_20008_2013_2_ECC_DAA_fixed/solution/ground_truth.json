@@ -1,11 +1,107 @@
 {
-  "protocol": "ISOIEC_20008_2013_2_ECC_DAA_FIXED",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:eurosp19-eccDAA__ISOIEC_20008_2013_2_ECC_DAA_fixed",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "functional_correctness",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 47
+    },
+    {
+      "name": "functional_correctness_dishonest_send",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 28
+    },
+    {
+      "name": "functional_correctness_group_verification",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 29
+    },
+    {
+      "name": "aliveness",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 11
+    },
+    {
+      "name": "weak_agreement_any_reveal",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 12
+    },
+    {
+      "name": "weak_agreement",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 123
+    },
+    {
+      "name": "ni_agreement_any_reveal",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 12
+    },
+    {
+      "name": "ni_agreement",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 123
+    },
+    {
+      "name": "i_agreement",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 12
+    },
+    {
+      "name": "secrecy_cre",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 175
+    },
+    {
+      "name": "can_be_deanonymised",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 29
+    },
+    {
+      "name": "user_controlled_independent_link_tokens",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 13
+    }
+  ],
+  "attack_traces": {
+    "i_agreement": [
+      [
+        "AS_JOIN_FOUR",
+        "ISSUER_SETUP",
+        "ChanIn_S",
+        "ChanOut_S",
+        "PS_JOIN_TWO",
+        "PLATFORM_SETUP",
+        "PS_JOIN_ONE",
+        "ChanIn_S",
+        "ChanOut_S",
+        "AS_JOIN_THREE",
+        "ISSUER_JOIN_TWO",
+        "ISSUER_JOIN_ONE",
+        "AS_JOIN_TWO",
+        "ChanIn_S",
+        "ChanOut_S",
+        "ChanIn_S",
+        "ChanOut_S",
+        "AS_JOIN_ONE"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 470.87,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

@@ -1,5 +1,5 @@
 {
-  "protocol": "WhoDunit",
+  "protocol": "L1:accountability__csf21-acc-unbounded__previous__whodunit",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

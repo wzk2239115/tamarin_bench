@@ -1,5 +1,5 @@
 {
-  "protocol": "KCL07_UK3_proof_manual_execution_left",
+  "protocol": "L1:csf18-xor__diff-models__KCL07-UK3_proof-manual-execution-left",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

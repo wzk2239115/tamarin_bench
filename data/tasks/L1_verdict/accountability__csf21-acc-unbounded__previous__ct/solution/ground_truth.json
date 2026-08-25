@@ -1,11 +1,174 @@
 {
-  "protocol": "CertificateTransparencyExt",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:accountability__csf21-acc-unbounded__previous__ct",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "accCA_tCA_suff",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 9
+    },
+    {
+      "name": "accCA_verif_empty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 21
+    },
+    {
+      "name": "accCA_tCA_verif_nonempty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 19
+    },
+    {
+      "name": "accCA_tCA_min",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "accCA_tCA_uniq",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "accCA_tCA_inj",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1
+    },
+    {
+      "name": "accCA_tCA_single",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 9
+    },
+    {
+      "name": "accLA_tLA_suff",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 11
+    },
+    {
+      "name": "accLA_verif_empty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 55
+    },
+    {
+      "name": "accLA_tLA_verif_nonempty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 438
+    },
+    {
+      "name": "accLA_tLA_min",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 2
+    },
+    {
+      "name": "accLA_tLA_uniq",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 34
+    },
+    {
+      "name": "accLA_tLA_inj",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1
+    },
+    {
+      "name": "accLA_tLA_single",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 11
+    },
+    {
+      "name": "acc_tCA_suff",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 9
+    },
+    {
+      "name": "acc_tLA_suff",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 11
+    },
+    {
+      "name": "acc_verif_empty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 57
+    },
+    {
+      "name": "acc_tCA_verif_nonempty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 19
+    },
+    {
+      "name": "acc_tLA_verif_nonempty",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 438
+    },
+    {
+      "name": "acc_tCA_min",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 4
+    },
+    {
+      "name": "acc_tLA_min",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 4
+    },
+    {
+      "name": "acc_tCA_uniq",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "acc_tLA_uniq",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 34
+    },
+    {
+      "name": "acc_tCA_inj",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1
+    },
+    {
+      "name": "acc_tLA_inj",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 1
+    },
+    {
+      "name": "acc_tCA_single",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 9
+    },
+    {
+      "name": "acc_tLA_single",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 11
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 64.55,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

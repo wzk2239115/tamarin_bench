@@ -1,11 +1,31 @@
 {
-  "protocol": "KAS2_eCK",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:csf12__KAS2_eCK",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "eCK_key_secrecy",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 16
+    }
+  ],
+  "attack_traces": {
+    "eCK_key_secrecy": [
+      [
+        "Resp_2",
+        "Init_1",
+        "Resp_1",
+        "Register_pk",
+        "Register_pk",
+        "Register_pk",
+        "Ephk_reveal",
+        "Ephk_reveal"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 3.58,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }
