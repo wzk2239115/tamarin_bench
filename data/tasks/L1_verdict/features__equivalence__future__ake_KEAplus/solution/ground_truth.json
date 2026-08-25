@@ -1,11 +1,18 @@
 {
-  "protocol": "ake_KEAplus",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__equivalence__future__ake_KEAplus",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "executable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 7
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": false,
+  "runtime_seconds": 0.52,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

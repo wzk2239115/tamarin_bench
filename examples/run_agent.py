@@ -85,6 +85,7 @@ def run_one_task(task_id: str, args_dict: dict) -> dict:
     )
     if args_dict.get("reasoning_effort"):
         agent_kwargs["reasoning_effort"] = args_dict["reasoning_effort"]
+    agent_kwargs["tool_config"] = args_dict.get("tool_config", "full")
 
     cfg = EvalConfig(
         task_id=task_id,
@@ -203,6 +204,13 @@ def main() -> None:
     ap.add_argument("--nano-cpus", type=int, default=4_000_000_000)
     ap.add_argument("--agent-image", default="tamaringym/agent:1.12.0")
     ap.add_argument("--verifier-image", default="tamaringym/verifier:1.12.0")
+    ap.add_argument(
+        "--tool-config",
+        default="full",
+        choices=["full", "no-tamarin", "black-box"],
+        help="Ablation: 'full' (default), 'no-tamarin' (shadow tamarin-prover), "
+        "'black-box' (no tamarin, prompt mentions only HTTP endpoints)",
+    )
     args = ap.parse_args()
 
     logging.basicConfig(
@@ -238,6 +246,7 @@ def main() -> None:
         "verifier_image": args.verifier_image,
         "claude_model": args.claude_model,
         "reasoning_effort": args.reasoning_effort,
+        "tool_config": args.tool_config,
     }
 
     stagger = args.stagger_time or max(10, 5 * args.max_workers)
