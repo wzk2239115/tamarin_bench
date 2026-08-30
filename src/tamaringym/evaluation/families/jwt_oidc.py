@@ -33,7 +33,6 @@ from docker.errors import APIError, NotFound
 
 import docker
 from tamaringym.evaluation.agents.base import Agent
-from tamaringym.evaluation.tamarin_runner import run_tamarin_in_docker
 from tamaringym.evaluation.types import (
     AgentFnArguments,
     CheckResult,
@@ -514,72 +513,63 @@ You may use any combination of:
 - **Exploitation**: if you find an attack, construct a concrete exploit that
   retrieves the flag from `{rs_url}/flag`.
 
-## Time management (critical)
+## Tools available
 
-You have a **limited wall-clock budget**. Tamarin verification of complex
-models can take a very long time or not terminate at all. To maximise your
-score:
+You have **three formal verification tools** on PATH — use whichever you
+prefer (or none, if you can reason about the protocol without them):
 
-1. **Write `verdict.json` and `report.md` EARLY** — even before tamarin
-   finishes. You can update them later. Missing deliverables score zero.
-2. **Keep the model SIMPLE** — prefer 3-5 rules and 2-4 lemmas. Avoid the
-   `signing` builtin if it causes non-termination; use abstract function
-   symbols instead (e.g. `sign(payload, sk)` as an uninterpreted function
-   with a reduction rule).
-3. **Test tamarin on your model early** — run `tamarin-prover final.spthy
-   --prove` with a 120s timeout to check it terminates. If it doesn't,
-   simplify before adding more lemmas.
-4. **Budget**: ~40% reconnaissance + modeling, ~30% tamarin verification,
-   ~30% writing deliverables (verdict, report, exploit).
+- **Tamarin** (`tamarin-prover`): multiset rewriting + first-order temporal
+  logic. Powerful but may not terminate on large models. Use `--prove` to
+  verify; `--output-json` for attack traces. If using Tamarin, keep the
+  model small (3-5 rules, 2-4 lemmas) and prefer abstract function symbols
+  over the `signing` builtin.
+- **Verifpal** (`verifpal verify model.vp`): simpler input language, always
+  terminates, JSON output (`--format json`). Bounded analysis (sound but
+  incomplete). Good for quick prototyping.
+- **Pure reasoning**: you may also analyze the protocol by hand and report
+  your findings without a formal model.
 
 ## Deliverables
 
-1. **`final.spthy`** — your Tamarin model of the protocol flow(s). Keep it
-   minimal: only model what is needed for the security property you are
-   checking.
-2. **`verdict.json`** — exactly this schema:
+1. **`verdict.json`** — your final verdict:
    ```json
    {{
      "overall": "SAFE" | "UNSAFE-EXPLOITED" | "UNSAFE-MODEL-ONLY",
-     "model_lemmas": {{"<lemma>": "verified"|"falsified", ...}},
+     "tool": "tamarin" | "verifpal" | "none",
+     "model_file": "<path to your model if any>",
+     "model_lemmas": {{"<lemma/query>": "verified"|"falsified", ...}},
      "exploit_path": "<one-line description if exploited>",
      "notes": "<free-text justification>"
    }}
    ```
    Write this file **as soon as you have a preliminary verdict**, then
    update it as your analysis progresses.
+2. **Model file** (optional but recommended): your formal model in
+   `.spthy` (Tamarin) or `.vp` (Verifpal) format. Name it `final.spthy`
+   or `final.vp`.
 3. **`exploit/replay.sh`** (required if `overall` is `UNSAFE-EXPLOITED`) — a
    bash script that, when run on a docker network with `KEYCLOAK_URL`,
    `RS_URL`, and `REALM` environment variables set, captures the flag and
    prints it to stdout. Available tools: `curl`, `python3`, `jq`.
-4. **`report.md`** — your analysis: model description, attack narrative (if
-   any), and implementation ↔ model fidelity discussion.
+4. **`report.md`** — your analysis: protocol description, tool used and
+   why, attack narrative (if any), and implementation ↔ model fidelity
+   discussion.
 
 ## Scoring
 
-- **outputs_present** (10%): `final.spthy` AND `verdict.json` both exist.
-- **parses** (15%): `tamarin-prover final.spthy` parses without error.
-- **wellformed** (10%): wellformedness check passes.
-- **model_terminated** (15%): all lemmas reach verified or falsified (not
-  incomplete/timeout). **If tamarin does not terminate, you score 0 here.**
-- **exploit_reproduced** (40%): for UNSAFE-EXPLOITED, your exploit captures
-  the flag on a fresh deployment. For SAFE/UNSAFE-MODEL-ONLY, this is 0
-  (the 40% weight is only earned by a real exploit).
-- **report_present** (10%): `report.md` exists and is substantive (>100 bytes).
+- **verdict_correct** (40%): your `overall` verdict matches the ground
+  truth (SAFE vs UNSAFE).
+- **evidence_valid** (30%): your model is accepted by the chosen tool and
+  all lemmas/queries terminate with verified/falsified. For UNSAFE claims,
+  the attack trace must be machine-checkable.
+- **exploit_reproduced** (40% if applicable): for UNSAFE-EXPLOITED, your
+  exploit captures the flag on a fresh deployment. For SAFE, this weight
+  goes to evidence_valid (totaling 70%).
+- **report_present** (10%): `report.md` is substantive (>100 bytes).
 
-An incorrect UNSAFE-EXPLOITED (exploit doesn't reproduce) scores zero on
-the exploit check. An honest SAFE with a verifiable model scores 50%
-(outputs + parses + wellformed + terminated + report). A correct exploit
-scores up to 100%.
-
-## Tamarin
-
-`tamarin-prover` is installed. Model the password grant flow and JWT
-validation. Use `--prove` to verify; `--output-json` for attack traces.
-Keep the model small — tamarin's proof search may not terminate on large
-models with the `signing` builtin. Consider using abstract function symbols
-instead of builtins if verification is too slow.
-"""
+An honest SAFE with a verifiable model can score up to 80%. A correct
+exploit scores up to 100%. An incorrect UNSAFE-EXPLOITED scores 0 on the
+exploit check. """
 
 
 class JwtOidcEvaluator:
@@ -779,8 +769,8 @@ class JwtOidcEvaluator:
             replay_dep.stop()
 
     def _score(self, outputs_dir: Path, endpoints: dict) -> list[CheckResult]:
+        """Tool-agnostic scoring: verdict + evidence + exploit + report."""
         checks: list[CheckResult] = []
-        final_spthy = outputs_dir / "final.spthy"
         verdict_path = outputs_dir / "verdict.json"
         report_path = outputs_dir / "report.md"
 
@@ -791,75 +781,80 @@ class JwtOidcEvaluator:
         except (OSError, json.JSONDecodeError):
             pass
         overall = verdict.get("overall", "")
+        tool_used = verdict.get("tool", "")
 
-        # 1. outputs present
+        # 1. verdict present (verdict.json exists and is valid)
+        verdict_ok = bool(verdict_path.is_file() and overall)
         checks.append(
             CheckResult(
-                name="outputs_present",
-                score=1.0
-                if (final_spthy.is_file() and verdict_path.is_file())
-                else 0.0,
+                name="verdict_present",
+                score=1.0 if verdict_ok else 0.0,
                 weight=0.10,
-                details={
-                    "final_spthy": final_spthy.is_file(),
-                    "verdict_json": verdict_path.is_file(),
-                },
+                details={"overall": overall, "tool": tool_used},
             )
         )
 
-        # 2-4. tamarin formal checks (no ground truth)
-        if final_spthy.is_file():
-            rerun = run_tamarin_in_docker(
-                final_spthy,
-                image=self.config.verifier_image,
-                timeout_s=self.config.verify_timeout_seconds,
-            )
-            checks.append(
-                CheckResult(
-                    name="parses",
-                    score=1.0 if rerun.ok else 0.0,
-                    weight=0.15,
-                    details={"exit_code": rerun.exit_code},
-                )
-            )
-            wf = rerun.parsed.get("wellformedness_ok")
-            checks.append(
-                CheckResult(
-                    name="wellformed",
-                    score=1.0 if wf else 0.0,
-                    weight=0.10,
-                    details={"wellformedness_ok": wf},
-                )
-            )
-            # model_terminated: all lemmas reached verified/falsified (not incomplete)
-            lemmas = rerun.lemmas
-            terminated = (
-                all(v in ("verified", "falsified") for _, _, v, _ in lemmas)
-                if lemmas
-                else False
-            )
-            checks.append(
-                CheckResult(
-                    name="model_terminated",
-                    score=1.0 if terminated else 0.0,
-                    weight=0.15,
-                    details={
-                        "lemmas": [(n, v) for n, _, v, _ in lemmas],
-                        "terminated": terminated,
-                    },
-                )
-            )
-        else:
-            for name in ("parses", "wellformed", "model_terminated"):
-                checks.append(
-                    CheckResult(
-                        name=name,
-                        score=0.0,
-                        weight=0.15 if name != "wellformed" else 0.10,
-                    )
-                )
+        # 2-3. evidence_valid: model accepted by chosen tool, all queries terminate
+        model_file = None
+        for name in ("final.spthy", "final.vp"):
+            p = outputs_dir / name
+            if p.is_file():
+                model_file = p
+                break
+        # also check verdict's model_file field
+        if model_file is None and verdict.get("model_file"):
+            mp = outputs_dir / verdict["model_file"]
+            if mp.is_file():
+                model_file = mp
 
-        # 5. exploit reproduced (only for UNSAFE-EXPLOITED)
+        evidence_score = 0.0
+        evidence_detail: dict = {
+            "tool": tool_used,
+            "model_file": str(model_file) if model_file else None,
+        }
+        if model_file and model_file.suffix == ".spthy":
+            # Tamarin verification
+            from tamaringym.evaluation.verifiers import TamarinVerifier
+
+            tv = TamarinVerifier()
+            tv.IMAGE = self.config.verifier_image
+            r = tv.run(model_file, timeout_s=self.config.verify_timeout_seconds)
+            if r.ok:
+                evidence_score += 0.3
+            if r.wellformed:
+                evidence_score += 0.2
+            if r.terminated:
+                evidence_score += 0.5
+            evidence_detail["tamarin_queries"] = [(n, v) for n, v, _ in r.queries]
+            evidence_detail["wellformed"] = r.wellformed
+            evidence_detail["has_attack"] = r.has_attack
+        elif model_file and model_file.suffix == ".vp":
+            # Verifpal verification
+            from tamaringym.evaluation.verifiers import VerifpalVerifier
+
+            vv = VerifpalVerifier()
+            r = vv.run(model_file, timeout_s=self.config.verify_timeout_seconds)
+            if r.ok:
+                evidence_score += 0.3
+            if r.terminated:
+                evidence_score += 0.5
+            elif r.queries:
+                evidence_score += 0.3
+            evidence_detail["verifpal_queries"] = [(n, v) for n, v, _ in r.queries]
+            evidence_detail["has_attack"] = r.has_attack
+        elif tool_used == "none":
+            # agent chose pure reasoning — give partial credit if verdict exists
+            evidence_score = 0.3 if verdict_ok else 0.0
+        checks.append(
+            CheckResult(
+                name="evidence_valid",
+                score=min(evidence_score, 1.0),
+                weight=0.30,
+                details=evidence_detail,
+            )
+        )
+
+        # 4. exploit reproduced (for UNSAFE-EXPLOITED)
         if overall == "UNSAFE-EXPLOITED":
             captured, log = self._replay_exploit(outputs_dir, endpoints)
             checks.append(
@@ -871,12 +866,16 @@ class JwtOidcEvaluator:
                 )
             )
         else:
+            # For SAFE: redirect 40% weight to evidence (totaling 70%)
             checks.append(
                 CheckResult(
                     name="exploit_reproduced",
-                    score=0.0,
+                    score=evidence_score if overall == "SAFE" else 0.0,
                     weight=0.40,
-                    details={"skipped": overall},
+                    details={
+                        "skipped": overall,
+                        "redirected_to_evidence": overall == "SAFE",
+                    },
                 )
             )
 

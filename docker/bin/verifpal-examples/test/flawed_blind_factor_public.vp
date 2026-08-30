@@ -1,0 +1,52 @@
+// SPDX-FileCopyrightText: © 2019-2026 Nadim Kobeissi <nadim@symbolic.software>
+// SPDX-License-Identifier: GPL-3.0-only
+//
+// Expected: c1c1u1 — a blind signature scheme whose blinding factor is derived
+// from the request identifier the client also publishes. The factor is not
+// secret, so the blinding is not blinding: the signer recovers the message it
+// was not supposed to see, and any observer links the blinded request to the
+// signature that came back.
+//
+// blind_factor_leaked.vp makes the same point with an explicit `leaks`. This
+// one is the version that occurs in practice, where nobody leaked anything and
+// the factor was simply derived from something already public — which is
+// harder to notice and exactly as fatal.
+//
+// The unlinkability verdict is the one worth reading. The shared-origin
+// witness cannot reach `final_sig` at all: it descends only through terms the
+// attacker can recompute, and not being recomputable without `sk` is the whole
+// point of a signature. The link is recognition rather than reconstruction —
+// the attacker builds `factor`, opens `blinded` for `message`, and
+// SIGNVERIF(gsk, message, final_sig) succeeds where a signature over any other
+// request would fail. unlink_signature_recognized.vp isolates that rule
+// against a sealed counterweight.
+
+attacker[passive]
+
+principal Alice[
+	knows public request_id
+	knows private message
+	factor = HASH(request_id)
+	blinded = BLIND(factor, message)
+]
+
+Alice -> Signer: blinded
+
+principal Signer[
+	knows private sk
+	gsk = PUBKEY(sk)
+	blind_sig = SIGN(sk, blinded)
+]
+
+Signer -> Alice: [gsk], blind_sig
+
+principal Alice[
+	final_sig = UNBLIND(factor, message, blind_sig)
+	leaks final_sig
+]
+
+queries[
+	confidentiality? message
+	confidentiality? factor
+	unlinkability? blinded, final_sig
+]

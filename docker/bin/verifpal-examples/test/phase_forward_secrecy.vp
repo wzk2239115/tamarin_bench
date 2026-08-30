@@ -1,0 +1,69 @@
+// SPDX-FileCopyrightText: © 2019-2026 Nadim Kobeissi <nadim@symbolic.software>
+// SPDX-License-Identifier: GPL-3.0-only
+// Expected: c0a0e0
+//
+// The point of the model is the first query: the long-term keys leak in phase
+// 1, and the message still holds, because it was sealed under a key derived
+// from ephemerals that never leak. That is forward secrecy.
+//
+// The equivalence query holds too. `decrypted` is a checked AEAD_DEC, every
+// public value is guarded, and a phase-1 leak of a and b yields long-term
+// keys rather than the ephemerals, so the attacker can never produce a
+// ciphertext Bob accepts -- only corrupt the one he was sent, which halts
+// him. An aborted Bob holds no plaintext to disagree with. This read e1 until
+// `query_equivalence` learned to refuse a value whose own check failed; see
+// equivalence_halt_at_slot.vp.
+
+attacker[active]
+
+principal Alice[
+	knows private a
+	ga = PUBKEY(a)
+]
+
+principal Bob[
+	knows private b
+	gb = PUBKEY(b)
+]
+
+Alice -> Bob: [ga]
+Bob -> Alice: [gb]
+
+principal Alice[
+	generates ea
+	gea = PUBKEY(ea)
+]
+
+principal Bob[
+	generates eb
+	geb = PUBKEY(eb)
+]
+
+Alice -> Bob: [gea]
+Bob -> Alice: [geb]
+
+principal Alice[
+	eph_shared_a = DH_KEX(geb, ea)
+	session_key_a = HASH(eph_shared_a)
+	generates secret_msg
+	encrypted = AEAD_ENC(session_key_a, secret_msg, nil)
+]
+
+Alice -> Bob: encrypted
+
+principal Bob[
+	eph_shared_b = DH_KEX(gea, eb)
+	session_key_b = HASH(eph_shared_b)
+	decrypted = AEAD_DEC(session_key_b, encrypted, nil)?
+]
+
+phase[1]
+
+principal Alice[leaks a]
+principal Bob[leaks b]
+
+queries[
+	confidentiality? secret_msg
+	authentication? Alice -> Bob: encrypted
+	equivalence? secret_msg, decrypted
+]

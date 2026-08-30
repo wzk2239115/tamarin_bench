@@ -1,0 +1,32 @@
+// SPDX-FileCopyrightText: © 2019-2026 Nadim Kobeissi <nadim@symbolic.software>
+// SPDX-License-Identifier: GPL-3.0-only
+
+attacker[active]
+
+principal Dealer[
+	generates secret
+	s1, s2, s3 = SHAMIR_SPLIT(secret)
+]
+
+Dealer -> Alice: s1
+Dealer -> Bob: s2
+Dealer -> Carol: s3
+
+principal Alice[
+	leaks s1
+]
+
+principal Bob[]
+principal Carol[]
+
+Bob -> Carol: s2
+
+principal Carol[
+	reconstructed = SHAMIR_JOIN(s2, s3)
+]
+
+queries[
+	confidentiality? secret
+	confidentiality? reconstructed
+	equivalence? secret, reconstructed
+]

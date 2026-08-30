@@ -1,0 +1,50 @@
+// SPDX-FileCopyrightText: © 2019-2026 Nadim Kobeissi <nadim@symbolic.software>
+// SPDX-License-Identifier: GPL-3.0-only
+// Expected: e0e0e0e0e0f0 at one session, e1e1e1e1e1f0 at two.
+//
+// A five-way SPLIT of a CONCAT bundle, checked twice on the way in. `k` is
+// shared and never leaks, so the attacker cannot produce any (encrypted, tag)
+// pair other than the honest one: all it can do is corrupt the ciphertext and
+// fail Bob's ASSERT. Bob then computes nothing at all — bundle_b and a_b..e_b
+// never come into existence — so there is no value for a..e to disagree with.
+// An abort is not a divergence, and all five equivalence queries hold.
+//
+// These read e1e1e1e1e1 until `query_equivalence` learned to refuse a state
+// whose slots had been truncated at the halt: the dropped a_b..e_b resolved to
+// bare constants, which compared unequal to a..e. See equivalence_halt_scope.vp.
+//
+// Under `--sessions 2` all five fail again, and this time for real: `k` is
+// long-term, so a second session's (encrypted, tag) verifies perfectly for the
+// first session's Bob. He accepts that bundle, both his checks pass, and he
+// ends up holding a#2..e#2 while Alice holds a..e. Nothing in the ciphertext
+// binds it to a session. The contrast between the two codes is the point —
+// halting Bob was never a divergence, but feeding him another session's
+// bundle is one.
+
+attacker[active]
+
+principal Alice[
+	knows private k
+	generates a, b, c, d, e
+	bundle = CONCAT(a, b, c, d, e)
+	encrypted = ENC(k, bundle)
+	tag = MAC(k, encrypted)
+]
+
+Alice -> Bob: encrypted, tag
+
+principal Bob[
+	knows private k
+	_ = ASSERT(MAC(k, encrypted), tag)?
+	bundle_b = DEC(k, encrypted)
+	a_b, b_b, c_b, d_b, e_b = SPLIT(bundle_b)?
+]
+
+queries[
+	equivalence? a, a_b
+	equivalence? b, b_b
+	equivalence? c, c_b
+	equivalence? d, d_b
+	equivalence? e, e_b
+	freshness? a
+]

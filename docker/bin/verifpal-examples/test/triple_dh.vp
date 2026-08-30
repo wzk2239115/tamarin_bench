@@ -1,0 +1,62 @@
+// SPDX-FileCopyrightText: © 2019-2026 Nadim Kobeissi <nadim@symbolic.software>
+// SPDX-License-Identifier: GPL-3.0-only
+// Expected: c0c0a0e0
+//
+// A 3DH handshake with every public key guarded. The substitution that would
+// make the two masters disagree needs the attacker to replace gb_ident and
+// then forge a signature under its own key; the guard denies it, so Alice
+// halts on the failed SIGNVERIF instead and never derives master.
+//
+// The equivalence query therefore holds, but only because of the guards, not
+// because the engine stopped looking: unguarding gb_ident makes exactly that
+// MitM available and the query fails again, with a trace that builds
+// SIGN(nil, PUBKEY(nil)). It read e1 until `query_equivalence` learned to
+// refuse a state truncated at the halt — see equivalence_halt_scope.vp.
+
+attacker[active]
+
+principal Alice[
+	knows private a_ident
+	ga_ident = PUBKEY(a_ident)
+	generates a_eph
+	ga_eph = PUBKEY(a_eph)
+]
+
+principal Bob[
+	knows private b_ident, b_signed, b_onetime
+	gb_ident = PUBKEY(b_ident)
+	gb_signed = PUBKEY(b_signed)
+	gb_onetime = PUBKEY(b_onetime)
+	sig = SIGN(b_ident, gb_signed)
+]
+
+Bob -> Alice: [gb_ident], [gb_signed], [gb_onetime], sig
+
+principal Alice[
+	_ = SIGNVERIF(gb_ident, gb_signed, sig)?
+	dh1 = DH_KEX(gb_signed, a_ident)
+	dh2 = DH_KEX(gb_ident, a_eph)
+	dh3 = DH_KEX(gb_signed, a_eph)
+	master = HASH(dh1, dh2, dh3)
+	rk, ck = HKDF(master, nil, nil)
+	generates msg
+	enc_msg = AEAD_ENC(ck, msg, ga_ident)
+]
+
+Alice -> Bob: [ga_ident], [ga_eph], enc_msg
+
+principal Bob[
+	dh1_b = DH_KEX(ga_ident, b_signed)
+	dh2_b = DH_KEX(ga_eph, b_ident)
+	dh3_b = DH_KEX(ga_eph, b_signed)
+	master_b = HASH(dh1_b, dh2_b, dh3_b)
+	rk_b, ck_b = HKDF(master_b, nil, nil)
+	msg_b = AEAD_DEC(ck_b, enc_msg, ga_ident)?
+]
+
+queries[
+	confidentiality? msg
+	confidentiality? master
+	authentication? Alice -> Bob: enc_msg
+	equivalence? master, master_b
+]

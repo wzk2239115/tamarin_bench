@@ -1,0 +1,32 @@
+// SPDX-FileCopyrightText: © 2019-2026 Nadim Kobeissi <nadim@symbolic.software>
+// SPDX-License-Identifier: GPL-3.0-only
+
+attacker[active]
+
+principal Alice[
+	knows private k
+	generates m, a
+	ga = PUBKEY(a)
+	kk = HASH(k)
+	e = AEAD_ENC(kk, m, nil)
+]
+
+principal Bob[
+	knows private k, b
+	gb = PUBKEY(b)
+]
+
+Bob -> Alice: gb
+
+Alice -> Bob: ga, e
+
+principal Bob[
+	kk_b = HASH(k)
+	m_b = AEAD_DEC(kk_b, e, nil)?
+	shared = DH_KEX(ga, b)
+	tag = MAC(shared, m_b)
+]
+
+queries[
+	authentication? Alice -> Bob: e
+]
