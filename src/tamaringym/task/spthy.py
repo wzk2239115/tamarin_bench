@@ -78,7 +78,7 @@ class Theory:
 # ── lexical helpers ──────────────────────────────────────────────────────────
 
 _HEADER_RE = re.compile(
-    r"^\s*theory\s+([A-Za-z_][A-Za-z0-9_'\-]*)", re.IGNORECASE | re.MULTILINE
+    r"^\s*theory\s+([A-Za-z0-9_][A-Za-z0-9_'\-]*)", re.IGNORECASE | re.MULTILINE
 )
 _END_RE = re.compile(r"^\s*end\b", re.IGNORECASE | re.MULTILINE)
 

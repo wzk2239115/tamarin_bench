@@ -1,11 +1,30 @@
 {
-  "protocol": "CR",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__xor__CR",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "alive",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "recentalive",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "executable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 8
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.22,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

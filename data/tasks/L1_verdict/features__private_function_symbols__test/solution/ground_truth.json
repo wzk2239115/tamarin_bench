@@ -1,11 +1,18 @@
 {
-  "protocol": "privateFunctionTest",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__private_function_symbols__test",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "secretF",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 3
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 0.05,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

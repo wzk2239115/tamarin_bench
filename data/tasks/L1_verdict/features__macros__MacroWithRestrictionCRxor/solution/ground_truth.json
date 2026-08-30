@@ -1,11 +1,39 @@
 {
-  "protocol": "MacroWithRestrictionCRXOR",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:features__macros__MacroWithRestrictionCRxor",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "alive",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 91
+    },
+    {
+      "name": "recentalive_tag",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 11
+    },
+    {
+      "name": "executable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 10
+    }
+  ],
+  "attack_traces": {
+    "recentalive_tag": [
+      [
+        "initiator2",
+        "initiator",
+        "Setup",
+        "responder"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 1.02,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

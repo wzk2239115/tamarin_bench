@@ -1,0 +1,23 @@
+{
+  "task_id": "L1:ccs18-5G__5G-AKA-untraceability__5G_AKA_passive_privacy_game",
+  "level": "L1_verdict",
+  "name": "ccs18-5G__5G-AKA-untraceability__5G_AKA_passive_privacy_game",
+  "protocol": "5G_AKA_passive_privacy_game",
+  "source_file": "ccs18-5G/5G-AKA-untraceability/5G_AKA_passive_privacy_game.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md",
+    "oracle"
+  ],
+  "lemma_names": [
+    "dummy",
+    "mainSourceLemma",
+    "executable"
+  ],
+  "uses_diff_terms": true,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": true,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

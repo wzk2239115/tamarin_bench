@@ -1,11 +1,24 @@
 {
-  "protocol": "traceable",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__equivalence__traceable",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "executable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 8
+    },
+    {
+      "name": "Observational_equivalence",
+      "quantifier": "diff",
+      "verdict": "falsified",
+      "steps": null
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
-  "requires_diff": false,
-  "validated": false
+  "wellformedness_ok": true,
+  "runtime_seconds": 1.14,
+  "requires_diff": true,
+  "validated": true
 }

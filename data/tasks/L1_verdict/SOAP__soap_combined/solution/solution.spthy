@@ -1,0 +1,577 @@
+theory MessagingOIDC
+begin
+
+heuristic: o "./oracle.py"
+
+restriction OnlyOnce:
+  "All t #x #y. OnlyOnce(t) @ #x & OnlyOnce(t) @ #y ==> #x = #y"
+
+restriction Equality:
+  "All x y #i. Eq(x, y) @ #i ==> x = y"
+
+restriction Inequality:
+  "All x #t. Neq(x, x) @ #t ==> F"
+
+builtins: signing
+functions: fingerprint/1, extract/1, s256/1, h/2
+
+// Fingerprint function only needs to be collision resistant
+equations: extract(fingerprint(x)) = x
+
+rule Phone:
+  []
+  --[ ClaimNumber($A, $Number)
+    , IsPhoneNumber($Number) ]->
+  [ !Phone($A, $Number) ]
+
+rule SMSOut[color=#FFFFFF]:
+  [ SMS_Out($Number, sms), !Phone($A, $Number) ]
+  -->
+  [ !SMS($Number, sms) ]
+
+rule AdversarySMSOut[color=#FF6961]:
+  [ In(sms), !Phone($A, $Number) ]
+  --[ AdversaryActivity() ]->
+  [ !SMS($Number, sms) ]
+
+rule SMSIn[color=#FFFFFF]:
+  [ !SMS($Number, sms) ]
+  -->
+  [ SMS_In($Number, sms) ]
+
+rule SMSLeak[color=#FF6961]:
+  [ !SMS($Number, sms) ]
+  --[ SMSLeak()
+    , AdversaryActivity() ]->
+  [ Out(sms) ]
+
+rule Domain:
+  []
+  -->
+  [ !Domain($Domain) ]
+
+rule DomainCompromise:
+  [ !Domain($Domain) ]
+  --[ CompromisedDomain($Domain)
+    , AdversaryActivity() ]->
+  [ !DomainCompromise($Domain) ]
+
+rule TLSClientOut[color=#FFFFFF]:
+  [ TLSClient_Out(method, ~sess, $Domain, msg), !Domain($Domain) ]
+  -->
+  [ !TLSClient(method, ~sess, $Domain, msg) ]
+
+rule TLSAdversaryClientOut[color=#FF6961]:
+  [ In(method), In(~sess), In(msg), !Domain($Domain) ]
+  -->
+  [ !TLSClient(method, ~sess, $Domain, msg) ]
+
+rule TLSServerOut[color=#FFFFFF]:
+  [ TLSServer_Out(method, ~sess, $Domain, msg), !Domain($Domain) ]
+  -->
+  [ !TLSServer(method, ~sess, $Domain, msg) ]
+
+rule TLSAdversaryServerOut[color=#FF6961]:
+  [ In(method), In(~sess), In(msg), !DomainCompromise($Domain) ]
+  --[ AdversaryActivity() ]->
+  [ !TLSServer(method, ~sess, $Domain, msg) ]
+
+rule TLSClientToServer[color=#FFFFFF]:
+  [ !TLSClient(method, ~sess, $Domain, msg) ]
+  -->
+  [ TLSServer_In(method, ~sess, $Domain, msg) ]
+
+rule TLSClientToAdversaryServer[color=#FF6961]:
+  [ !TLSClient(method, ~sess, $Domain, msg)
+  , !DomainCompromise($Domain) ]
+  --[ AdversaryActivity() ]->
+  [ Out(msg), Out(~sess) ]
+
+rule TLSServerToClient[color=#FFFFFF]:
+  [ !TLSServer(method, ~sess, $Domain, msg) ]
+  -->
+  [ TLSClient_In(method, ~sess, $Domain, msg) ]
+
+rule TLSServerToAdversaryClient[color=#FF6961]:
+  [ In(~adversarySess), !TLSServer(method, ~adversarySess, $Domain, msg) ]
+  --[ AdversaryActivity() ]->
+  [ Out(msg) ]
+
+rule IdPSetup:
+  [ !Domain($IdP), Fr(~idpSk) ]
+  -->
+  [ !IdP($IdP), !IdPLtk($IdP, ~idpSk)
+  , Out(pk(~idpSk)) ]
+
+rule IdPCompromise[color=#FF6961]:
+  [ !IdPLtk($IdP, idpSk) ]
+  --[ CompromisedIdP($IdP)
+    , AdversaryActivity() ]->
+  [ !IdPCompromise($IdP), Out(idpSk) ]
+
+rule IdPKeyRequest[color=#9AD5D8]:
+  [ !IdP($IdP), Fr(~sess) ]
+  -->
+  [ TLSClient_Out('GET', ~sess, $IdP, 'pk_req')
+  , St_IdPKeyReq($IdP, ~sess) ]
+
+rule IdPPkDistribute[color=#9AD5D8]:
+  [ TLSServer_In('GET', ~sess, $IdP, 'pk_req')
+  , !IdPLtk($IdP, idpSk) ]
+  -->
+  [ TLSServer_Out('GET', ~sess, $IdP, <'idp_pk', pk(idpSk)>) ]
+
+rule IdPKeyObtain[color=#9AD5D8]:
+  [ St_IdPKeyReq($IdP, ~sess)
+  , TLSClient_In('GET', ~sess, $IdP, <'idp_pk', idpPk>) ]
+  -->
+  [ !UseIdPKey($User, $IdP, idpPk) ]
+
+rule IdPSignUp:
+  [ Fr(~pw), !IdP($IdP) ]
+  --[ Username($A, $IdP, $Username, ~pw) ]->
+  [ !IdPAccount($A, $IdP, $Username, ~pw) ]
+
+// An IdP does not register the same account multiple times.
+restriction AccountsUnique:
+  "All p1 p2 idp u pw1 pw2 #a #b.
+        ( Username(p1, idp, u, pw1) @ #a
+        & Username(p2, idp, u, pw2) @ #b)
+    ==> (p1 = p2 & pw1 = pw2 & #a = #b)"
+
+rule IdPAccountCompromise[color=#FF6961]:
+  [ !IdPAccount($A, $IdP, $Username, ~pw) ]
+  --[ CompromisedAccount($A, $IdP, $Username)
+    , AdversaryActivity() ]->
+  [ Out(~pw) ]
+
+rule IdPPublishClient:
+  [ Fr(~sess), Fr(~m)
+  , !IdPAccount($A, $IdP, $Username, ~pw) ]
+  --[ SendIdP($IdP, $Username, ~m)
+    , Sender($A) ]->
+  [ TLSClient_Out('GET', ~sess, $IdP, <'publish', $Username, ~pw, ~m>) ]
+
+rule IdPPublishServer:
+  [ !IdPAccount(p, $IdP, $Username, ~pw)
+  , TLSServer_In('GET', ~sess, $IdP, <'publish', $Username, ~pw, m>) ]
+  -->
+  [ Out(m)
+  , !Publish($IdP, $Username, m) ]
+
+rule IdPPublishCompromised:
+  [ !IdPCompromise($IdP), In(m) ]
+  --[ AdversaryActivity() ]->
+  [ !Publish($IdP, $Username, m) ]
+
+rule IdPRead:
+  [ !Publish($IdP, $Username, m) ]
+  --[ ReceiveIdP($IdP, $Username, m) ]->
+  []
+
+rule KeyServer:
+  [ !Domain($Domain) ]
+  --[ OnlyOnce('key_server')
+    , IsKeyServer($Domain) ]->
+  [ !KeyServer($Domain) ]
+
+// We use the standard Tamarin secure channel model for SMS and TLS, but not for
+// modelling end-to-end encryption because the standard secure channel model
+// lead to a blow-up in message sources, which prevented us from even starting
+// Tamarin. Therefore, we use a model using an equational theory that is close
+// to asymmetric encryption and signatures combined.
+// The downside of this model is that it is less idiomatic. Sometimes,
+// participants must access other participant's secret key material.
+functions: e2ee/3, e2eeDec/2
+equations : e2eeDec(e2ee(sks, pk(skr), m), skr) = m
+
+rule MessagingRegister[color=#FDFD96]:
+  [ Fr(~sk), Fr(~sess)
+  , !Phone($A, $Number), !KeyServer($KeyServer) ]
+  --[ IsMessagingKey(~sk) ]->
+  [ TLSClient_Out('GET', ~sess, $KeyServer, <'msg_signup_req', $Number, pk(~sk)>)
+  , Out(pk(~sk))
+  , St_MessagingReg_App($A, $Number, ~sess, ~sk) ]
+
+rule MessagingChallenge[color=#FDFD96]:
+  [ Fr(~challenge)
+  , !KeyServer($Server)
+  , TLSServer_In('GET', ~sess, $Server, <'msg_signup_req', $Number, ltk>) ]
+  --[ IsOTP(~challenge) ]->
+  [ SMS_Out($Number, ~challenge)
+  , St_SigReg_Server(~sess, $Number, ltk, ~challenge) ]
+
+rule MessagingRespond[color=#FDFD96]:
+  [ !KeyServer($Server), St_MessagingReg_App($A, $Number, ~sess, sk)
+  , SMS_In($Number, challenge) ]
+  --[ MustBeOTP(challenge) ]->
+  [ TLSClient_Out('GET', ~sess, $Server, <'otp_respond', challenge>)
+  , St_MessagingReg_AppWait($A, $Number, ~sess, sk) ]
+
+rule MessagingAck[color=#FDFD96]:
+  [ !KeyServer($Server)
+  , St_SigReg_Server(~sess, $Number, ltk, challenge)
+  , TLSServer_In('GET', ~sess, $Server, <'otp_respond', challenge>) ]
+  --[ MessagingKeyServer($Number, ltk) ]->
+  [ !MessagingLtkServer($Number, ltk)
+  , TLSServer_Out('GET', ~sess, $Server, 'msg_signup_ack') ]
+
+// The key server only stores one key per phone number.
+restriction KeysUnique:
+  "All phone ltk1 ltk2 #a #b. MessagingKeyServer(phone, ltk1) @ #a
+      & MessagingKeyServer(phone, ltk2) @ #b
+  ==> #a = #b & ltk1 = ltk2"
+
+rule MessagingFin[color=#FDFD96]:
+  [ !KeyServer($Server)
+  , St_MessagingReg_AppWait($A, $Number, ~sess, sk)
+  , TLSClient_In('GET', ~sess, $Server, 'msg_signup_ack') ]
+  --[ ClaimMessagingKey($A, $Number, sk) ]->
+  [ !MessagingLtkUser($A, $Number, sk)[no_precomp] ]
+
+rule MessagingCompromise[color=#FF6961]:
+  [ !MessagingLtkUser($A, $Number, ~sk)[no_precomp] ]
+  --[ CompromisedMessaging($A, pk(~sk))
+    , AdversaryActivity() ]->
+  [ Out(~sk) ]
+
+rule MessagingKeyRequest[color=#9AD5D8]:
+  [ !MessagingLtkServer($Number, ltk)
+  , !KeyServer($Server)
+  , TLSServer_In('GET', ~sess, $Server, <'msg_key_req', $Number>) ]
+  --[ MustBeMessagingKey(ltk) ]->
+  [ TLSServer_Out('GET', ~sess, $Server, <'msg_key_resp', $Number, ltk>) ]
+
+rule ObtainKey[color=#9AD5D8]:
+  [ Fr(~sess), !KeyServer($Server) ]
+  -->
+  [ TLSClient_Out('GET', ~sess, $Server, <'msg_key_req', $Phone>)
+  , St_KeyReq($A, $Phone, ~sess) ]
+
+rule ObtainKeyFin[color=#9AD5D8]:
+  [ !KeyServer($Server)
+  , St_KeyReq($A, $Phone, ~sess)
+  , TLSClient_In('GET', ~sess, $Server, <'msg_key_resp', $Phone, ltk>) ]
+  -->
+  [ !UseMessagingKeyFor($A, $Phone, ltk)[no_precomp] ]
+
+// By factoring out the generation of a fresh message, we can use the SendAsTo
+// interface to send the ID token later.
+rule SendInterface:
+  [ Fr(~m) ]
+  -->
+  [ SendAsTo($A, $Phone, ~m) ]
+
+rule MessagingSend:
+  [ SendAsTo($A, $PeerPhone, m)
+  , !MessagingLtkUser($A, $MyPhone, ~sk)[no_precomp], !UseMessagingKeyFor($A, $PeerPhone, ltk)[no_precomp] ]
+  --[ SendMessaging(pk(~sk), ltk, m)
+    , Sender($A)
+    , SendTo($PeerPhone, 'messaging', m) ]->
+  [ Out(e2ee(~sk, ltk, m)) ]
+
+rule MessagingReceive:
+  [ !MessagingLtkUser($A, $MyPhone, ~skr)[no_precomp], !UseMessagingKeyFor($A, $PeerPhone, pk(skPeer))[no_precomp]
+  , In(e2ee(skPeer, pk(~skr), m)) ]
+  --[ ReceiveMessaging(pk(skPeer), pk(~skr), m) ]->
+  []
+
+predicates: KeyServerCompromise() <=> Ex d #x #y. IsKeyServer(d) @ #x & CompromisedDomain(d) @ #y
+
+
+rule Client:
+  []
+  -->
+  [ !Client($App) ]
+
+rule MessagingApp:
+  [ !Client($App) ]
+  --[ IsMessagingApp($App)
+    , OnlyOnce('messaging_app_client') ]->
+  [ !MessagingApp($App) ]
+
+rule RedirectURL:
+  [ !IdP($IdP), !Client($App), !Domain($RedirectURL) ]
+  --[ IsRedirectURL($IdP, $App, $RedirectURL) ]->
+  [ !RedirectURL($IdP, $App, $RedirectURL) ]
+
+// NOTE: This restriction might seem overly strict. This practically means that:
+// We require the messaging app uses unique redirect URLs per IdP, and that any
+// usage of the messaging app's redirect URL in other contexts counts as
+// malicious. (Honest other apps cannot do that.)
+restriction UniqueRedirectURLs:
+  "All idp1 idp2 app1 app2 url #t1 #t2 #t3.
+        ( IsMessagingApp(app1) @ #t1
+        & IsRedirectURL(idp1, app1, url) @ #t2
+        & IsRedirectURL(idp2, app2, url) @ #t3)
+    ==> (idp1 = idp2 & app1 = app2)"
+
+// Clients need to memorize which query they issued last. We prefix rule name
+// with 0_ s.t. it comes first in case ordering (which is alphabetical) of the
+// executability lemma. Otherwise, there is an infinite loop.
+rule 0_InitSessionStore:
+  []
+  --[ OnlyOnce(<'init_session_store', $User>) ]->
+  [ SessionStore($User, 'null', 'null') ]
+
+rule ClearSessionStore:
+  [ SessionStore($User, x, y) ]
+  -->
+  [ SessionStore($User, 'null', 'null') ]
+
+// It is necessary handle forwards from the adversary dedicatedly, because
+// otherwise, the adversary can choose the session they forward to. This would
+// be unrealistic.
+rule LinkClick[color=#FF6961]:
+  [ Fr(~sess), In(m), !Domain($Domain) ]
+  --[ AdversaryActivity() ]->
+  [ TLSClient_Out('GET', ~sess, $Domain, m)
+  , !Browser($Prover, ~sess) ]
+
+// OpenID Connect Auth code + PKCE flow
+rule OIDCAppLaunchBrowser[color=#B4D9EF]:
+  let fp = fingerprint(<pk(skProver), pkVerifier>)
+      hash = h(fp, salt)
+      code_challenge = s256(code_verifier)
+  in
+  [ !IdP($IdP), !MessagingApp($App)
+  , !RedirectURL($IdP, $App, $RedirectURL)
+  , !MessagingLtkUser($Prover, $ProverPhone, skProver)[no_precomp]
+  , !UseMessagingKeyFor($Prover, $VerifierPhone, pkVerifier)[no_precomp]
+  , SessionStore($Prover, drop1, drop2)
+  , Fr(salt), Fr(nonce), Fr(code_verifier), Fr(~sess) ]
+  --[ IsNonce(nonce)
+    , GenerateCodeVerifierFor(code_verifier, $IdP)
+    , SOAPStart($Prover, nonce)
+    , SOAPMessaging($Prover, nonce, pkVerifier, pk(skProver)) ]->
+  [ TLSClient_Out('GET', ~sess, $IdP, <'oidc_req', $App, hash, nonce, code_challenge, $RedirectURL>)
+  // This Out fact models that the adversary can access authorization requests.
+  , Out(<hash, nonce, code_challenge>)
+  , SessionStore($Prover, nonce, <$IdP, $VerifierPhone, hash, salt, code_verifier>)
+  , !Browser($Prover, ~sess) ]
+
+rule OIDCIdPInit[color=#B4D9EF]:
+  [ !IdP($IdP)
+  , !RedirectURL($IdP, $Client, $RedirectURL)
+  , TLSServer_In('GET', ~sess, $IdP, <'oidc_req', $Client, hash, nonce, code_challenge, $RedirectURL>) ]
+  --[ MustBeNonce(nonce) ]->
+  [ TLSServer_Out('GET', ~sess, $IdP, 'auth_req')
+  , St_OIDCServer_Auth($IdP, $Client, $RedirectURL, ~sess, hash, nonce, code_challenge) ]
+
+rule OIDCAppLogin[color=#B4D9EF]:
+  [ !Browser($Prover, ~sess)
+  , !IdP($IdP)
+  , TLSClient_In('GET', ~sess, $IdP, 'auth_req')
+  , !IdPAccount($Prover, $IdP, $Username, ~pw) ]
+  -->
+  [ TLSClient_Out('GET', ~sess, $IdP, <'login', $Username, ~pw>) ]
+
+lemma PasswordsConfidential[reuse]:
+  "All user idp username pw #t1 #t2.
+        ( Username(user, idp, username, pw) @ #t1
+        & KU(pw) @ #t2)
+    ==> ( (Ex #x. CompromisedDomain(idp) @ #x)
+        | (Ex someone #x. CompromisedAccount(someone, idp, username) @ #x))"
+
+lemma MessagingKeysUnique[reuse]:
+  "All userA userB phoneA phoneB sk #a #b.
+        ClaimMessagingKey(userA, phoneA, sk) @ #a
+      & ClaimMessagingKey(userB, phoneB, sk) @ #b
+  ==> (#a = #b & userA = userB & phoneA = phoneB)
+      | KeyServerCompromise()"
+
+rule OIDCIdPIssueCode[color=#B4D9EF]:
+  [ !IdP($IdP)
+  , !IdPAccount($User, $IdP, $Username, pw)
+  , Fr(~code)
+  , St_OIDCServer_Auth($IdP, $Client, $RedirectURL, ~sess, hash, nonce, code_challenge)
+  , TLSServer_In('GET', ~sess, $IdP, <'login', $Username, pw>) ]
+  --[ IsCode(~code)
+    , MustBeNonce(nonce)
+    , SOAPIdP($User, nonce, $IdP, $Username) ]->
+  [ TLSClient_Out('GET', ~sess, $RedirectURL, <'code', ~code, nonce>)
+  , St_OIDCIdP_Code($IdP, $Username, $Client, $RedirectURL, ~code, hash, nonce, code_challenge) ]
+
+rule OIDCAppCodeRedirect[color=#B4D9EF]:
+  [ !RedirectURL($IdP, $App, $RedirectURL), !IdP($IdP)
+  , !MessagingApp($App)
+  , Fr(~sessPost)
+  , SessionStore($Prover, nonce, <$IdP, $VerifierPhone, hash, salt, code_verifier>)
+  , !Browser($Prover, ~sess)
+  , TLSServer_In('GET', ~sess, $RedirectURL, <'code', code, nonce>) ]
+  --[ SelfIssued($Prover, nonce)
+    , Neq(nonce, 'null')
+    , MustBeCode(code) ]->
+  [ TLSClient_Out('POST', ~sessPost, $IdP, <'token_req', code, code_verifier, $RedirectURL>)
+  , St_OIDCApp_CodeReq($Prover, $IdP, $VerifierPhone, ~sessPost, hash, salt, code)
+  , SessionStore($Prover, 'null', 'null') ]
+
+rule OIDCIdPTokenIssue[color=#B4D9EF]:
+  let tokenBody = <$IdP, $Client, $Username, nonce, hash>
+      token = <tokenBody, sign(tokenBody, idpSk)>
+  in
+  [ !IdPLtk($IdP, idpSk)
+  , St_OIDCIdP_Code($IdP, $Username, $Client, $RedirectURL, code, hash, nonce, code_challenge)
+  , TLSServer_In('POST', ~sess, $IdP, <'token_req', code, code_verifier, $RedirectURL>) ]
+  --[ Eq(s256(code_verifier), code_challenge)
+    , IssueTokenForCode($IdP, ~sess, code)
+    , MustBeToken(token)
+    , UseCode($IdP, $Client, code)
+    , UseCodeVerifierFor($IdP, code_verifier) ]->
+  [ TLSServer_Out('POST', ~sess, $IdP, <'token', token>) ]
+
+lemma CodeSecrecy[reuse]:
+  "All idp client code #t1 #t2 #t3.
+        ( UseCode(idp, client, code) @ #t1
+        & IsMessagingApp(client) @ #t2
+        & KU(code) @ #t3)
+    ==> ( (Ex #x. UsedCode(idp, code) @ #x & #x < #t3)
+        | (Ex url #x #y. IsRedirectURL(idp, client, url) @ #x & CompromisedDomain(url) @ #y)
+        | (Ex #x. CompromisedDomain(idp) @ #x))"
+
+lemma CodeVerifierSecrecy[reuse]:
+  "   All verifier idp #x #y.
+        UseCodeVerifierFor(idp, verifier) @ #x
+        & GenerateCodeVerifierFor(verifier, idp) @ #y
+  ==> not (Ex #z. KU(verifier) @ #z)
+      | (Ex #z. CompromisedDomain(idp) @ #z)"
+
+// This sources lemma combines multiple in spirit, but they need to assist each
+// other in the proof, hence, they are combined.
+lemma TokenFormatAndOTPLearning[sources]:
+  "(All token #i.
+        MustBeToken(token) @ #i
+    ==> (Ex first second user idp client nonce hashed sk.
+            token = <first, second>
+          & first = <idp, client, user, nonce, hashed>
+          & ((Ex #h. KU(nonce) @ #h & #h < #i) | (Ex #h. IsNonce(nonce) @ #h))
+          & ((Ex #h. KU(hashed) @ #h & #h < #i) | (Ex fp salt. hashed = h(fp, salt)))
+          & second = sign(first, sk))
+  ) & (All nonce #i.
+        MustBeNonce(nonce) @ #i
+    ==> ( (Ex #h. KU(nonce) @ #h & #h < #i)
+        | (Ex #h. IsNonce(nonce) @ #h)))
+  & (All code #i.
+        MustBeCode(code) @ #i
+    ==> ( (Ex #h. KU(code) @ #h & #h < #i)
+        | (Ex #h. IsCode(code) @ #h)))
+  & (All chall #i.
+        MustBeOTP(chall) @ #i
+    ==> ( (Ex #j. IsOTP(chall) @ #j & #j < #i)
+      | (Ex #j. KU(chall) @ #j & #j < #i)))
+  & (All ltk #i.
+        MustBeMessagingKey(ltk) @ #i
+    ==> ( (Ex sk #j. IsMessagingKey(sk) @ #j & ltk = pk(sk))
+      | (Ex #j. KU(ltk) @ #j & #j < #i)))"
+
+rule OIDCTokenForward[color=#B4D9EF]:
+  let body = <$IdP, $App, $Username, nonce, hash>
+      fp = fingerprint(<pk(skProver), pkVerifier>)
+      token = <body, signature>
+  in
+  [ !IdP($IdP), !MessagingApp($App)
+  , !UseMessagingKeyFor($Prover, $VerifierPhone, pkVerifier)[no_precomp]
+  , !UseIdPKey($Prover, $IdP, pkIdP)
+  , !MessagingLtkUser($Prover, $ProverPhone, skProver)[no_precomp]
+  , St_OIDCApp_CodeReq($Prover, $IdP, $VerifierPhone, ~sessPost, hash, salt, code)
+  // We do not check the nonce in the ID token. This is to highlight that the
+  // inclusion of a true nonce in the ID token is not strictly necessary in the
+  // protocols design.
+  , TLSClient_In('POST', ~sessPost, $IdP, <'token', <<$IdP, $App, $Username, nonce, hash>, signature>>) ]
+  --[ Eq(h(fp, salt), hash)
+    , Eq(verify(signature, body, pkIdP), true)
+    , GetTokenForCode($IdP, ~sessPost, code)
+    , MustBeToken(token)
+    , MustBeCode(code)
+    , UsedCode($IdP, code) ]->
+  [ SendAsTo($Prover, $VerifierPhone, <'fwd_token', token, salt>)
+  // Sending the code models that the adversary can access the authorization
+  // response after the OpenID Connect protocol termianted successfully.
+  , Out(code) ]
+
+lemma CodeAgreement[use_induction,reuse]:
+  "All idp sess codeClient codeIdP #t1 #t2.
+          GetTokenForCode(idp, sess, codeClient) @ #t1
+        & IssueTokenForCode(idp, sess, codeIdP) @ #t2
+    ==> ( (codeClient = codeIdP)
+        | (Ex #x. CompromisedDomain(idp) @ #x))"
+
+lemma CodeIsSingleUse[reuse]:
+  "All idp code #a #b.
+        (UsedCode(idp, code) @ #a & UsedCode(idp, code) @ #b)
+    ==> ( #a = #b
+        | (Ex #x. CompromisedDomain(idp) @ #x)
+        | (Ex app url #x #y.
+              IsRedirectURL(idp, app, url) @ #x
+            & CompromisedDomain(url) @ #y))"
+
+rule OIDCTokenReceive[color=#B4D9EF]:
+  let body = <$IdP, $App, $Username, nonce, hash>
+      fp = fingerprint(<pk(skProver), pk(skVerifier)>)
+  in
+  [ !MessagingLtkUser($Verifier, $VerifierPhone, skVerifier)[no_precomp]
+  , !UseMessagingKeyFor($Verifier, $ProverPhone, pk(skProver))[no_precomp]
+  , !MessagingApp($App)
+  , !UseIdPKey($Verifier, $IdP, pkIdP)
+  , In(e2ee(skProver, pk(skVerifier), <'fwd_token', <body, signature>, salt>)) ]
+  --[ Eq(h(fp, salt), hash)
+    , Eq(verify(signature, body, pkIdP), true)
+    , DidNotIssueSelf($Verifier, nonce)
+    , ReceivingKey(pk(skVerifier))
+    , Correspond($Verifier, pk(skProver), $IdP, $Username) ]->
+  []
+
+restriction CheckNonceReplay:
+  "All verifier nonce #t1.
+      DidNotIssueSelf(verifier, nonce) @ #t1
+  ==> (not Ex #t2. SelfIssued(verifier, nonce) @ #t2)"
+
+lemma Executability:
+  exists-trace
+  "Ex verifier proverKey idp acc verifierKey m1 m2 s1 s2
+    #t1 #t2 #t3 #t4 #t5.
+      Correspond(verifier, proverKey, idp, acc) @ #t1
+    & ReceiveMessaging(proverKey, verifierKey, m1) @ #t2
+    & ReceiveIdP(idp, acc, m2) @ #t3
+    & SendMessaging(proverKey, verifierKey, m1) @ #t4
+    & Sender(s1) @ #t4
+    & SendIdP(idp, acc, m2) @ #t5
+    & Sender(s2) @ #t5
+    & s1 = s2
+    & (not Ex #x. AdversaryActivity() @ #x)"
+
+lemma SOAPAgreement[reuse]:
+  "All v proverKey idp acc verifierKey #t1.
+        ( Correspond(v, proverKey, idp, acc) @ #t1
+        & ReceivingKey(verifierKey) @ #t1)
+    ==>   (Ex prover nonce #x1 #x2.
+              SOAPStart(prover, nonce) @ #x1
+            & SOAPMessaging(prover, nonce, verifierKey, proverKey) @ #x1
+            & SOAPIdP(prover, nonce, idp, acc) @ #x2)
+        | (Ex #x. CompromisedIdP(idp) @ #x)
+        | (Ex #x. CompromisedDomain(idp) @ #x)
+        | (Ex app redirectURL #x #y #z.
+              IsMessagingApp(app) @ #x
+            & IsRedirectURL(idp, app, redirectURL) @ #y
+            & CompromisedDomain(redirectURL) @ #z)
+        | (Ex p #x. CompromisedAccount(p, idp, acc) @ #x)
+        | (Ex p #x. CompromisedMessaging(p, proverKey) @ #x)"
+
+lemma SocialAuthentication:
+  "All v sendKey rcvKey m1 idp acc m2 #t #r1 #r2.
+        ( Correspond(v, sendKey, idp, acc) @ #t
+        & ReceiveMessaging(sendKey, rcvKey, m1) @ #r1
+        & ReceiveIdP(idp, acc, m2) @ #r2)
+    ==> ( (Ex s #x1 #x2.
+          ( SendMessaging(sendKey, rcvKey, m1) @ #x1 & Sender(s) @ #x1 & #x1 < #r1
+          & SendIdP(idp, acc, m2) @ #x2 & Sender(s) @ #x2 & #x2 < #r2))
+        | (Ex #x. CompromisedIdP(idp) @ #x)
+        | (Ex #x. CompromisedDomain(idp) @ #x)
+        | (Ex app redirectURL #x #y #z.
+              IsMessagingApp(app) @ #x
+            & IsRedirectURL(idp, app, redirectURL) @ #y
+            & CompromisedDomain(redirectURL) @ #z)
+        | (Ex p #x. CompromisedAccount(p, idp, acc) @ #x)
+        | (Ex p #x. CompromisedMessaging(p, sendKey) @ #x))"
+
+end

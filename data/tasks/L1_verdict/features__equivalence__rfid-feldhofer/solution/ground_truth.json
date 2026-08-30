@@ -1,11 +1,48 @@
 {
-  "protocol": "RFID_Feldhofer",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
+  "protocol": "L1:features__equivalence__rfid-feldhofer",
+  "overall_verdict": "SAFE",
+  "lemmas": [
+    {
+      "name": "types",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 25
+    },
+    {
+      "name": "executable",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "executable_left",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "executable_right",
+      "quantifier": "exists-trace",
+      "verdict": "verified",
+      "steps": 6
+    },
+    {
+      "name": "secret_value",
+      "quantifier": "all-traces",
+      "verdict": "verified",
+      "steps": 10
+    },
+    {
+      "name": "Observational_equivalence",
+      "quantifier": "diff",
+      "verdict": "verified",
+      "steps": 383
+    }
+  ],
   "attack_traces": {},
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
-  "requires_diff": false,
-  "validated": false
+  "wellformedness_ok": true,
+  "runtime_seconds": 1.84,
+  "requires_diff": true,
+  "validated": true
 }

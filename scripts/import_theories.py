@@ -37,8 +37,8 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 from tamaringym.task.metadata import GroundTruth, TaskMeta  # noqa: E402
 from tamaringym.task.spthy import parse_theory, strip_lemmas  # noqa: E402
 
-SKIP_DIRS = {"regression", "testParser", ".git"}
-MAX_FILE_BYTES = 300_000
+SKIP_DIRS = {"regression", "testParser", ".git", "proofs"}
+MAX_FILE_BYTES = 600_000
 DEFAULT_MIN_SPEC_CHARS = 400
 
 GOALS_TEMPLATE = """# Verification goals

@@ -1,5 +1,5 @@
 {
-  "protocol": "secrecy_3_passive_K1X1",
+  "protocol": "L1:features__noise__secrecy_3_passive_K1X1",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

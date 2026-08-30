@@ -1,11 +1,46 @@
 {
-  "protocol": "testConstructor",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:features__xor__basicfunctionality__testConstructor",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "secret1",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 11
+    },
+    {
+      "name": "secret2",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 10
+    },
+    {
+      "name": "secret3",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 11
+    }
+  ],
+  "attack_traces": {
+    "secret1": [
+      [
+        "Test1"
+      ]
+    ],
+    "secret2": [
+      [
+        "Test2"
+      ]
+    ],
+    "secret3": [
+      [
+        "Test3"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 15.85,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

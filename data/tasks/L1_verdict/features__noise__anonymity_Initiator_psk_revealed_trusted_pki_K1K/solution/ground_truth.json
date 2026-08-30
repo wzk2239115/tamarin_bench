@@ -1,5 +1,5 @@
 {
-  "protocol": "anonymity_Initiator_psk_revealed_trusted_pki_K1K",
+  "protocol": "L1:features__noise__anonymity_Initiator_psk_revealed_trusted_pki_K1K",
   "overall_verdict": "UNKNOWN",
   "lemmas": [],
   "attack_traces": {},
@@ -7,5 +7,5 @@
   "wellformedness_ok": null,
   "runtime_seconds": null,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }

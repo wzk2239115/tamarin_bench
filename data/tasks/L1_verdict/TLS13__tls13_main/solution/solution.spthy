@@ -1,0 +1,3988 @@
+
+
+
+
+theory TLS_13_lemmas
+begin
+
+builtins: diffie-hellman, hashing, symmetric-encryption, signing
+
+section{* TLS 1.3 *}
+
+/*
+ * Protocol:    TLS 1.3 Handshake and Record Protocols
+ * Modeler:     Cas Cremers, Marko Horvat, Sam Scott, Thyla van der Merwe
+ * Year:        2016
+ * Source:      http://tlswg.github.io/tls13-spec/
+ *
+ * Status:  in progress....
+ */
+
+// Hash declarations
+
+functions: Expand/3, Extract/2, hmac/1, mac/1, mask/2, unmask/2
+
+equations: unmask(mask(x, y), y) = x, unmask(mask(x, y), x) = y
+
+
+/* AXIOMS */
+
+/* Explicit equality checking */
+axiom Eq_check_succeed: "All x y #i. Eq(x,y) @ i ==> x = y"
+axiom Neq_check_succeed: "All x y #i. Neq(x,y) @ i ==> not (x = y)"
+
+/* Generate one long-term key per actor */
+axiom one_ltk:
+  "All A x y #i #j.
+    GenLtk(A, x)@i & GenLtk(A, y)@j ==> #i = #j"
+
+axiom one_role_per_actor:
+    "All actor tid tid2 role role2 #i #j. Start(tid, actor, role)@i & Start(tid2, actor, role2)@j
+        ==> role = role2"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// crypto.m4i imports
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// msgs.m4i imports
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// state.m4i imports
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ------- Public key infrastructure -------*/
+
+/*
+  Register PK
+  ----------------
+  
+  Generates a long-term key for a party.
+
+  Premises:
+    Fr(~ltkA) - a fresh value for the key itself
+
+  Actions:
+    GenLtk($A, ~ltkA) - party $A has generated a long-term key
+
+  Conclusions:
+    !Ltk($A, ~ltkA) - binds the long-term key to the party $A
+    !Pk($A, pk(~ltkA)) - models the distribution of the public key by some PKI
+    Out(pk(~ltkA)) - outputs the public key so the adversary has knowledge
+*/
+rule Register_pk:
+  [ Fr(~ltkA) ]--[ GenLtk($A, ~ltkA), HonestUse(~ltkA)
+  ]->
+  [ !Ltk($A, ~ltkA), !Pk($A, pk(~ltkA)), Out(pk(~ltkA)) ]
+
+/*
+  Reveal Ltk
+  ----------------
+  
+  The adversarial capability to reveal long-term keys of parties.
+
+  Premises:
+    !Ltk($A, ~ltkA) - the long-term key to compromise
+
+  Actions:
+    RevLtk($A) - adversary has revealed the key of $A.
+
+  Conclusions:
+    Out(~ltkA) - provides the adversary with the long-term key
+*/
+rule Reveal_Ltk:
+  [ !Ltk($A, ~ltkA) ] --[ RevLtk($A) ]-> [ Out(~ltkA) ]
+
+
+rule client_hello:
+let
+    // Initialise state variables to zero.
+     messages = '0'
+res_psk = '0'
+nc = '0'
+ns = '0'
+g = '0'
+sg = '0'
+hrr = '0'
+x = '0'
+y = '0'
+gx = '0'
+gy = '0'
+gxy = '0'
+psk_ke_mode = 'na'
+psk_id = '0'
+edi = '0'
+es = '0'
+hs = '0'
+ms = '0'
+cats = '0'
+sats = '0'
+hs_keyc = '0'
+hs_keys = '0'
+auth_status = <'0', '0'>
+ems = '0'
+rms = '0'
+cert_req = '0'
+
+
+    // Abstract client identity - does not currently correspond to
+    // anything concrete
+    C = $C
+
+    // Server identity - can be interpreted as the hostname
+    S = $S
+
+    // Client nonce
+    nc = ~nc
+
+    // We reuse the client nonce to be a thread identifier
+    tid = nc
+
+    // Group, DH exponent, key share
+    g1 = $g1
+    g2 = $g2
+    sg = <g1, g2>
+    client_sg = <g1, g2>
+    g = g1
+    x = ~x
+    gx = g^x
+
+    messages = <messages, <'1','0x0303',nc,'0',$cipher_suites,'0',<<'43','0x0304'>,<'10',client_sg>,<'13',$sig_algs>,<'40',g,gx> > >>
+    es = Extract(res_psk, '0')
+in
+    [ Fr(nc),
+      Fr(x)
+    ]
+  --[ C0(tid),
+      Start(tid, C, 'client'),
+      RIdentity(tid, C, 'client', <C>),
+      Neq(g1, g2),
+      DH(tid, C, x),
+      HonestUse(~x),
+      HonestUse(gx)
+    ]->
+    [
+      F_State_C1(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      DHExp(x, tid, C),
+    // Write the ClientHelloMsg onto the wire *presumably* with destination S
+      Out(<'1','0x0303',nc,'0',$cipher_suites,'0',<<'43','0x0304'>,<'10',client_sg>,<'13',$sig_algs>,<'40',g,gx> > >)
+    ]
+
+
+rule recv_hello_retry_request:
+let
+    g1 = $g1
+    g2 = $g2
+    prev_sg = <g1, g2>
+    prev_g = g1
+    prev_hrr = '0'
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+    hrr = 'hrr'
+    new_g = g2
+    g = g2
+    client_sg = <g1, g2>
+
+    C = $C
+    S = $S
+
+    new_x = ~new_x
+    x = new_x
+    gx = g^x
+
+
+    // PSK after HRR has its own rule (see recv_hello_retry_request_psk)
+    psk_ke_mode = 'na'
+    auth_status = <'0', '0'>
+
+    messages = <messages, <'6',    '0x0303',    <<'40',new_g>> >>
+    messages = <messages, <'1','0x0303',nc,'0',$cipher_suites,'0',<<'43','0x0304'>,<'10',client_sg>,<'13',$sig_algs>,<'40',g,gx> > >>
+    es = Extract(res_psk, '0')
+in
+    [ F_State_C1(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      Fr(new_x),
+      In(<'6',    '0x0303',    <<'40',new_g>> >),
+      DHExp(prev_x, tid, C)
+    ]
+  --[ C1_retry(tid),
+      Neq(g1, g2),
+      Instance(tid, C, 'client'),
+      DeleteDH(tid, C, prev_x),
+      DH(tid, C, x)
+    ]->
+    [ Out(<'1','0x0303',nc,'0',$cipher_suites,'0',<<'43','0x0304'>,<'10',client_sg>,<'13',$sig_algs>,<'40',g,gx> > >),
+      DHExp(x, tid, C),
+      F_State_C1(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+
+
+rule recv_server_hello:
+let
+    prev_g = $g
+    prev_x = ~x
+
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+    ns = new_ns
+    gy = new_gy
+
+    C = $C
+    S = $S
+
+    // equivalent to checking gy in <$g>
+    gy = g^new_y
+
+    // Derive the shared secret
+    gxy = gy^x
+
+    // Received a basic server hello - abandon PSK mode (if attempted)
+    psk_ke_mode = 'na'
+    auth_status = <'0', '0'>
+
+    messages = <messages, <'2',  '0x0303',  ns,  $cipher_suite,  <<'13',$sig_algs>,<'40',g,gy>> >>
+in
+    [ F_State_C1(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      In(<'2',  '0x0303',  ns,  $cipher_suite,  <<'13',$sig_algs>,<'40',g,gy>> >)
+    ]
+  --[ C1(tid),
+      Instance(tid, C, 'client'),
+      Neq(gy, g),
+      Neq(gxy, g),
+      DHChal(g, x, new_y, gx, gy, gxy),
+      RNonces(tid, C, 'client', <nc,ns>)
+    ]->
+    [
+      F_State_C2a(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+rule client_gen_keys:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    hs = Extract(gxy, es)
+    ms = Extract('0', hs)
+
+    hs_keyc = Expand(Expand(hs, <'clienthts', <h(messages)>>, '32'), <'kshe_wk', '0'>, '32')
+    hs_keys = Expand(Expand(hs, <'serverhts', <h(messages)>>, '32'), <'kshe_wk', '0'>, '32')
+
+in
+    [ F_State_C2a(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      DHExp(x, tid, C)
+    ]
+  --[ C2a(tid),
+      Instance(tid, C, 'client'),
+      RMS(tid, C, 'client', <ms>),
+      RHS(tid, C, 'client', <hs>),
+      DeleteDH(tid, C, x)
+    ]->
+    [
+      F_State_C2b(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+rule recv_encrypted_extensions:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+    messages = <messages, <'8',$exts>>
+
+in
+    [ F_State_C2b(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      In(senc{<'8',$exts>}hs_keys)
+    ]
+  --[ C2b(tid),
+      Instance(tid, C, 'client')
+    ]->
+    [ F_State_C2c(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+rule recv_certificate_request:
+let
+    prev_psk_ke_mode ='na'
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+    certificate_request_context = '0' 
+    cert_req = '1'
+    messages = <messages,  <'13',  certificate_request_context,  $certificate_extensions >>
+
+in
+    [ F_State_C2c(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      In(senc{ <'13',  certificate_request_context,  $certificate_extensions >}hs_keys)
+    ]
+  --[ C2c_req(tid),
+      Instance(tid, C, 'client')
+    ]->
+    [ F_State_C2d(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+rule skip_recv_certificate_request:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+    cert_req = '0'
+in
+    [ F_State_C2c(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req )
+    ]
+  --[ C2c(tid),
+      Instance(tid, C, 'client')
+    ]->
+    [ F_State_C2d(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+rule recv_server_auth:
+let
+    prev_psk_ke_mode = 'na'
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+    certificate_request_context = '0'
+    certificate = pk(~ltkS)
+    messages = <messages, <'11',certificate_request_context,certificate>>
+    sig_messages = <'server_cv', <h(messages)>>
+
+    messages = <messages, <'15',  signature >>
+
+    exp_verify_data = hmac(Expand(Expand(hs, <'serverhts', <h(messages)>>, '32'), <'fin', '0'>, '32'), h(messages))
+
+    messages = <messages, <'20',verify_data>>
+
+    cats = Expand(ms, <'clientats', <h(messages)>>, '32')
+    sats = Expand(ms, <'serverats', <h(messages)>>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+    ems = Expand(ms, <'ems', <h(messages)>>, '32')
+
+    // auth_status = <cas, sas>
+    auth_status = <'0', 'auth'>
+in
+    [ F_State_C2d(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      !Pk(S, pk(~ltkS)),
+      In(senc{<'11',certificate_request_context,certificate>, <'15',  signature >, <'20',verify_data>}hs_keys)
+    ]
+  --[ C2d(tid),
+      Instance(tid, C, 'client'),
+      Eq(psk_ke_mode, 'na'),
+      Eq(verify(signature, sig_messages, pk(~ltkS)), true),
+      Eq(verify_data, exp_verify_data),
+      RMode(tid, C, 'client', <psk_ke_mode>),
+      CIdentity(tid, C, 'client', <<S,auth_status>>),
+      CHS(tid, C, 'client', <hs>),
+      CTranscript(tid, C, 'client', <messages>),
+      CNonces(tid, C, 'client', <nc,ns>)
+    ]->
+    [ F_State_C3(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      RecvStream(tid, C, S, auth_status, app_keys)
+    ]
+
+rule client_auth:
+let
+    // If certificate was requested, cannot ignore
+    prev_cert_req = '0'
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+    verify_data = hmac(Expand(Expand(hs, <'clienthts', <h(messages)>>, '32'), <'fin', '0'>, '32'), h(messages))
+
+    messages = <messages, <'20',verify_data>>
+
+    rms = Expand(ms, <'rms', <h(messages)>>, '32')
+    app_keyc = Expand(cats, <'adke_wk', '0'>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+in
+
+    [ F_State_C3(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req )
+    ]
+  --[ C3(tid),
+      Instance(tid, C, 'client'),
+      RTranscript(tid, C, 'client', <messages>),
+      RHSMS(tid, C, 'client', <hs,ms>),
+      RRMS(tid, C, 'client', <S,rms,messages>),
+      RMode(tid, C, 'client', <psk_ke_mode>),
+      SessionKey(tid, C, S, auth_status, <app_keyc, app_keys>)
+    ]->
+    [ L_State_C4(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      Out(senc{<'20',verify_data>}hs_keyc),
+      SendStream(tid, C, S, auth_status, app_keyc)
+    ]
+
+rule client_auth_cert:
+let
+    prev_cert_req = '1'
+    prev_psk_ke_mode = 'na'
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+    certificate_request_context = '0' 
+    certificate = pk(~ltkC)
+    messages = <prev_messages, <'11',certificate_request_context,certificate>>
+
+    signature = sign{<'client_cv', <h(messages)>>}~ltkC
+    messages = <messages, <'15',  signature >>
+
+    verify_data = hmac(Expand(Expand(hs, <'clienthts', <h(messages)>>, '32'), <'fin', '0'>, '32'), h(messages))
+    messages = <messages, <'20',verify_data>>
+
+    rms = Expand(ms, <'rms', <h(messages)>>, '32')
+
+    // zeroes cert_req after it has been used
+    cert_req = '0'
+
+    app_keyc = Expand(cats, <'adke_wk', '0'>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+
+    auth_status = <'auth', 'auth'>
+in
+
+    [ F_State_C3(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      RecvStream(tid, C, S, prev_auth_status, app_keys),
+      !Ltk(C, ~ltkC)
+    ]
+  --[ C3_cert(tid),
+      Instance(tid, C, 'client'),
+      UseLtk(~ltkC, signature),
+      RHSMS(tid, C, 'client', <hs,ms>),
+      RTranscript(tid, C, 'client', <messages>),
+      RRMS(tid, C, 'client', <S,rms,messages>),
+      RMode(tid, C, 'client', <psk_ke_mode>),
+      SessionKey(tid, C, S, auth_status, <app_keyc, app_keys>)
+    ]->
+    [ L_State_C4(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      Out(senc{<'11',certificate_request_context,certificate>, <'15',  signature >, <'20',verify_data>}hs_keyc),
+      SendStream(tid, C, S, auth_status, app_keyc),
+      RecvStream(tid, C, S, auth_status, app_keys)
+    ]
+
+
+rule start_server:
+let
+    C = $C
+    S = $S
+
+    // Initialises all variables to zero.
+     messages = '0'
+res_psk = '0'
+nc = '0'
+ns = '0'
+g = '0'
+sg = '0'
+hrr = '0'
+x = '0'
+y = '0'
+gx = '0'
+gy = '0'
+gxy = '0'
+psk_ke_mode = 'na'
+psk_id = '0'
+edi = '0'
+es = '0'
+hs = '0'
+ms = '0'
+cats = '0'
+sats = '0'
+hs_keyc = '0'
+hs_keys = '0'
+auth_status = <'0', '0'>
+ems = '0'
+rms = '0'
+cert_req = '0'
+
+
+    tid = ~tid
+    sg = $g
+in
+    [ Fr(tid)
+    ]
+  --[ Start(tid, S, 'server'),
+      RIdentity(tid, S, 'server', <S>)
+    ]->
+    [
+      F_State_S0(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+
+/*
+    Server receives vanilla ClientHello
+*/
+
+rule recv_client_hello:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+    psk_ke_mode = 'na'
+    g1 = $g1
+    g2 = $g2
+    client_sg = <g1, g2>
+    nc = new_nc
+    gx = new_gx
+    g = $new_g
+    gx = g^new_x
+
+    // Abstract client identity - does not currently correspond to
+    // anything concrete
+    // From the server's perspective: associate with an open socket.
+    C = $C
+
+    // Server identity - can be interpreted as the hostname
+    S = $S
+
+    // Server nonce
+    ns = ~new_ns
+
+    messages = <messages, <'1','0x0303',nc,'0',$cipher_suites,'0',<<'43','0x0304'>,<'10',client_sg>,<'13',$sig_algs>,<'40',g,gx> > >>
+
+    psk_ke_mode = 'na'
+
+in
+    [ In(<'1','0x0303',nc,'0',$cipher_suites,'0',<<'43','0x0304'>,<'10',client_sg>,<'13',$sig_algs>,<'40',g,gx> > >),
+      Fr(ns),
+      F_State_S0(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req )
+    ]
+  --[ S0(tid),
+      Neq(g1, g2)
+    ]->
+    [
+      F_State_S1(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+
+rule hello_retry_request:
+let
+    // Cannot HRR twice in a handshake
+    prev_hrr = '0'
+    prev_sg = $prev_sg
+    // Copies across all values from  prev_res_psk, prev_messages, prev_nc, prev_ns, prev_g, prev_sg, prev_hrr, prev_x, prev_y, prev_gx, prev_gy, prev_gxy, prev_psk_ke_mode, prev_psk_id, prev_edi, prev_es, prev_hs, prev_ms, prev_cats, prev_sats, prev_hs_keyc, prev_hs_keys, prev_auth_status, prev_ems, prev_rms, prev_cert_req  to  res_psk, messages, nc, ns, g, sg, hrr, x, y, gx, gy, gxy, psk_ke_mode, psk_id, edi, es, hs, ms, cats, sats, hs_keyc, hs_keys, auth_status, ems, rms, cert_req 
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+    hrr = 'hrr'
+    new_g = sg
+    g = sg
+
+    C = $C
+    S = $S
+
+    messages = <messages, <'6',    '0x0303',    <<'40',new_g>> >>
+
+in
+    [ F_State_S1(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req )
+    ]
+  --[ S1_retry(tid),
+      Neq(prev_g, sg),
+      Instance(tid, S, 'server')
+    ]->
+    [ Out(<'6',    '0x0303',    <<'40',new_g>> >),
+      F_State_S0(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+/*
+    Server sends basic ServerHello
+*/
+
+rule server_hello:
+let
+    prev_g = $prev_g
+    prev_gx = prev_g^some_x
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    // Server continuing in normal mode (no PSK mode)
+    psk_ke_mode = 'na'
+    auth_status = <'0', '0'>
+
+    C = $C
+    S = $S
+
+    // Group, DH exponent, key share
+    y = ~y
+    gy = g^y
+    gxy = gx^y
+
+    es = Extract(res_psk, '0')
+    messages = <messages, <'2',  '0x0303',  ns,  $cipher_suite,  <<'13',$sig_algs>,<'40',g,gy>> >>
+in
+    [ F_State_S1(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      Fr(y)
+    ]
+  --[ S1(tid),
+      Eq(g, sg),
+      Neq(gx, g),
+      Neq(gxy, g),
+      Instance(tid, S, 'server'),
+      RNonces(tid, S, 'server', <nc,ns>),
+      DHChal(g, some_x, y, gx, gy, gxy),
+      DH(tid, S, y)
+    ]->
+    [
+      F_State_S2a(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      DHExp(y, tid, S),
+      Out(<'2',  '0x0303',  ns,  $cipher_suite,  <<'13',$sig_algs>,<'40',g,gy>> >)
+    ]
+
+rule server_gen_keys:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+    hs = Extract(gxy, es)
+    ms = Extract('0', hs)
+
+    hs_keys = Expand(Expand(hs, <'serverhts', <h(messages)>>, '32'), <'kshe_wk', '0'>, '32')
+    hs_keyc = Expand(Expand(hs, <'clienthts', <h(messages)>>, '32'), <'kshe_wk', '0'>, '32')
+in
+    [ F_State_S2a(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      DHExp(y, tid, S)
+    ]
+  --[ S2a(tid),
+      Extract('0', hs),
+      Instance(tid, S, 'server'),
+      RHS(tid, S, 'server', <hs>),
+      RMS(tid, S, 'server', <ms>),
+      DeleteDH(tid, S, y)
+   ]->
+    [ F_State_S2b(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+rule encrypted_extensions:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+    messages = <messages, <'8',$exts>>
+in
+    [ F_State_S2b(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req )
+    ]
+  --[ S2b(tid),
+      Instance(tid, S, 'server')
+    ]->
+    [ F_State_S2c(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      Out(senc{<'8',$exts>}hs_keys)
+    ]
+
+rule certificate_request:
+let
+    prev_psk_ke_mode = 'na'
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+    certificate_request_context = '0' 
+    cert_req = '1' 
+    messages = <messages,  <'13',  certificate_request_context,  $certificate_extensions >>
+in
+    [ F_State_S2c(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req )
+    ]
+  --[ S2c_req(tid),
+      Instance(tid, S, 'server'),
+      RCertReqCtxt(tid, S, 'server', <certificate_request_context>)
+    ]->
+    [ F_State_S2d(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      Out(senc{ <'13',  certificate_request_context,  $certificate_extensions >}hs_keys)
+    ]
+
+rule skip_certificate_request:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    cert_req = '0'
+
+    S = $S
+    C = $C
+in
+    [ F_State_S2c(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req )
+    ]
+  --[ S2c(tid),
+      Instance(tid, S, 'server')
+    ]->
+    [ F_State_S2d(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+rule server_auth:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    certificate_request_context = '0'
+    certificate = pk(~ltkS)
+    messages = <messages, <'11',certificate_request_context,certificate>>
+    signature = sign{<'server_cv', <h(messages)>>}~ltkS
+
+    messages = <messages, <'15',  signature >>
+
+    verify_data = hmac(Expand(Expand(hs, <'serverhts', <h(messages)>>, '32'), <'fin', '0'>, '32'), h(messages))
+
+    messages = <messages, <'20',verify_data>>
+    ems = Expand(ms, <'ems', <h(messages)>>, '32')
+    cats = Expand(ms, <'clientats', <h(messages)>>, '32')
+    sats = Expand(ms, <'serverats', <h(messages)>>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+
+    // auth_status = <sas, cas>
+    auth_status = <'auth', '0'>
+in
+    [ F_State_S2d(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      !Ltk(S, ~ltkS)
+    ]
+  --[ S2d(tid),
+      Instance(tid, S, 'server'),
+      Eq(psk_ke_mode, 'na'),
+      UseLtk(~ltkS, signature),
+      RTranscript(tid, S, 'server', <messages>)
+    ]->
+    [ F_State_S3(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      SendStream(tid, S, C, auth_status, app_keys),
+      Out(senc{<'11',certificate_request_context,certificate>, <'15',  signature >, <'20',verify_data>}hs_keys)
+    ]
+
+rule recv_client_auth:
+let
+    prev_cert_req = '0'
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    exp_verify_data = hmac(Expand(Expand(hs, <'clienthts', <h(messages)>>, '32'), <'fin', '0'>, '32'), h(messages))
+
+    messages = <messages, <'20',verify_data>>
+
+    rms = Expand(ms, <'rms', <h(messages)>>, '32')
+
+    app_keyc = Expand(cats, <'adke_wk', '0'>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+in
+    [ F_State_S3(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      In(senc{<'20',verify_data>}hs_keyc)
+    ]
+  --[ S3(tid),
+      Instance(tid, S, 'server'),
+      Eq(verify_data, exp_verify_data),
+      RMode(tid, S, 'server', <psk_ke_mode>),
+      CIdentity(tid, S, 'server', <C,auth_status>),
+      CHS(tid, S, 'server', <hs>),
+      RHSMS(tid, S, 'server', <hs,ms>),
+      RRMS(tid, S, 'server', <C,rms,messages>),
+      CTranscript(tid, S, 'server', <messages>),
+      CNonces(tid, S, 'server', <nc,ns>),
+      SessionKey(tid, S, C, auth_status, <app_keys, app_keyc>)
+    ]->
+    [ L_State_S4(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      RecvStream(tid, S, C, auth_status, app_keyc)
+    ]
+
+
+rule recv_client_auth_cert:
+let
+    prev_cert_req = '1'
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    certificate = pk(~ltkC)
+    certificate_request_context ='0' 
+    messages = <messages, <'11',certificate_request_context,certificate>>
+
+    sig_messages = <'client_cv', <h(messages)>>
+    messages = <messages, <'15',  signature >>
+
+    exp_verify_data = hmac(Expand(Expand(hs, <'clienthts', <h(messages)>>, '32'), <'fin', '0'>, '32'), h(messages))
+
+    messages = <messages, <'20',verify_data>>
+    rms = Expand(ms, <'rms', <h(messages)>>, '32')
+
+    cert_req = '0'
+    auth_status = <'auth', 'auth'>
+
+    app_keyc = Expand(cats, <'adke_wk', '0'>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+in
+    [ F_State_S3(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      !Pk(C, pk(~ltkC)),
+      SendStream(tid, S, C, prev_auth_status, app_keys),
+      In(senc{<'11',certificate_request_context,certificate>, <'15',  signature >, <'20',verify_data>}hs_keyc)
+    ]
+  --[ S3_cert(tid),
+      Instance(tid, S, 'server'),
+      Eq(verify(signature, sig_messages, pk(~ltkC)), true),
+      Eq(verify_data, exp_verify_data),
+      RMode(tid, S, 'server', <psk_ke_mode>),
+      CIdentity(tid, S, 'server', <C,auth_status>),
+      CHS(tid, S, 'server', <hs>),
+      RHSMS(tid, S, 'server', <hs,ms>),
+      RRMS(tid, S, 'server', <C,rms,messages>),
+      CTranscript(tid, S, 'server', <messages>),
+      SessionKey(tid, S, C, auth_status, <app_keys, app_keyc>),
+      CNonces(tid, S, 'server', <nc,ns>)
+    ]->
+    [ L_State_S4(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      SendStream(tid, S, C, auth_status, app_keys),
+      RecvStream(tid, S, C, auth_status, app_keyc)
+    ]
+
+
+
+// msgs.m4i imports
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// crypto.m4i imports
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// state.m4i imports
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule client_hello_psk:
+let
+    // Initialises all state variables to zero.
+     messages = '0'
+res_psk = '0'
+nc = '0'
+ns = '0'
+g = '0'
+sg = '0'
+hrr = '0'
+x = '0'
+y = '0'
+gx = '0'
+gy = '0'
+gxy = '0'
+psk_ke_mode = 'na'
+psk_id = '0'
+edi = '0'
+es = '0'
+hs = '0'
+ms = '0'
+cats = '0'
+sats = '0'
+hs_keyc = '0'
+hs_keys = '0'
+auth_status = <'0', '0'>
+ems = '0'
+rms = '0'
+cert_req = '0'
+
+
+    edi = <'42','0'>
+
+    // Set resumption values from ClientPSK
+    res_psk = prev_res_psk
+    auth_status = prev_auth_status
+    psk_id = ticket
+    psk_ke_mode = <'0', '1'>     obfuscated_ticket_age = mask(ticket_age_add, $ticket_age)
+    identities = <<ticket, obfuscated_ticket_age>>
+
+    // Abstract client identity - does not currently correspond to 
+    // anything concrete 
+    C = $C
+
+    // Server identity - can be interpreted as the hostname
+    S = $S
+
+    // Client nonce
+    nc = ~nc
+
+    // We reuse the client nonce to be a thread identifier
+    tid = nc
+
+    g1 = $g1
+    g2 = $g2
+    sg= <g1, g2>
+    client_sg = <g1, g2>
+
+    // Group, DH exponent, key share
+    g = g1
+    x = ~x
+    gx = g^x
+
+    es = Extract(res_psk, '0')
+    binder = '0'
+    binder_messages = <messages, <'1','0x0303',nc,'0',$cipher_suites,'0',<   <'43','0x0304'>,  <'10',client_sg>,  <'40',g,gx>,  <'45',psk_ke_mode>,  edi,  <'41',identities,<binder>> > >>
+    binder = hmac(Expand(Expand(es, <<psk_type, 'pbk'>>, '32'), <binder, '0'>, '32'), h(binder_messages))
+    messages = <messages, <'1','0x0303',nc,'0',$cipher_suites,'0',<   <'43','0x0304'>,  <'10',client_sg>,  <'40',g,gx>,  <'45',psk_ke_mode>,  edi,  <'41',identities,<binder>> > >>
+
+    ead_keyc = Expand(Expand(es, <'cets', <h(messages)>>, '32'), <'eadke_wk', '0'>, '32')
+in
+    [ Fr(nc),
+      Fr(x),
+      // XXX: For some reason using oob PSK explodes memory usage...
+      !ClientPSK(C, S, prev_res_psk, prev_auth_status, <'4',$ticket_lifetime,ticket_age_add,ticket,<<'46',$max_early_data_size>> >, psk_type)
+    ]
+  --[ C0_PSK(tid),
+      Start(tid, C, 'client'),
+      RPSK(tid, C, 'client', <S,prev_res_psk,prev_auth_status>),
+      Neq(prev_res_psk, '0'),
+      DH(tid, C, x)
+    ]->
+    [
+      F_State_C1(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      F_CachePSK(tid,S,prev_res_psk,prev_auth_status,<'4',$ticket_lifetime,ticket_age_add,ticket,<<'46',$max_early_data_size>> >,psk_type),
+      EarlySendStream(tid, C, S, auth_status, ead_keyc, edi),
+      DHExp(x, tid, C),
+    // Write the ClientHelloMsg onto the wire *presumably* with destination S
+      Out(<'1','0x0303',nc,'0',$cipher_suites,'0',<   <'43','0x0304'>,  <'10',client_sg>,  <'40',g,gx>,  <'45',psk_ke_mode>,  edi,  <'41',identities,<binder>> > >)
+    ]
+
+
+rule recv_hello_retry_request_psk:
+let
+    g1 = $g1
+    g2 = $g2
+    prev_sg = <g1, g2>
+    prev_g = g1
+    prev_hrr = '0'
+
+    prev_psk_ke_mode = <'0', '1'>
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+
+    // Set resumption values from ClientPSK
+    res_psk = prev_res_psk
+    auth_status = prev_auth_status
+    psk_id = ticket
+    psk_ke_mode = <'0', '1'>     obfuscated_ticket_age = mask(ticket_age_add, '1')
+    identities = <<ticket, obfuscated_ticket_age>>
+    edi = '0'
+
+    hrr = 'hrr'
+    new_g = g2
+    g = g2
+    client_sg = <g1, g2>
+
+    C = $C
+    S = $S
+
+    new_nc = ~new_nc
+    new_x = ~new_x
+    x = new_x
+    gx = g^x
+    nc = new_nc
+
+    es = Extract(res_psk, '0')
+    messages = <messages, <'6',    '0x0303',    <<'40',new_g>> >>
+    tmp_messages = messages
+    binder = '0'
+    binder_messages = <messages, <'1','0x0303',nc,'0',$cipher_suites,'0',<   <'43','0x0304'>,  <'10',client_sg>,  <'40',g,gx>,  <'45',psk_ke_mode>,  edi,  <'41',identities,<binder>> > >>
+    binder = hmac(Expand(Expand(es, <<psk_type, 'pbk'>>, '32'), <binder, '0'>, '32'), h(binder_messages))
+    messages = <tmp_messages, <'1','0x0303',nc,'0',$cipher_suites,'0',<   <'43','0x0304'>,  <'10',client_sg>,  <'40',g,gx>,  <'45',psk_ke_mode>,  edi,  <'41',identities,<binder>> > >>
+in
+    [ F_State_C1(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      F_CachePSK(tid,S,prev_res_psk,prev_auth_status,<'4',$ticket_lifetime,ticket_age_add,ticket,<<'46',$max_early_data_size>> >,psk_type),
+      Fr(new_nc),
+      Fr(new_x),
+      DHExp(prev_x, tid, C),
+      In(<'6',    '0x0303',    <<'40',new_g>> >)
+    ]
+  --[ C1_retry_PSK(tid),
+      Neq(g1, g2),
+      Instance(tid, C, 'client'),
+      RPSK(tid, C, 'client', <S,prev_res_psk,prev_auth_status>),
+      DeleteDH(tid, C, prev_x),
+      DH(tid, C, x)
+    ]->
+    [ Out(<'1','0x0303',nc,'0',$cipher_suites,'0',<   <'43','0x0304'>,  <'10',client_sg>,  <'40',g,gx>,  <'45',psk_ke_mode>,  edi,  <'41',identities,<binder>> > >),
+      DHExp(x, tid, C),
+      F_State_C1(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+
+rule recv_server_hello_psk_dhe:
+let
+    prev_g = $g
+    prev_x = ~x
+    prev_psk_ke_mode = <'0', '1'>
+    prev_psk_id = ~ticket
+
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+    ns = new_ns
+    gy = new_gy
+
+    psk_ke_mode = '1'
+
+    C = $C
+    S = $S
+
+    gy = g^new_y
+
+    // Derive the shared secret
+    gxy = gy^x
+
+    identity = psk_id
+
+    messages = <messages, <'2',  '0x0303',  ns,  $cipher_suite,  <   <'13',$sig_algs>,  <'40',g,gy>,  <'41','0'>,  edi > >>
+in
+    [ F_State_C1(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      In(<'2',  '0x0303',  ns,  $cipher_suite,  <   <'13',$sig_algs>,  <'40',g,gy>,  <'41','0'>,  edi > >)
+    ]
+  --[ C1_PSK_DHE(tid),
+      Neq(gy, g),
+      Instance(tid, C, 'client'),
+      DHChal(g, x, new_y, gx, gy, gxy),
+      RNonces(tid, C, 'client', <nc,ns>)
+    ]->
+    [
+      F_State_C2a(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+
+rule recv_server_hello_psk:
+let
+    prev_psk_ke_mode = <'0', '1'>
+
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+    ns = new_ns
+
+    psk_ke_mode = '0'
+
+    C = $C
+    S = $S
+
+    identity = psk_id
+
+    messages = <prev_messages, <'2',  '0x0303',  ns,  $cipher_suite,  <   <'13',$sig_algs>,  <'41','0'>,  edi > >>
+in
+    [ F_State_C1(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      In(<'2',  '0x0303',  ns,  $cipher_suite,  <   <'13',$sig_algs>,  <'41','0'>,  edi > >)
+    ]
+  --[ C1_PSK(tid),
+      Instance(tid, C, 'client'),
+      RNonces(tid, C, 'client', <nc,ns>)
+    ]->
+    [
+      F_State_C2a(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req )
+    ]
+
+
+rule recv_server_auth_psk:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+    exp_verify_data = hmac(Expand(Expand(hs, <'serverhts', <h(messages)>>, '32'), <'fin', '0'>, '32'), h(messages))
+
+    messages = <messages, <'20',verify_data>>
+
+    cats = Expand(ms, <'clientats', <h(messages)>>, '32')
+    sats = Expand(ms, <'serverats', <h(messages)>>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+    ems = Expand(ms, <'ems', <h(messages)>>, '32')
+in
+    [ F_State_C2d(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      In(senc{<'20',verify_data>}hs_keys)
+    ]
+  --[ C2d_PSK(tid),
+      Neq(prev_psk_ke_mode, 'na'),
+      Instance(tid, C, 'client'),
+      Eq(verify_data, exp_verify_data),
+      RMode(tid, C, 'client', <psk_ke_mode>),
+      CIdentity(tid, C, 'client', <<S,auth_status>>),
+      CHS(tid, C, 'client', <hs>),
+      CNonces(tid, C, 'client', <nc,ns>),
+      CTranscript(tid, C, 'client', <messages>)
+    ]->
+    [ F_State_C3(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      RecvStream(tid, C, S, auth_status, app_keys)
+    ]
+
+
+rule recv_client_hello_psk:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+    nc = new_nc
+    g1 = $g1
+    g2 = $g2
+    client_sg = <g1, g2>
+    nc = new_nc
+    gx = new_gx
+    g = $new_g
+    gx = g^new_x
+
+    ticket_age_add = ~ticket_age_add
+    ticket = ~ticket
+    res_psk = psk_res_psk
+    auth_status = psk_auth_status
+    identities = <<ticket, obfuscated_ticket_age>>
+    ticket_age = unmask(obfuscated_ticket_age, ticket_age_add)
+    psk_id = ticket
+    psk_ke_mode = <'0', '1'>     edi = new_edi
+
+    // Abstract client identity - does not currently correspond to 
+    // anything concrete 
+    // From the server's perspective: associate with an open socket.
+    C = $C
+
+    // Server identity - can be interpreted as the hostname
+    S = $S
+
+    // Server nonce
+    ns = ~ns
+
+    es = Extract(res_psk, '0')
+
+
+    tmp_binder = binder
+    binder = '0'
+    binder_messages = <messages, <'1','0x0303',nc,'0',$cipher_suites,'0',<   <'43','0x0304'>,  <'10',client_sg>,  <'40',g,gx>,  <'45',psk_ke_mode>,  edi,  <'41',identities,<binder>> > >>
+    binder_check = hmac(Expand(Expand(es, <<psk_type, 'pbk'>>, '32'), <binder, '0'>, '32'), h(binder_messages))
+    binder = tmp_binder
+    messages = <messages, <'1','0x0303',nc,'0',$cipher_suites,'0',<   <'43','0x0304'>,  <'10',client_sg>,  <'40',g,gx>,  <'45',psk_ke_mode>,  edi,  <'41',identities,<binder>> > >>
+
+    ead_keyc = Expand(Expand(es, <'cets', <h(messages)>>, '32'), <'eadke_wk', '0'>, '32')
+in
+    [ F_State_S0(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      In(<'1','0x0303',nc,'0',$cipher_suites,'0',<   <'43','0x0304'>,  <'10',client_sg>,  <'40',g,gx>,  <'45',psk_ke_mode>,  edi,  <'41',identities,<binder>> > >),
+      Fr(ns),
+      !ServerPSK(S, C, psk_res_psk, psk_auth_status, <'4',$ticket_lifetime,ticket_age_add,ticket,<<'46',$max_early_data_size>> >, psk_type)
+    ]
+  --[ S0_PSK(tid),
+      Neq(g1, g2),
+      Eq(unmask(obfuscated_ticket_age, ticket_age_add), '1'),
+      Eq(binder_check, binder),
+      RPSK(tid, S, 'server', <C,psk_res_psk,psk_auth_status>),
+      Neq(psk_res_psk, '0')
+    ]->
+    [
+      F_State_S1(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      EarlyRecvStream(tid, S, C, auth_status, ead_keyc, edi)
+    ]
+/*
+    Server sends ServerHello for PSK DHE mode
+*/
+
+rule server_hello_psk_dhe:
+let
+    prev_g = $g
+    prev_gx = prev_g^some_x
+    prev_psk_ke_mode = <'0', '1'>     prev_ns = ~ns
+    prev_psk_id = ~ticket
+
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    psk_ke_mode = '1'
+
+    C = $C
+    S = $S
+
+    // Group, DH exponent, key share
+    y = ~y
+    gy = g^y
+    gxy = gx^y
+
+    identity = psk_id
+
+    es = Extract(res_psk, '0')
+
+    messages = <messages, <'2',  '0x0303',  ns,  $cipher_suite,  <   <'13',$sig_algs>,  <'40',g,gy>,  <'41','0'>,  edi > >>
+in
+    [ F_State_S1(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      Fr(y)
+    ]
+  --[ S1_PSK_DHE(tid),
+      Neq(gx, g),
+      Neq(x, inv(y)),
+      Instance(tid, S, 'server'),
+      DHChal(g, some_x, y, gx, gy, gxy),
+      RNonces(tid, S, 'server', <nc,ns>),
+      DH(tid, S, y)
+    ]->
+    [
+      F_State_S2a(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      DHExp(y, tid, S),
+      Out(<'2',  '0x0303',  ns,  $cipher_suite,  <   <'13',$sig_algs>,  <'40',g,gy>,  <'41','0'>,  edi > >)
+    ]
+
+rule server_hello_psk:
+let
+    prev_psk_ke_mode = <'0', '1'>
+    prev_ns = ~ns
+    prev_psk_id = ~ticket
+
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    psk_ke_mode = '0'
+
+    C = $C
+    S = $S
+
+    es = Extract(res_psk, '0')
+    messages = <messages, <'2',  '0x0303',  ns,  $cipher_suite,  <   <'13',$sig_algs>,  <'41','0'>,  edi > >>
+
+    // y is not actually used anywhere - this isn't DHE mode
+    y = ~y_ignored
+in
+    [ F_State_S1(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      Fr(y)
+    ]
+  --[ S1_PSK(tid),
+      Instance(tid, S, 'server'),
+      RNonces(tid, S, 'server', <nc,ns>),
+      DH(tid, S, y)
+    ]->
+    [
+      F_State_S2a(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      DHExp(y, tid, S),
+      Out(<'2',  '0x0303',  ns,  $cipher_suite,  <   <'13',$sig_algs>,  <'41','0'>,  edi > >)
+    ]
+
+rule server_auth_psk:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    verify_data = hmac(Expand(Expand(hs, <'serverhts', <h(messages)>>, '32'), <'fin', '0'>, '32'), h(messages))
+
+    messages = <messages, <'20',verify_data>>
+
+    cats = Expand(ms, <'clientats', <h(messages)>>, '32')
+    sats = Expand(ms, <'serverats', <h(messages)>>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+    ems = Expand(ms, <'ems', <h(messages)>>, '32')
+
+in
+    [ F_State_S2d(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req )
+    ]
+  --[ S2d_PSK(tid),
+      Neq(prev_psk_ke_mode, 'na'),
+      Instance(tid, S, 'server'),
+      RTranscript(tid, S, 'server', <messages>)
+    ]->
+    [ F_State_S3(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      SendStream(tid, S, C, auth_status, app_keys),
+      Out(senc{<'20',verify_data>}hs_keys)
+    ]
+
+
+rule send:
+    [ SendStream(~tid, $actor, $peer, auth_status, app_key_out),
+      Fr(~data)
+    ]
+  --[ Send(~tid),
+      SendData(~tid, $actor, $peer, auth_status, ~data)
+    ]->
+    [ SendStream(~tid, $actor, $peer, auth_status, app_key_out),
+      Out(senc{<~data, '23'>}app_key_out)
+    ]
+
+rule recv:
+    [ RecvStream(~tid, $actor, $peer, auth_status, app_key_in),
+      In(senc{<data, '23'>}app_key_in)
+    ]
+  --[ Recv(~tid),
+      RecvData(~tid, $actor, $peer, auth_status, data)
+    ]->
+    [
+      RecvStream(~tid, $actor, $peer, auth_status, app_key_in)
+    ]
+
+
+
+// msgs.m4i imports
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// crypto.m4i imports
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// state.m4i imports
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule end_early_data:
+let
+    C = $C
+    S = $S
+in
+    [ EarlySendStream(tid, C, S, auth_status, ead_keyc, <'42','0'>)
+    ]
+  --[
+      C_EndZeroRTT(tid)
+    ]->
+    [
+      Out(senc{<'1', '21'>}ead_keyc)
+    ]
+rule recv_end_early_data:
+let
+    C = $C
+    S = $S
+in
+    [ EarlyRecvStream(tid, S, C, auth_status, ead_keyc, <'42','0'>),
+      In(senc{<'1', '21'>}ead_keyc)
+    ]
+  --[
+      S_RecvEndZeroRTT(tid)
+    ]->
+    [
+    ]
+
+rule send_early_data:
+let
+    C = $C
+    S = $S
+in
+    [ EarlySendStream(tid, C, S, auth_status, ead_keyc, <'42','0'>),
+      Fr(~data)
+    ]
+  --[ C_SendZeroRTT(tid)
+    ]->
+    [ EarlySendStream(tid, C, S, auth_status, ead_keyc, <'42','0'>),
+      Out(senc{<~data, '23'>}ead_keyc)
+    ]
+
+rule recv_early_data:
+let
+    C = $C
+    S = $S
+in
+    [ EarlyRecvStream(tid, S, C, auth_status, ead_keyc, <'42','0'>),
+      In(senc{<data, '23'>}ead_keyc)
+    ]
+  --[ S_RecvZeroRTT(tid)
+    ]->
+    [
+      EarlyRecvStream(tid, S, C, auth_status, ead_keyc, <'42','0'>)
+    ]
+
+rule out_of_band_psk:
+let
+    C = $C
+    S = $S
+    res_psk = ~res_psk
+    ticket = ~ticket
+    ticket_age_add = ~ticket_age_add
+
+    // Implicitly authed perhaps...
+    auth_status = <'oob_auth', 'oob_auth'>
+in
+    [ Fr(ticket), Fr(res_psk), Fr(~ticket_age_add)]
+  --[ GenPSK(S, 'server'), GenPSK(C, 'client'),
+      FreshPSK(ticket,res_psk)
+    ]->
+    [ !ClientPSK(C, S, res_psk, auth_status, <'4',$ticket_lifetime,ticket_age_add,ticket,<<'46',$max_early_data_size>> >, 'ext'),
+      !ServerPSK(S, C, res_psk, auth_status, <'4',$ticket_lifetime,ticket_age_add,ticket,<<'46',$max_early_data_size>> >, 'ext'),
+      SecretPSK(S, res_psk),
+      SecretPSK(C, res_psk)
+    ]
+
+
+rule new_session_ticket:
+let
+    prev_rms = Expand(ms, <'rms', <h(messages)>>, '32')
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    ticket = ~ticket
+    ticket_age_add = ~ticket_age_add
+
+
+    res_psk = rms
+in
+    [ L_State_S4(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      SendStream(tid, S, C, auth_status, app_keys),
+      Fr(ticket),
+      Fr(ticket_age_add)
+    ]
+  --[ S4_NST(tid),
+      Instance(tid, S, 'server'),
+      RPostHS(tid, S, 'server', <hs,rms,C,auth_status,messages>),
+      RNST(tid, S, 'server', <ticket,ticket_age_add>)
+    ]->
+    [ L_State_S4(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      SendStream(tid, S, C, auth_status, app_keys),
+      !ServerPSK(S, C, res_psk, auth_status, <'4',$ticket_lifetime,ticket_age_add,ticket,<<'46',$max_early_data_size>> >, 'res'),
+      SecretPSK(S, res_psk),
+      Out(senc{<'4',$ticket_lifetime,ticket_age_add,ticket,<<'46',$max_early_data_size>> >}app_keys)
+    ]
+
+rule recv_new_session_ticket:
+let
+    prev_rms = Expand(ms, <'rms', <h(messages)>>, '32')
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    res_psk = rms
+in
+    [ L_State_C4(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      RecvStream(tid, C, S, auth_status, app_keys),
+      In(senc{<'4',$ticket_lifetime,ticket_age_add,ticket,<<'46',$max_early_data_size>> >}app_keys)
+    ]
+  --[ C4_NST(tid),
+      Instance(tid, C, 'client'),
+      RPostHS(tid, C, 'client', <hs,rms,S,auth_status,messages>)
+    ]->
+    [ L_State_C4(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      RecvStream(tid, C, S, auth_status, app_keys),
+      !ClientPSK(C, S, res_psk, auth_status, <'4',$ticket_lifetime,ticket_age_add,ticket,<<'46',$max_early_data_size>> >, 'res'),
+      SecretPSK(C, res_psk)
+    ]
+
+
+rule certificate_request_post:
+let
+//    prev_cert_req_ctxt = '0'
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+    certificate_request_context = ~cert_req_ctxt
+//    cert_req_ctxt = ~cert_req_ctxt
+in
+    [ L_State_S4(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      SendStream(tid, S, C, prev_auth_status, app_keys),
+      Fr(certificate_request_context)
+    ]
+  --[ S4_req(tid),
+      Instance(tid, S, 'server'),
+      RCertReqCtxt(tid, S, 'server', <certificate_request_context>),
+      RPostHS(tid, S, 'server', <hs,rms,C,auth_status,messages>)
+    ]->
+    [ L_State_S4(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      SendStream(tid, S, C, auth_status, app_keys),
+      L_ServerCertReq(tid,S,C,certificate_request_context),
+      Out(senc{ <'13',  certificate_request_context,  $certificate_extensions >}app_keys)
+    ]
+
+rule recv_certificate_request_post:
+let
+//    prev_cert_req_ctxt = '0'
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+//    cert_req_ctxt = certificate_request_context
+in
+    [ L_State_C4(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      RecvStream(tid, C, S, prev_auth_status, app_keys),
+      In(senc{ <'13',  certificate_request_context,  $certificate_extensions >}app_keys)
+    ]
+  --[ C4_req(tid),
+      Neq(certificate_request_context, '0'),
+      Instance(tid, C, 'client'),
+      RPostHS(tid, C, 'client', <hs,rms,S,auth_status,messages>)
+    ]->
+    [ L_State_C4(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      RecvStream(tid, C, S, auth_status, app_keys),
+      L_ClientCertReq(tid,C,S,certificate_request_context)
+    ]
+
+rule client_auth_post:
+let
+  prev_auth_status = <prev_cas, prev_sas>
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    S = $S
+    C = $C
+
+//    certificate_request_context = prev_cert_req_ctxt
+    certificate = pk(~ltkC)
+
+    tmp_messages = messages
+    messages = <messages,  <'13',  certificate_request_context,  $certificate_extensions >>
+
+    signature = sign{<'client_cv', <h(messages)>>}~ltkC
+
+    fin_keyc = Expand(cats, <'fin', '0'>, '32')
+    verify_data = hmac(Expand(Expand(hs, <'fin_keychts', <h(messages)>>, '32'), <'fin', '0'>, '32'), h(messages))
+
+//    cert_req_ctxt = '0'
+    messages = tmp_messages
+
+    auth_status = <'auth', prev_sas>
+in
+
+    [ L_State_C4(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      SendStream(tid, C, S, prev_auth_status, app_keyc),
+      !Ltk(C, ~ltkC),
+      L_ClientCertReq(tid,C,S,certificate_request_context)
+    ]
+  --[ C4_cert(tid),
+      Instance(tid, C, 'client'),
+      Neq(certificate_request_context, '0'),
+      UseLtk(~ltkC, signature),
+      RTranscriptPost(tid, C, 'client', <messages,certificate_request_context>),
+      RPostHS(tid, C, 'client', <hs,rms,S,auth_status,messages>)
+    ]->
+    [ L_State_C4(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      SendStream(tid, C, S, auth_status, app_keyc),
+      Out(senc{<'11',certificate_request_context,certificate>, <'15',  signature >, <'20',verify_data>}app_keyc)
+    ]
+
+
+rule recv_client_auth_post:
+let
+    prev_auth_status = <prev_sas, prev_cas>
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    certificate = pk(~ltkC)
+    certificate_request_context = ~cert_req_ctxt
+
+    tmp_messages = messages
+    messages = <messages,  <'13',  certificate_request_context,  $certificate_extensions >>
+
+    sig_messages = <'client_cv', <h(messages)>>
+
+    fin_keyc = Expand(cats, <'fin', '0'>, '32')
+    exp_verify_data = hmac(Expand(Expand(hs, <'fin_keychts', <h(messages)>>, '32'), <'fin', '0'>, '32'), h(messages))
+
+//    cert_req_ctxt = '0'
+    auth_status = <prev_sas, 'auth'>
+    messages = tmp_messages
+in
+    [ L_State_S4(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      RecvStream(tid, S, C, prev_auth_status, app_keyc),
+      !Pk(C, pk(~ltkC)),
+      L_ServerCertReq(tid,S,C,certificate_request_context),
+      In(senc{<'11',certificate_request_context,certificate>, <'15',  signature >, <'20',verify_data>}app_keyc)
+    ]
+  --[ S4_cert(tid),
+      Instance(tid, S, 'server'),
+      Neq(certificate_request_context, '0'),
+      Eq(verify(signature, sig_messages, pk(~ltkC)), true),
+      Eq(verify_data, exp_verify_data),
+      CIdentityPost(tid, S, 'server', <<C,auth_status>>),
+      CTranscriptPost(tid, S, 'server', <messages,certificate_request_context>),
+      CHS(tid, S, 'server', <hs>),
+      RPostHS(tid, S, 'server', <hs,rms,C,auth_status,messages>)
+    ]->
+    [ L_State_S4(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      RecvStream(tid, S, C, auth_status, app_keyc)
+    ]
+
+rule update_req_client:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    cats = Expand(prev_cats, <'ats', '0'>, '32')
+    app_keyc = Expand(cats, <'adke_wk', '0'>, '32')
+in
+    [ L_State_C4(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      SendStream(tid, C, S, prev_auth_status, prev_app_keyc)
+    ]
+  --[ C4_update_req(tid),
+      Instance(tid, C, 'client'),
+      RPostHS(tid, C, 'client', <hs,rms,S,auth_status,messages>)
+    ]->
+    [ L_State_C4(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      SendStream(tid, C, S, auth_status, app_keyc),
+      Out(senc{<'24','1'>}prev_app_keyc)
+    ]
+
+rule update_req_server:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    sats = Expand(prev_sats, <'ats', '0'>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+in
+    [ L_State_S4(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      SendStream(tid, S, C, prev_auth_status, prev_app_keys)
+    ]
+  --[ S4_update_req(tid),
+      Instance(tid, S, 'server'),
+      RPostHS(tid, S, 'server', <hs,rms,C,auth_status,messages>)
+    ]->
+    [ L_State_S4(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      SendStream(tid, S, C, auth_status, app_keys),
+      Out(senc{<'24','1'>}prev_app_keys)
+    ]
+
+rule update_recv_client:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    cats = Expand(prev_cats, <'ats', '0'>, '32')
+    sats = Expand(prev_sats, <'ats', '0'>, '32')
+    app_keyc = Expand(cats, <'adke_wk', '0'>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+in
+    [ L_State_C4(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      RecvStream(tid, C, S, prev_auth_status, prev_app_keys),
+      SendStream(tid, C, S, prev_auth_status, prev_app_keyc),
+      In(senc{<'24','1'>}prev_app_keys)
+    ]
+  --[ C4_update_recv(tid),
+      Instance(tid, C, 'client'),
+      RPostHS(tid, C, 'client', <hs,rms,S,auth_status,messages>)
+    ]->
+    [ L_State_C4(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      RecvStream(tid, C, S, auth_status, app_keys),
+      SendStream(tid, C, S, auth_status, app_keyc),
+      Out(senc{<'24','0'>}prev_app_keyc)
+    ]
+
+rule update_recv_server:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+
+    cats = Expand(prev_cats, <'ats', '0'>, '32')
+    sats = Expand(prev_sats, <'ats', '0'>, '32')
+    app_keyc = Expand(cats, <'adke_wk', '0'>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+in
+    [ L_State_S4(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      RecvStream(tid, S, C, prev_auth_status, prev_app_keyc),
+      SendStream(tid, S, C, prev_auth_status, prev_app_keys),
+      In(senc{<'24','1'>}prev_app_keyc)
+    ]
+  --[ S4_update_recv(tid),
+      Instance(tid, S, 'server'),
+      RPostHS(tid, S, 'server', <hs,rms,C,auth_status,messages>)
+    ]->
+    [ L_State_S4(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      RecvStream(tid, S, C, auth_status, app_keyc),
+      SendStream(tid, S, C, auth_status, app_keys),
+      Out(senc{<'24','0'>}prev_app_keys)
+    ]
+
+rule update_fin_client:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+    sats = Expand(prev_sats, <'ats', '0'>, '32')
+    app_keys = Expand(sats, <'adke_wk', '0'>, '32')
+in
+    [ L_State_C4(tid,C,S, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      RecvStream(tid, C, S, prev_auth_status, prev_app_keys),
+      In(senc{<'24','0'>}prev_app_keys)
+    ]
+  --[ C4_update_fin(tid),
+      Instance(tid, C, 'client'),
+      RPostHS(tid, C, 'client', <hs,rms,S,auth_status,messages>)
+    ]->
+    [ L_State_C4(tid,C,S, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      RecvStream(tid, C, S, auth_status, app_keys)
+    ]
+
+rule update_fin_server:
+let
+    
+res_psk = prev_res_psk
+nc = prev_nc
+ns = prev_ns
+g = prev_g
+sg = prev_sg
+x = prev_x
+y = prev_y
+gx = prev_gx
+gy = prev_gy
+gxy = prev_gxy
+hrr = prev_hrr
+psk_ke_mode = prev_psk_ke_mode
+psk_id = prev_psk_id
+edi = prev_edi
+es = prev_es
+hs = prev_hs
+ms = prev_ms
+cats = prev_cats
+sats = prev_sats
+hs_keyc = prev_hs_keyc
+hs_keys = prev_hs_keys
+auth_status = prev_auth_status
+messages = prev_messages
+ems = prev_ems
+rms = prev_rms
+cert_req = prev_cert_req
+tid = ~tid
+
+
+    C = $C
+    S = $S
+
+
+    cats = Expand(prev_cats, <'ats', '0'>, '32')
+    app_keyc = Expand(cats, <'adke_wk', '0'>, '32')
+in
+    [ L_State_S4(tid,S,C, prev_res_psk,prev_messages,prev_nc,prev_ns,prev_g,prev_sg,prev_hrr,prev_x,prev_y,prev_gx,prev_gy,prev_gxy,prev_psk_ke_mode,prev_psk_id,prev_edi,prev_es,prev_hs,prev_ms,prev_cats,prev_sats,prev_hs_keyc,prev_hs_keys,prev_auth_status,prev_ems,prev_rms,prev_cert_req ),
+      RecvStream(tid, S, C, prev_auth_status, prev_app_keyc),
+      In(senc{<'24','0'>}prev_app_keyc)
+    ]
+  --[ S4_update_fin(tid),
+      Instance(tid, S, 'server'),
+      RPostHS(tid, S, 'server', <hs,rms,C,auth_status,messages>)
+    ]->
+    [ L_State_S4(tid,S,C, res_psk,messages,nc,ns,g,sg,hrr,x,y,gx,gy,gxy,psk_ke_mode,psk_id,edi,es,hs,ms,cats,sats,hs_keyc,hs_keys,auth_status,ems,rms,cert_req ),
+      RecvStream(tid, S, C, auth_status, app_keyc)
+    ]
+
+rule Reveal_Ltk:
+  [ !Ltk($A, ~ltkA) ] --[ RevLtk($A) ]-> [ Out(~ltkA) ]
+
+rule Reveal_DHExp:
+  [ DHExp(~x, ~tid, $A) ] --[ RevDHExp(~tid, $A,~x) ]-> [ Out(~x), DHExp(~x, ~tid, $A) ]
+
+rule Reveal_PSK:
+    [ SecretPSK($A, res_psk)]--[ RevealPSK($A, res_psk) ]->[Out(res_psk)]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+  TYPING LEMMAS
+*/
+
+
+
+
+
+/*
+  LEMMAS USED IN AUTH_HELPERS
+  
+*/
+
+
+
+
+
+
+
+
+
+/*
+  LEMMAS USED IN SECRET_HELPERS
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+  LEMMAS USED IN LEMMA
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+  LEMMAS USED IN DH_INJ
+
+*/
+
+
+
+
+
+
+
+
+//NTS: RevDH < RRMS
+//May have to add tid's to RevDH. 
+
+
+
+
+lemma one_C0_per_tid [reuse]:
+    "All tid #i #j. C0(tid)@i & C0(tid)@j ==> #i = #j"
+
+
+lemma one_C1_per_tid [reuse]:
+    "All tid #i #j. C1(tid)@i & C1(tid)@j ==> #i = #j"
+
+
+lemma one_C1_retry_per_tid [reuse]:
+    "All tid #i #j. C1_retry(tid)@i & C1_retry(tid)@j ==> #i = #j"
+
+
+lemma one_S1_per_tid [reuse]:
+    "All tid #i #j. S1(tid)@i & S1(tid)@j ==> #i = #j"
+
+
+lemma one_S1_PSK_per_tid [reuse]:
+    "All tid #i #j. S1_PSK(tid)@i & S1_PSK(tid)@j ==> #i = #j"
+
+
+lemma one_S1_PSK_DHE_per_tid [reuse]:
+    "All tid #i #j. S1_PSK_DHE(tid)@i & S1_PSK_DHE(tid)@j ==> #i = #j"
+
+
+lemma one_C1_PSK_per_tid [reuse]:
+    "All tid #i #j. C1_PSK(tid)@i & C1_PSK(tid)@j ==> #i = #j"
+
+
+lemma one_C1_PSK_DHE_per_tid [reuse]:
+    "All tid #i #j. C1_PSK_DHE(tid)@i & C1_PSK_DHE(tid)@j ==> #i = #j"
+
+
+lemma one_S2a_per_tid [reuse]:
+    "All tid #i #j. S2a(tid)@i & S2a(tid)@j ==> #i = #j"
+
+
+lemma one_S2b_per_tid [reuse]:
+    "All tid #i #j. S2b(tid)@i & S2b(tid)@j ==> #i = #j"
+
+
+lemma one_S2c_per_tid [reuse]:
+    "All tid #i #j. S2c(tid)@i & S2c(tid)@j ==> #i = #j"
+
+
+lemma one_S2c_req_per_tid [reuse]:
+    "All tid #i #j. S2c_req(tid)@i & S2c_req(tid)@j ==> #i = #j"
+
+
+lemma one_S2d_per_tid [reuse]:
+    "All tid #i #j. S2d(tid)@i & S2d(tid)@j ==> #i = #j"
+
+
+lemma one_S2d_PSK_per_tid [reuse]:
+    "All tid #i #j. S2d_PSK(tid)@i & S2d_PSK(tid)@j ==> #i = #j"
+
+
+lemma one_C2a_per_tid [reuse]:
+    "All tid #i #j. C2a(tid)@i & C2a(tid)@j ==> #i = #j"
+
+
+lemma one_C2b_per_tid [reuse]:
+    "All tid #i #j. C2b(tid)@i & C2b(tid)@j ==> #i = #j"
+
+
+lemma one_C2c_per_tid [reuse]:
+    "All tid #i #j. C2c(tid)@i & C2c(tid)@j ==> #i = #j"
+
+
+lemma one_C2c_req_per_tid [reuse]:
+    "All tid #i #j. C2c_req(tid)@i & C2c_req(tid)@j ==> #i = #j"
+
+
+lemma one_C2d_per_tid [reuse]:
+    "All tid #i #j. C2d(tid)@i & C2d(tid)@j ==> #i = #j"
+
+
+lemma one_C2d_PSK_per_tid [reuse]:
+    "All tid #i #j. C2d_PSK(tid)@i & C2d_PSK(tid)@j ==> #i = #j"
+
+
+lemma one_C3_per_tid [reuse]:
+    "All tid #i #j. C3(tid)@i & C3(tid)@j ==> #i = #j"
+
+
+lemma one_C3_cert_per_tid [reuse]:
+    "All tid #i #j. C3_cert(tid)@i & C3_cert(tid)@j ==> #i = #j"
+
+
+lemma one_S3_per_tid [reuse]:
+    "All tid #i #j. S3(tid)@i & S3(tid)@j ==> #i = #j"
+
+
+lemma one_S3_cert_per_tid [reuse]:
+    "All tid #i #j. S3_cert(tid)@i & S3_cert(tid)@j ==> #i = #j"
+
+
+
+lemma S1_vs_S1_PSK_DHE [reuse]:
+    "All tid #i #j. S1(tid)@i & S1_PSK_DHE(tid)@j ==> F"
+
+
+lemma S1_PSK_vs_S1_PSK_DHE [reuse]:
+    "All tid #i #j. S1_PSK(tid)@i & S1_PSK_DHE(tid)@j ==> F"
+
+
+lemma S1_PSK_vs_S1 [reuse]:
+    "All tid #i #j. S1_PSK(tid)@i & S1(tid)@j ==> F"
+
+
+lemma C1_vs_C1_PSK_DHE [reuse]:
+    "All tid #i #j. C1(tid)@i & C1_PSK_DHE(tid)@j ==> F"
+
+
+lemma C1_PSK_vs_C1_PSK_DHE [reuse]:
+    "All tid #i #j. C1_PSK(tid)@i & C1_PSK_DHE(tid)@j ==> F"
+
+
+lemma C1_PSK_vs_C1 [reuse]:
+    "All tid #i #j. C1_PSK(tid)@i & C1(tid)@j ==> F"
+
+
+lemma S3_vs_S3_cert [reuse]:
+    "All tid #i #j. S3(tid)@i & S3_cert(tid)@j ==> F"
+
+
+lemma C3_vs_C3_cert [reuse]:
+    "All tid #i #j. C3(tid)@i & C3_cert(tid)@j ==> F"
+
+
+lemma S2d_vs_S2d_PSK [reuse]:
+    "All tid #i #j. S2d(tid)@i & S2d_PSK(tid)@j ==> F"
+
+
+lemma C2d_vs_C2d_PSK [reuse]:
+    "All tid #i #j. C2d(tid)@i & C2d_PSK(tid)@j ==> F"
+
+
+
+
+lemma cert_req_origin [typing]:
+  "All certificate_request_context certificate_extensions keys #i.
+    KU(senc{<'13',certificate_request_context,certificate_extensions>}keys)@i ==> 
+      (Ex #j. KU(certificate_request_context)@j & #j < #i) |
+      (Ex #j tid actor role. RCertReqCtxt(tid, actor, role, <certificate_request_context>)@j & #j < #i)"
+/* [typing]:
+  "All certificate_request_context certificate_extensions keys #i.
+    KU(senc{handshake_record('13', certificate_request_context, certificate_extensions)}keys)@i ==> 
+      (Ex #j. KU(certificate_request_context)@j & #j < #i) |
+      (Ex #j tid actor role. running(CertReqCtxt, actor, role, certificate_request_context)@j & #j < #i)"
+*/
+
+
+lemma nst_source [typing]:
+  "All ticket ticket_age_add tkt_lt tkt_exts app_key #i.
+    KU(senc{<'4',tkt_lt,ticket_age_add,ticket,tkt_exts>}app_key)@i ==>
+      (Ex #j #k. KU(ticket)@j & KU(ticket_age_add)@k & #j < #i & #k < #i) |
+      (Ex tid S #j. RNST(tid, S, 'server', <ticket,ticket_age_add>)@j & #j < #i)"
+/* [typing]:
+  "All ticket ticket_age_add tkt_lt tkt_exts app_key #i.
+    KU(senc{handshake_record('4', tkt_lt, ticket_age_add, ticket, tkt_exts)}app_key)@i ==>
+      (Ex #j #k. KU(ticket)@j & KU(ticket_age_add)@k & #j < #i & #k < #i) |
+      (Ex tid S #j. running_server(NST, ticket, ticket_age_add)@j & #j < #i)"
+*/
+
+
+lemma ku_extract [reuse, use_induction]:
+  "All a b #i. KU(Extract(a, b))@i ==> Ex #j #k. KU(a)@j & KU(b)@k & #j < #i & #k < #i"
+/* [reuse, use_induction]:
+  "All a b #i. KU(Extract(a, b))@i ==> Ex #j #k. KU(a)@j & KU(b)@k & #j < #i & #k < #i"
+*/
+
+
+lemma ku_expand [reuse, use_induction]:
+"All secret label len #i. KU(Expand(secret, label, len))@i ==>
+  (Ex #j. KU(secret)@j & #j < #i) |
+  (not (Ex #k. KU(secret)@k & #k < #i) &
+  (Ex actor #l. RevealPSK(actor, Expand(secret, label, len))@l & #l < #i))"
+/* [reuse, use_induction]:
+  "All secret label len #i. KU(Expand(secret, label, len))@i ==>
+    (Ex #j. KU(secret)@j & #j < #i) |
+    (not (Ex #k. KU(secret)@k & #k < #i) &
+    (Ex actor #l. RevealPSK(actor, Expand(secret, label, len))@l & #l < #i))"
+*/
+
+
+lemma ku_ltk [reuse]:
+  "All actor ltkA #i #j.
+    GenLtk(actor, ltkA)@i & KU(ltkA)@j ==>
+      Ex #k. RevLtk(actor)@k & #k < #j"
+/* [reuse]:
+  "All actor ltkA #i #j.
+    GenLtk(actor, ltkA)@i & KU(ltkA)@j ==>
+      Ex #k. RevLtk(actor)@k & #k < #j"
+*/
+
+
+lemma hsms_derive [reuse]:
+  "All tid actor role hs ms #i. 
+    RHSMS(tid, actor, role, <hs,ms>)@i ==>
+      ms = Extract('0', hs)"
+/* [reuse]:
+  "All tid actor role hs ms #i. 
+    running(HSMS, actor, role, hs, ms)@i ==>
+      ms = MasterSecret"
+
+
+// For any running(PostHS...) either the auth_status was set in the main HS and
+// unchanged (along with the RMS), or there was post-hs auth, which means the
+// auth_status is 'auth', the actor is a server*/
+
+
+// For any RPostHS...(tid, , , <>) either the auth_status was set in the main HS and
+// unchanged (along with the RMS), or there was post-hs auth, which means the
+// peer's auth_status is 'auth', the actor is a server
+lemma posths_rms [reuse, use_induction]:
+  "All tid actor role hs rms peer auth_status messages #i. 
+    RPostHS(tid, actor, role, <hs,rms,peer,auth_status,messages>)@i ==>
+      Ex aas pas ms #j. 
+                RRMS(tid, actor, role, <peer,rms,messages>)@j &
+                ms = Extract('0', hs) & rms = Expand(ms, <'rms', <h(messages)>>, '32') & #j < #i &
+                auth_status = <aas, pas> &
+      (
+        (Ex aas2 #k. CIdentity(tid, actor, role, <peer,<aas2,pas>>)@k & #k < #i) |
+        (Ex aas2 #k. CIdentityPost(tid, actor, role, <peer,<aas2,pas>>)@k &
+                role = 'server' & pas = 'auth' & (#k < #i | #k = #i)
+        )
+      )"
+/* [reuse, use_induction]:
+  "All tid actor role hs rms peer aas pas messages #i. 
+    running(PostHS, actor, role, hs, rms, peer, <aas, pas>, messages)@i ==>
+      Ex ms #j. running(RMS, actor, role, peer, rms, messages)@j &
+                ms = MasterSecret & rms = resumption_master_secret() & #j < #i &
+      (
+        (Ex aas2 #k. commit(Identity, actor, role, peer, <aas2, pas>)@k & #k < #i) |
+        (Ex aas2 #k. commit(IdentityPost, actor, role, peer, <aas2, pas>)@k &
+                role = 'server' & pas = 'auth' & (#k < #i | #k = #i)
+        )
+      )"
+*/
+
+
+lemma matching_transcripts_posths [reuse]:
+  "All tid tid2 actor peer actor2 peer2 role role2 rms rms2 messages #i #j.
+    RRMS(tid, actor, role, <peer2,rms,messages>)@i &
+    RRMS(tid2, peer, role2, <actor2,rms2,messages>)@j & not (role = role2) ==>
+     rms = rms2"
+/* [reuse]:
+  "All tid tid2 actor peer actor2 peer2 role role2 rms rms2 messages #i #j.
+    running(RMS, actor, role, peer2, rms, messages)@i &
+    running2(RMS, peer, role2, actor2, rms2, messages)@j & not (role = role2) ==>
+     rms = rms2"
+*/
+
+
+lemma matching_rms_posths [reuse]:
+  "All tid tid2 actor peer actor2 peer2 role role2 rms messages messages2 #i #j.
+    RRMS(tid, actor, role, <peer2,rms,messages>)@i &
+    RRMS(tid2, peer, role2, <actor2,rms,messages2>)@j & not (role = role2) ==>
+     messages = messages2"
+/* [reuse]:
+  "All tid tid2 actor peer actor2 peer2 role role2 rms messages messages2 #i #j.
+    running(RMS, actor, role, peer2, rms, messages)@i &
+    running2(RMS, peer, role2, actor2, rms, messages2)@j & not (role = role2) ==>
+     messages = messages2"
+*/
+
+
+lemma rms_derives_hs[reuse,hide_lemma=sig_origin]:
+  "All tid actor role peer hs rms messages #i #j #k.
+     RRMS(tid, actor, role, <peer,rms,messages>)@j &
+     CHS(tid, actor, role, <hs>)@i &
+     KU(rms)@k ==> 
+         (Ex ms #l. 
+             ms = Extract('0', hs) &
+             KU(hs)@l & #l < #k) |
+         (Ex #l. RevealPSK(actor, rms)@l & #l < #k) |
+         (Ex #l. RevealPSK(peer, rms)@l & #l < #k)"
+
+/*[reuse]:
+  "All tid actor role peer hs rms messages #i #j #k.
+     running(RMS, actor, role, peer, rms, messages)@j &
+     commit(HS, actor, role, hs)@i &
+     KU(rms)@k ==> 
+         (Ex ms #l. 
+             ms = MasterSecret &
+             KU(hs)@l & #l < #k) |
+         (Ex #l. RevealPSK(actor, rms)@l & #l < #k) |
+         (Ex #l. RevealPSK(peer, rms)@l & #l < #k)"
+*/
+
+
+lemma sig_origin [reuse]:
+  "All certificate certificate_request_context signature verify_data hs_key sig_messages ltkA  #i.
+        KU(senc{<'11',certificate_request_context,certificate>, <'15',  signature >, <'20',verify_data>}hs_key)@i & (signature = sign{sig_messages}ltkA) ==>
+      (Ex #j. KU(ltkA)@j & #j < i) | (Ex #k. UseLtk(ltkA, signature)@k & #k < #i)"
+/* [reuse]:
+  "All certificate certificate_request_context signature verify_data hs_key sig_messages ltkA  #i.
+        KU(senc{Certificate, CertificateVerify, Finished}hs_key)@i & (signature = sign{sig_messages}ltkA) ==>
+      (Ex #j. KU(ltkA)@j & #j < i) | (Ex #k. UseLtk(ltkA, signature)@k & #k < #i)"
+*/
+
+
+lemma post_master_secret [reuse, hide_lemma=posths_rms]:
+  "All tid actor peer role hs rms aas messages #i #k.
+    RPostHS(tid, actor, role, <hs,rms,peer,<aas,'auth'>,messages>)@i & 
+    CHS(tid, actor, role, <hs>)@i & 
+    CIdentityPost(tid, actor, role, <peer,<aas,'auth'>>)@i &
+    KU(rms)@k ==>
+      (Ex #r. RevLtk(peer)@r & #r < #i) |
+      (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) |
+      (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) |
+      (Ex rms2 #r. RevealPSK(actor, rms2)@r & #r < #k) |
+      (Ex rms2 #r. RevealPSK(peer, rms2)@r & #r < #k)"
+/* [reuse, hide_lemma=posths_rms]:
+  "All tid actor peer role hs rms aas messages #i #k.
+    running(PostHS, actor, role, hs, rms, peer, <aas, 'auth'>, messages)@i & 
+    commit(HS, actor, role, hs)@i & 
+    commit(IdentityPost, actor, role, peer, <aas, 'auth'>)@i &
+    KU(rms)@k ==>
+      (Ex #r. RevLtk(peer)@r & #r < #i) |
+      (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) |
+      (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) |
+      (Ex rms2 #r. RevealPSK(actor, rms2)@r & #r < #k) |
+      (Ex rms2 #r. RevealPSK(peer, rms2)@r & #r < #k)"
+*/
+
+
+lemma invariant_post_hs [reuse, use_induction, hide_lemma=posths_rms]:
+  "All tid actor peer peer2 role hs hs2 rms rms2 as as2 msgs msgs2 #i #j.
+    RPostHS(tid, actor, role, <hs,rms,peer,as,msgs>)@i & 
+    RPostHS(tid, actor, role, <hs2,rms2,peer2,as2,msgs2>)@j ==>
+      peer = peer2 & rms = rms2 & msgs = msgs2 & hs = hs2"
+/* [reuse, use_induction, hide_lemma=posths_rms]:
+  "All tid actor peer peer2 role hs hs2 rms rms2 as as2 msgs msgs2 #i #j.
+    running(PostHS, actor, role, hs, rms, peer, as, msgs)@i & 
+    running(PostHS, actor, role, hs2, rms2, peer2, as2, msgs2)@j ==>
+      peer = peer2 & rms = rms2 & msgs = msgs2 & hs = hs2"
+*/
+
+
+lemma handshake_secret [reuse, use_induction, hide_lemma=posths_rms_weak]:
+  "All tid actor peer role hs aas #i #k.
+    CHS(tid, actor, role, <hs>)@i &
+    CIdentity(tid, actor, role, <peer,<aas,'auth'>>)@i &
+    KU(hs)@k ==>
+        (Ex #r. RevLtk(peer)@r & #r < #i) |
+        (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) |
+        (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) |
+        (Ex rms #r. RevealPSK(actor, rms)@r & #r < #k) |
+        (Ex rms #r. RevealPSK(peer, rms)@r & #r < #k)"
+/* [reuse, use_induction, hide_lemma=posths_rms_weak]:
+  "All tid actor peer role hs aas #i #k.
+    commit(HS, actor, role, hs)@i &
+    commit(Identity, actor, role, peer, <aas, 'auth'>)@i &
+    KU(hs)@k ==>
+        (Ex #r. RevLtk(peer)@r & #r < #i) |
+        (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) |
+        (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) |
+        (Ex rms #r. RevealPSK(actor, rms)@r & #r < #k) |
+        (Ex rms #r. RevealPSK(peer, rms)@r & #r < #k)"
+*/
+
+
+lemma secret_session_keys [hide_lemma=sig_origin,hide_lemma=posths_rms]:
+  "All tid actor peer kw kr pas #i.
+      SessionKey(tid, actor, peer, <pas, 'auth'>, <kw, kr>)@i & 
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+    ==> not Ex #j. K(kr)@j"
+/*:
+  "All tid actor peer kw kr pas #i.
+      SessionKey(tid, actor, peer, <pas, 'auth'>, <kw, kr>)@i & 
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+        ==> not Ex #j. K(kr)@j"
+*/
+
+
+lemma pfs_handshake_secret [reuse, hide_lemma=posths_rms_weak]:
+  "All tid actor peer role hs aas psk_ke_mode #i #k.
+    CHS(tid, actor, role, <hs>)@i &
+    RMode(tid, actor, role, <psk_ke_mode>)@i &
+    CIdentity(tid, actor, role, <peer,<aas,'auth'>>)@i &
+    KU(hs)@k &
+    (not psk_ke_mode = '0') ==>
+        (Ex #r. RevLtk(peer)@r & #r < #i) |
+        (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) |
+        (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) |
+        (Ex rms #r. RevealPSK(actor, rms)@r & #r < #i) |
+        (Ex rms #r. RevealPSK(peer, rms)@r & #r < #i)"
+/* [reuse, hide_lemma=posths_rms_weak]:
+  "All tid actor peer role hs aas psk_ke_mode #i #k.
+    commit(HS, actor, role, hs)@i &
+    running(Mode, actor, role, psk_ke_mode)@i &
+    commit(Identity, actor, role, peer, <aas, 'auth'>)@i &
+    KU(hs)@k &
+    (not psk_ke_mode = psk_ke) ==>
+        (Ex #r. RevLtk(peer)@r & #r < #i) |
+        (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) |
+        (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) |
+        (Ex rms #r. RevealPSK(actor, rms)@r & #r < #i) |
+        (Ex rms #r. RevealPSK(peer, rms)@r & #r < #i)"
+*/
+
+
+lemma secret_session_keys_pfs [hide_lemma=sig_origin,hide_lemma=posths_rms]:
+  "All tid actor peer role kw kr pas psk_ke_mode #i.
+      SessionKey(tid, actor, peer, <pas, 'auth'>, <kw, kr>)@i & 
+      RMode(tid, actor, role, <psk_ke_mode>)@i &
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r & #r < #i) &
+      not (psk_ke_mode = '0')
+    ==> not Ex #j. K(kr)@j"
+/*:
+  "All tid actor peer kw kr pas #i.
+      SessionKey(tid, actor, peer, <pas, 'auth'>, <kw, kr>)@i & 
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+        ==> not Ex #j. K(kr)@j"
+*/
+
+
+
+lemma unique_session_keys:
+  "All tid tid2 actor peer peer2 kr kw as as2 #i #j.
+     SessionKey(tid, actor, peer, as, <kr, kw>)@i & 
+     SessionKey(tid2, actor, peer2, as2, <kr, kw>)@j
+      ==>
+        #i = #j"
+/*:
+  "All tid tid2 actor peer peer2 kr kw as as2 #i #j.
+     SessionKey(tid, actor, peer, as, <kr, kw>)@i & 
+     SessionKey(tid2, actor, peer2, as2, <kr, kw>)@j
+      ==>
+        #i = #j"
+*/
+
+
+
+lemma consistent_nonces [reuse]:
+  "All tid actor role nonces #i. 
+    CNonces(tid, actor, role, <nonces>)@i ==>
+      Ex #j. RNonces(tid, actor, role, <nonces>)@j"
+/* [reuse]:
+  "All tid actor role nonces #i. 
+    commit(Nonces, actor, role, nonces)@i ==>
+      Ex #j. running(Nonces, actor, role, nonces)@j"
+*/
+
+
+
+lemma auth_psk [reuse, use_induction, hide_lemma=posths_rms_weak]:
+  "All tid tid2 actor actor2 role role2 peer peer2 rms messages aas #i #j #k.
+    RRMS(tid, actor, role, <peer2,rms,messages>)@i & 
+    RRMS(tid2, peer, role2, <actor2,rms,messages>)@j &
+    CIdentity(tid, actor, role, <peer2,<aas,'auth'>>)@k &
+    not (role = role2)
+     ==>
+      peer2 = peer |
+      Ex #r. RevLtk(peer2)@r & #r < #k"
+/* [reuse, use_induction, hide_lemma=posths_rms_weak]:
+  "All tid tid2 actor actor2 role role2 peer peer2 rms messages aas #i #j #k.
+    running(RMS, actor, role, peer2, rms, messages)@i & 
+    running2(RMS, peer, role2, actor2, rms, messages)@j &
+    commit(Identity, actor, role, <peer, <aas, 'auth'>>)@k &
+    not (role = role2)
+     ==>
+      peer2 = peer |
+      Ex #r. RevLtk(peer2)@r & #r < #k"
+*/
+
+/*
+  Unilateral (entity) authentication
+*/
+
+/*
+  Unilateral (entity) authentication
+*/
+lemma entity_authentication [reuse, use_induction]:
+  "All tid actor peer nonces cas #i. 
+      CNonces(tid, actor, 'client', <nonces>)@i & CIdentity(tid, actor, 'client', <peer,<cas,'auth'>>)@i &
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+          ==> (Ex tid2 #j. RNonces(tid2, peer, 'server', <nonces>)@j & #j < #i)"
+/* [reuse, use_induction]:
+  "All tid actor peer nonces cas #i. 
+      commit(Nonces, actor, 'client', nonces)@i & commit(Identity, actor, 'client', peer, <cas, 'auth'>)@i &
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+          ==> (Ex tid2 #j. running2(Nonces, peer, 'server', nonces)@j & #j < #i)"
+*/
+
+/*
+  Integrity of handshake messages
+*/
+
+/*
+  Integrity of handshake messages
+*/
+lemma transcript_agreement [reuse]:
+  "All tid actor peer transcript cas #i.
+      CTranscript(tid, actor, 'client', <transcript>)@i & CIdentity(tid, actor, 'client', <peer,<cas,'auth'>>)@i &
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+          ==> (Ex tid2 #j. RTranscript(tid2, peer, 'server', <transcript>)@j & #j < #i)"
+/* [reuse]:
+  "All tid actor peer transcript cas #i.
+      commit(Transcript, actor, 'client', transcript)@i & commit(Identity, actor, 'client', peer, <cas, 'auth'>)@i &
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+          ==> (Ex tid2 #j. running2(Transcript, peer, 'server', transcript)@j & #j < #i)"
+*/
+
+/*
+  Mutual (entity) authentication
+*/
+
+/*
+  Mutual (entity) authentication
+*/
+lemma mutual_entity_authentication [reuse, use_induction]:
+  "All tid actor peer nonces sas #i.
+      CNonces(tid, actor, 'server', <nonces>)@i & CIdentity(tid, actor, 'server', <peer,<sas,'auth'>>)@i &
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+          ==> (Ex tid2 #j. RNonces(tid2, peer, 'client', <nonces>)@j & #j < #i)"
+/* [reuse, use_induction]:
+  "All tid actor peer nonces #i.
+      commit(Nonces, actor, 'server', nonces)@i & commit(Identity, actor, 'server', peer, <'auth', 'auth'>)@i &
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+          ==> (Ex tid2 #j. running2(Nonces, peer, 'client', nonces)@j & #j < #i)"
+*/
+
+/*
+  Integrity of handshake messages
+*/
+
+/*
+  Integrity of handshake messages
+*/
+lemma mutual_transcript_agreement [reuse]:
+  "All tid actor transcript peer sas #i.
+      CTranscript(tid, actor, 'server', <transcript>)@i & CIdentity(tid, actor, 'server', <peer,<sas,'auth'>>)@i & 
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+          ==> (Ex tid2 #j. RTranscript(tid2, peer, 'client', <transcript>)@j & #j < #i)"
+/* [reuse]:
+  "All tid actor transcript peer #i.
+      commit(Transcript, actor, 'server', transcript)@i & commit(Identity, actor, 'server', peer, <'auth', 'auth'>)@i & 
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+          ==> (Ex tid2 #j. running2(Transcript, peer, 'client', transcript)@j & #j < #i)"
+*/
+
+/*
+  Mutual (entity) authentication
+*/
+
+/*
+  Mutual (entity) authentication
+*/
+lemma injective_mutual_entity_authentication [reuse, hide_lemma=posths_rms]:
+  "All tid actor peer role nonces aas #i.
+      CNonces(tid, actor, role, <nonces>)@i & CIdentity(tid, actor, role, <peer,<aas,'auth'>>)@i &
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+          ==> 
+          Ex role2 tid2 #j. RNonces(tid2, peer, role2, <nonces>)@j & #j < #i & not role = role2 &
+          (All tid3 peer2 #k. RNonces(tid3, peer2, role2, <nonces>)@k ==> #k = #j)"
+/* [reuse, use_induction]:
+  "All tid actor peer role nonces aas #i.
+      commit(Nonces, actor, role, nonces)@i & commit(Identity, actor, role, peer, <aas, 'auth'>)@i &
+      not (Ex #r. RevLtk(peer)@r & #r < #i) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r & #r < #i) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r & #r < #i) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r)
+          ==> 
+          Ex role2 tid2 #j. running2(Nonces, peer, role2, nonces)@j & #j < #i & not role = role2 &
+          (All tid3 peer2 #k. running3(Nonces, peer2, role2, nonces)@k ==> #k = #j)"
+*/
+
+
+lemma tid_invariant [use_induction, reuse]:
+  "All tid actor role #i. Instance(tid, actor, role)@i==>
+      (Ex #j. Start(tid, actor, role)@j & (#j < #i))"
+/* [use_induction, reuse]:
+  "All tid actor role #i. Instance(tid, actor, role)@i==>
+      (Ex #j. Start(tid, actor, role)@j & (#j < #i))"
+*/
+
+
+lemma one_start_per_tid [reuse]:
+  "All tid actor actor2 role role2 #i #j. Start(tid, actor, role)@i & Start(tid, actor2, role2)@j ==>#i=#j"
+/* [reuse]:
+  "All tid actor actor2 role role2 #i #j. Start(tid, actor, role)@i & Start(tid, actor2, role2)@j ==>#i=#j"
+*/
+
+
+lemma ku_fresh_psk [reuse]:
+  "All ticket res_psk #i #k.
+      FreshPSK(ticket,res_psk)@i & KU(res_psk)@k ==> 
+        Ex actor #j. 
+          RevealPSK(actor, res_psk)@j & #j < #k"
+/* [reuse]:
+  "All ticket res_psk #i #k.
+      FreshPSK(ticket,res_psk)@i & KU(res_psk)@k ==> 
+        Ex actor #j. 
+          RevealPSK(actor, res_psk)@j & #j < #k"
+*/
+
+
+lemma session_key_agreement [hide_lemma=sig_origin]:
+  "All tid tid2 actor peer actor2 peer2 nonces kr kr2 kw kw2 cas as2 #i #j #k #l.
+     SessionKey(tid, actor, peer, <cas, 'auth'>, <kr, kw>)@i & 
+     RNonces (tid, actor, 'client', nonces)@j &
+     SessionKey(tid2, peer2, actor2, as2, <kr2, kw2>)@k &
+     RNonces (tid2, peer2, 'server', nonces)@l &
+      not (Ex #r. RevLtk(peer)@r ) &
+      not (Ex tid3 x #r. RevDHExp(tid3, peer, x)@r ) &
+      not (Ex tid4 y #r. RevDHExp(tid4, actor, y)@r ) &
+      not (Ex rms #r. RevealPSK(actor, rms)@r ) &
+      not (Ex rms #r. RevealPSK(peer, rms)@r )
+      ==>
+        <kr, kw> = <kw2, kr2>"
+/*:
+  "All tid tid2 actor peer nonces kr kr2 kw kw2 as as2 #i #j #k #l.
+     SessionKey(tid, actor, peer, as, <kr, kw>)@i & 
+     running(Nonces, actor, 'client', nonces)@j &
+     SessionKey(tid2, peer, actor, as2, <kw2, kr2>)@k &
+     running2(Nonces, peer, 'server', nonces)@l
+      ==>
+        kr = kr2 & kw = kw2"
+*/
+
+end
+
+
+
+

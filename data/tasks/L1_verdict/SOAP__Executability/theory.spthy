@@ -1,0 +1,753 @@
+theory MessagingOIDC begin
+
+// Function signature and definition of the equational theory E
+
+functions: e2ee/3, e2eeDec/2, extract/1, fingerprint/1, fst/1, h/2,
+           pair/2, pk/1, s256/1, sign/2, snd/1, true/0, verify/3
+equations:
+    e2eeDec(e2ee(sks, pk(skr), m), skr) = m,
+    extract(fingerprint(x)) = x,
+    fst(<x.1, x.2>) = x.1,
+    snd(<x.1, x.2>) = x.2,
+    verify(sign(x.1, x.2), x.1, pk(x.2)) = true
+
+restriction OnlyOnce:
+  "∀ t #x #y.
+    ((OnlyOnce( t ) @ #x) ∧ (OnlyOnce( t ) @ #y)) ⇒ (#x = #y)"
+  // safety formula
+
+restriction Equality:
+  "∀ x y #i. (Eq( x, y ) @ #i) ⇒ (x = y)"
+  // safety formula
+
+restriction Inequality:
+  "∀ x #t. (Neq( x, x ) @ #t) ⇒ (⊥)"
+  // safety formula
+
+rule (modulo E) Phone:
+   [ ]
+  --[ ClaimNumber( $A, $Number ), IsPhoneNumber( $Number ) ]->
+   [ !Phone( $A, $Number ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) SMSOut[color=#ffffff]:
+   [ SMS_Out( $Number, sms ), !Phone( $A, $Number ) ]
+  -->
+   [ !SMS( $Number, sms ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) AdversarySMSOut[color=#ff6961]:
+   [ In( sms ), !Phone( $A, $Number ) ]
+  --[ AdversaryActivity( ) ]->
+   [ !SMS( $Number, sms ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) SMSIn[color=#ffffff]:
+   [ !SMS( $Number, sms ) ] --> [ SMS_In( $Number, sms ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) SMSLeak[color=#ff6961]:
+   [ !SMS( $Number, sms ) ]
+  --[ SMSLeak( ), AdversaryActivity( ) ]->
+   [ Out( sms ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Domain:
+   [ ] --> [ !Domain( $Domain ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) DomainCompromise:
+   [ !Domain( $Domain ) ]
+  --[ CompromisedDomain( $Domain ), AdversaryActivity( ) ]->
+   [ !DomainCompromise( $Domain ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TLSClientOut[color=#ffffff]:
+   [ TLSClient_Out( method, ~sess, $Domain, msg ), !Domain( $Domain )
+   ]
+  -->
+   [ !TLSClient( method, ~sess, $Domain, msg ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TLSAdversaryClientOut[color=#ff6961]:
+   [ In( method ), In( ~sess ), In( msg ), !Domain( $Domain ) ]
+  -->
+   [ !TLSClient( method, ~sess, $Domain, msg ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TLSServerOut[color=#ffffff]:
+   [ TLSServer_Out( method, ~sess, $Domain, msg ), !Domain( $Domain )
+   ]
+  -->
+   [ !TLSServer( method, ~sess, $Domain, msg ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TLSAdversaryServerOut[color=#ff6961]:
+   [
+   In( method ), In( ~sess ), In( msg ), !DomainCompromise( $Domain )
+   ]
+  --[ AdversaryActivity( ) ]->
+   [ !TLSServer( method, ~sess, $Domain, msg ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TLSClientToServer[color=#ffffff]:
+   [ !TLSClient( method, ~sess, $Domain, msg ) ]
+  -->
+   [ TLSServer_In( method, ~sess, $Domain, msg ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TLSClientToAdversaryServer[color=#ff6961]:
+   [
+   !TLSClient( method, ~sess, $Domain, msg ),
+   !DomainCompromise( $Domain )
+   ]
+  --[ AdversaryActivity( ) ]->
+   [ Out( msg ), Out( ~sess ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TLSServerToClient[color=#ffffff]:
+   [ !TLSServer( method, ~sess, $Domain, msg ) ]
+  -->
+   [ TLSClient_In( method, ~sess, $Domain, msg ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TLSServerToAdversaryClient[color=#ff6961]:
+   [
+   In( ~adversarySess ),
+   !TLSServer( method, ~adversarySess, $Domain, msg )
+   ]
+  --[ AdversaryActivity( ) ]->
+   [ Out( msg ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) IdPSetup:
+   [ !Domain( $IdP ), Fr( ~idpSk ) ]
+  -->
+   [ !IdP( $IdP ), !IdPLtk( $IdP, ~idpSk ), Out( pk(~idpSk) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) IdPCompromise[color=#ff6961]:
+   [ !IdPLtk( $IdP, idpSk ) ]
+  --[ CompromisedIdP( $IdP ), AdversaryActivity( ) ]->
+   [ !IdPCompromise( $IdP ), Out( idpSk ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) IdPKeyRequest[color=#9ad5d8]:
+   [ !IdP( $IdP ), Fr( ~sess ) ]
+  -->
+   [
+   TLSClient_Out( 'GET', ~sess, $IdP, 'pk_req' ),
+   St_IdPKeyReq( $IdP, ~sess )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) IdPPkDistribute[color=#9ad5d8]:
+   [
+   TLSServer_In( 'GET', ~sess, $IdP, 'pk_req' ),
+   !IdPLtk( $IdP, idpSk )
+   ]
+  -->
+   [ TLSServer_Out( 'GET', ~sess, $IdP, <'idp_pk', pk(idpSk)> ) ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) IdPKeyObtain[color=#9ad5d8]:
+   [
+   St_IdPKeyReq( $IdP, ~sess ),
+   TLSClient_In( 'GET', ~sess, $IdP, <'idp_pk', idpPk> )
+   ]
+  -->
+   [ !UseIdPKey( $User, $IdP, idpPk ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) IdPSignUp:
+   [ Fr( ~pw ), !IdP( $IdP ) ]
+  --[ Username( $A, $IdP, $Username, ~pw ) ]->
+   [ !IdPAccount( $A, $IdP, $Username, ~pw ) ]
+
+  /* has exactly the trivial AC variant */
+
+restriction AccountsUnique:
+  "∀ p1 p2 idp u pw1 pw2 #a #b.
+    ((Username( p1, idp, u, pw1 ) @ #a) ∧
+     (Username( p2, idp, u, pw2 ) @ #b)) ⇒
+    (((p1 = p2) ∧ (pw1 = pw2)) ∧ (#a = #b))"
+  // safety formula
+
+rule (modulo E) IdPAccountCompromise[color=#ff6961]:
+   [ !IdPAccount( $A, $IdP, $Username, ~pw ) ]
+  --[ CompromisedAccount( $A, $IdP, $Username ), AdversaryActivity( )
+  ]->
+   [ Out( ~pw ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) IdPPublishClient:
+   [ Fr( ~sess ), Fr( ~m ), !IdPAccount( $A, $IdP, $Username, ~pw ) ]
+  --[ SendIdP( $IdP, $Username, ~m ), Sender( $A ) ]->
+   [
+   TLSClient_Out( 'GET', ~sess, $IdP, <'publish', $Username, ~pw, ~m>
+   )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) IdPPublishServer:
+   [
+   !IdPAccount( p, $IdP, $Username, ~pw ),
+   TLSServer_In( 'GET', ~sess, $IdP, <'publish', $Username, ~pw, m> )
+   ]
+  -->
+   [ Out( m ), !Publish( $IdP, $Username, m ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) IdPPublishCompromised:
+   [ !IdPCompromise( $IdP ), In( m ) ]
+  --[ AdversaryActivity( ) ]->
+   [ !Publish( $IdP, $Username, m ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) IdPRead:
+   [ !Publish( $IdP, $Username, m ) ]
+  --[ ReceiveIdP( $IdP, $Username, m ) ]->
+   [ ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) KeyServer:
+   [ !Domain( $Domain ) ]
+  --[ OnlyOnce( 'key_server' ), IsKeyServer( $Domain ) ]->
+   [ !KeyServer( $Domain ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) MessagingRegister[color=#fdfd96]:
+   [
+   Fr( ~sk ), Fr( ~sess ), !Phone( $A, $Number ),
+   !KeyServer( $KeyServer )
+   ]
+  --[ IsMessagingKey( ~sk ) ]->
+   [
+   TLSClient_Out( 'GET', ~sess, $KeyServer,
+                  <'msg_signup_req', $Number, pk(~sk)>
+   ),
+   Out( pk(~sk) ), St_MessagingReg_App( $A, $Number, ~sess, ~sk )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) MessagingChallenge[color=#fdfd96]:
+   [
+   Fr( ~challenge ), !KeyServer( $Server ),
+   TLSServer_In( 'GET', ~sess, $Server,
+                 <'msg_signup_req', $Number, ltk>
+   )
+   ]
+  --[ IsOTP( ~challenge ) ]->
+   [
+   SMS_Out( $Number, ~challenge ),
+   St_SigReg_Server( ~sess, $Number, ltk, ~challenge )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) MessagingRespond[color=#fdfd96]:
+   [
+   !KeyServer( $Server ),
+   St_MessagingReg_App( $A, $Number, ~sess, sk ),
+   SMS_In( $Number, challenge )
+   ]
+  --[ MustBeOTP( challenge ) ]->
+   [
+   TLSClient_Out( 'GET', ~sess, $Server, <'otp_respond', challenge> ),
+   St_MessagingReg_AppWait( $A, $Number, ~sess, sk )
+   ]
+
+  // loop breaker: [2]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) MessagingAck[color=#fdfd96]:
+   [
+   !KeyServer( $Server ),
+   St_SigReg_Server( ~sess, $Number, ltk, challenge ),
+   TLSServer_In( 'GET', ~sess, $Server, <'otp_respond', challenge> )
+   ]
+  --[ MessagingKeyServer( $Number, ltk ) ]->
+   [
+   !MessagingLtkServer( $Number, ltk ),
+   TLSServer_Out( 'GET', ~sess, $Server, 'msg_signup_ack' )
+   ]
+
+  // loop breakers: [1,2]
+  /* has exactly the trivial AC variant */
+
+restriction KeysUnique:
+  "∀ phone ltk1 ltk2 #a #b.
+    ((MessagingKeyServer( phone, ltk1 ) @ #a) ∧
+     (MessagingKeyServer( phone, ltk2 ) @ #b)) ⇒
+    ((#a = #b) ∧ (ltk1 = ltk2))"
+  // safety formula
+
+rule (modulo E) MessagingFin[color=#fdfd96]:
+   [
+   !KeyServer( $Server ),
+   St_MessagingReg_AppWait( $A, $Number, ~sess, sk ),
+   TLSClient_In( 'GET', ~sess, $Server, 'msg_signup_ack' )
+   ]
+  --[ ClaimMessagingKey( $A, $Number, sk ) ]->
+   [ !MessagingLtkUser( $A, $Number, sk )[no_precomp] ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) MessagingCompromise[color=#ff6961]:
+   [ !MessagingLtkUser( $A, $Number, ~sk )[no_precomp] ]
+  --[ CompromisedMessaging( $A, pk(~sk) ), AdversaryActivity( ) ]->
+   [ Out( ~sk ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) MessagingKeyRequest[color=#9ad5d8]:
+   [
+   !MessagingLtkServer( $Number, ltk ), !KeyServer( $Server ),
+   TLSServer_In( 'GET', ~sess, $Server, <'msg_key_req', $Number> )
+   ]
+  --[ MustBeMessagingKey( ltk ) ]->
+   [
+   TLSServer_Out( 'GET', ~sess, $Server,
+                  <'msg_key_resp', $Number, ltk>
+   )
+   ]
+
+  // loop breaker: [2]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) ObtainKey[color=#9ad5d8]:
+   [ Fr( ~sess ), !KeyServer( $Server ) ]
+  -->
+   [
+   TLSClient_Out( 'GET', ~sess, $Server, <'msg_key_req', $Phone> ),
+   St_KeyReq( $A, $Phone, ~sess )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) ObtainKeyFin[color=#9ad5d8]:
+   [
+   !KeyServer( $Server ), St_KeyReq( $A, $Phone, ~sess ),
+   TLSClient_In( 'GET', ~sess, $Server, <'msg_key_resp', $Phone, ltk>
+   )
+   ]
+  -->
+   [ !UseMessagingKeyFor( $A, $Phone, ltk )[no_precomp] ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) SendInterface:
+   [ Fr( ~m ) ] --> [ SendAsTo( $A, $Phone, ~m ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) MessagingSend:
+   [
+   SendAsTo( $A, $PeerPhone, m ),
+   !MessagingLtkUser( $A, $MyPhone, ~sk )[no_precomp],
+   !UseMessagingKeyFor( $A, $PeerPhone, ltk )[no_precomp]
+   ]
+  --[
+  SendMessaging( pk(~sk), ltk, m ), Sender( $A ),
+  SendTo( $PeerPhone, 'messaging', m )
+  ]->
+   [ Out( e2ee(~sk, ltk, m) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) MessagingReceive:
+   [
+   !MessagingLtkUser( $A, $MyPhone, ~skr )[no_precomp],
+   !UseMessagingKeyFor( $A, $PeerPhone, pk(skPeer) )[no_precomp],
+   In( e2ee(skPeer, pk(~skr), m) )
+   ]
+  --[ ReceiveMessaging( pk(skPeer), pk(~skr), m ) ]->
+   [ ]
+
+  /* has exactly the trivial AC variant */
+
+predicate: KeyServerCompromise( )<=>∃ d #x #y. (IsKeyServer( d ) @ #x) ∧ (CompromisedDomain( d ) @ #y)
+
+rule (modulo E) Client:
+   [ ] --> [ !Client( $App ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) MessagingApp:
+   [ !Client( $App ) ]
+  --[ IsMessagingApp( $App ), OnlyOnce( 'messaging_app_client' ) ]->
+   [ !MessagingApp( $App ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) RedirectURL:
+   [ !IdP( $IdP ), !Client( $App ), !Domain( $RedirectURL ) ]
+  --[ IsRedirectURL( $IdP, $App, $RedirectURL ) ]->
+   [ !RedirectURL( $IdP, $App, $RedirectURL ) ]
+
+  /* has exactly the trivial AC variant */
+
+restriction UniqueRedirectURLs:
+  "∀ idp1 idp2 app1 app2 url #t1 #t2 #t3.
+    (((IsMessagingApp( app1 ) @ #t1) ∧
+      (IsRedirectURL( idp1, app1, url ) @ #t2)) ∧
+     (IsRedirectURL( idp2, app2, url ) @ #t3)) ⇒
+    ((idp1 = idp2) ∧ (app1 = app2))"
+  // safety formula
+
+rule (modulo E) 0_InitSessionStore:
+   [ ]
+  --[ OnlyOnce( <'init_session_store', $User> ) ]->
+   [ SessionStore( $User, 'null', 'null' ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) ClearSessionStore:
+   [ SessionStore( $User, x, y ) ]
+  -->
+   [ SessionStore( $User, 'null', 'null' ) ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) LinkClick[color=#ff6961]:
+   [ Fr( ~sess ), In( m ), !Domain( $Domain ) ]
+  --[ AdversaryActivity( ) ]->
+   [
+   TLSClient_Out( 'GET', ~sess, $Domain, m ),
+   !Browser( $Prover, ~sess )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) OIDCAppLaunchBrowser[color=#b4d9ef]:
+   [
+   !IdP( $IdP ), !MessagingApp( $App ),
+   !RedirectURL( $IdP, $App, $RedirectURL ),
+   !MessagingLtkUser( $Prover, $ProverPhone, skProver )[no_precomp],
+   !UseMessagingKeyFor( $Prover, $VerifierPhone, pkVerifier
+   )[no_precomp],
+   SessionStore( $Prover, drop1, drop2 ), Fr( salt ), Fr( nonce ),
+   Fr( code_verifier ), Fr( ~sess )
+   ]
+  --[
+  IsNonce( nonce ), GenerateCodeVerifierFor( code_verifier, $IdP ),
+  SOAPStart( $Prover, nonce ),
+  SOAPMessaging( $Prover, nonce, pkVerifier, pk(skProver) )
+  ]->
+   [
+   TLSClient_Out( 'GET', ~sess, $IdP,
+                  <'oidc_req', $App, 
+                   h(fingerprint(<pk(skProver), pkVerifier>), salt), nonce, 
+                   s256(code_verifier), $RedirectURL>
+   ),
+   Out( <h(fingerprint(<pk(skProver), pkVerifier>), salt), nonce, 
+         s256(code_verifier)>
+   ),
+   SessionStore( $Prover, nonce,
+                 <$IdP, $VerifierPhone, 
+                  h(fingerprint(<pk(skProver), pkVerifier>), salt), salt, 
+                  code_verifier>
+   ),
+   !Browser( $Prover, ~sess )
+   ]
+
+  // loop breaker: [5]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) OIDCIdPInit[color=#b4d9ef]:
+   [
+   !IdP( $IdP ), !RedirectURL( $IdP, $Client, $RedirectURL ),
+   TLSServer_In( 'GET', ~sess, $IdP,
+                 <'oidc_req', $Client, hash, nonce, code_challenge, $RedirectURL>
+   )
+   ]
+  --[ MustBeNonce( nonce ) ]->
+   [
+   TLSServer_Out( 'GET', ~sess, $IdP, 'auth_req' ),
+   St_OIDCServer_Auth( $IdP, $Client, $RedirectURL, ~sess, hash,
+                       nonce, code_challenge
+   )
+   ]
+
+  // loop breaker: [2]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) OIDCAppLogin[color=#b4d9ef]:
+   [
+   !Browser( $Prover, ~sess ), !IdP( $IdP ),
+   TLSClient_In( 'GET', ~sess, $IdP, 'auth_req' ),
+   !IdPAccount( $Prover, $IdP, $Username, ~pw )
+   ]
+  -->
+   [ TLSClient_Out( 'GET', ~sess, $IdP, <'login', $Username, ~pw> ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) OIDCIdPIssueCode[color=#b4d9ef]:
+   [
+   !IdP( $IdP ), !IdPAccount( $User, $IdP, $Username, pw ),
+   Fr( ~code ),
+   St_OIDCServer_Auth( $IdP, $Client, $RedirectURL, ~sess, hash,
+                       nonce, code_challenge
+   ),
+   TLSServer_In( 'GET', ~sess, $IdP, <'login', $Username, pw> )
+   ]
+  --[
+  IsCode( ~code ), MustBeNonce( nonce ),
+  SOAPIdP( $User, nonce, $IdP, $Username )
+  ]->
+   [
+   TLSClient_Out( 'GET', ~sess, $RedirectURL, <'code', ~code, nonce>
+   ),
+   St_OIDCIdP_Code( $IdP, $Username, $Client, $RedirectURL, ~code,
+                    hash, nonce, code_challenge
+   )
+   ]
+
+  // loop breaker: [4]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) OIDCAppCodeRedirect[color=#b4d9ef]:
+   [
+   !RedirectURL( $IdP, $App, $RedirectURL ), !IdP( $IdP ),
+   !MessagingApp( $App ), Fr( ~sessPost ),
+   SessionStore( $Prover, nonce,
+                 <$IdP, $VerifierPhone, hash, salt, code_verifier>
+   ),
+   !Browser( $Prover, ~sess ),
+   TLSServer_In( 'GET', ~sess, $RedirectURL, <'code', code, nonce> )
+   ]
+  --[
+  SelfIssued( $Prover, nonce ), Neq( nonce, 'null' ),
+  MustBeCode( code )
+  ]->
+   [
+   TLSClient_Out( 'POST', ~sessPost, $IdP,
+                  <'token_req', code, code_verifier, $RedirectURL>
+   ),
+   St_OIDCApp_CodeReq( $Prover, $IdP, $VerifierPhone, ~sessPost, hash,
+                       salt, code
+   ),
+   SessionStore( $Prover, 'null', 'null' )
+   ]
+
+  // loop breaker: [6]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) OIDCIdPTokenIssue[color=#b4d9ef]:
+   [
+   !IdPLtk( $IdP, idpSk ),
+   St_OIDCIdP_Code( $IdP, $Username, $Client, $RedirectURL, code,
+                    hash, nonce, code_challenge
+   ),
+   TLSServer_In( 'POST', ~sess, $IdP,
+                 <'token_req', code, code_verifier, $RedirectURL>
+   )
+   ]
+  --[
+  Eq( s256(code_verifier), code_challenge ),
+  IssueTokenForCode( $IdP, ~sess, code ),
+  MustBeToken( <<$IdP, $Client, $Username, nonce, hash>, 
+                sign(<$IdP, $Client, $Username, nonce, hash>, idpSk)>
+  ),
+  UseCode( $IdP, $Client, code ),
+  UseCodeVerifierFor( $IdP, code_verifier )
+  ]->
+   [
+   TLSServer_Out( 'POST', ~sess, $IdP,
+                  <'token', <$IdP, $Client, $Username, nonce, hash>, 
+                   sign(<$IdP, $Client, $Username, nonce, hash>, idpSk)>
+   )
+   ]
+
+  // loop breaker: [2]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) OIDCTokenForward[color=#b4d9ef]:
+   [
+   !IdP( $IdP ), !MessagingApp( $App ),
+   !UseMessagingKeyFor( $Prover, $VerifierPhone, pkVerifier
+   )[no_precomp],
+   !UseIdPKey( $Prover, $IdP, pkIdP ),
+   !MessagingLtkUser( $Prover, $ProverPhone, skProver )[no_precomp],
+   St_OIDCApp_CodeReq( $Prover, $IdP, $VerifierPhone, ~sessPost, hash,
+                       salt, code
+   ),
+   TLSClient_In( 'POST', ~sessPost, $IdP,
+                 <'token', <$IdP, $App, $Username, nonce, hash>, signature>
+   )
+   ]
+  --[
+  Eq( h(fingerprint(<pk(skProver), pkVerifier>), salt), hash ),
+  Eq( verify(signature, <$IdP, $App, $Username, nonce, hash>, pkIdP),
+      true
+  ),
+  GetTokenForCode( $IdP, ~sessPost, code ),
+  MustBeToken( <<$IdP, $App, $Username, nonce, hash>, signature> ),
+  MustBeCode( code ), UsedCode( $IdP, code )
+  ]->
+   [
+   SendAsTo( $Prover, $VerifierPhone,
+             <'fwd_token', <<$IdP, $App, $Username, nonce, hash>, signature>, 
+              salt>
+   ),
+   Out( code )
+   ]
+
+  /*
+  rule (modulo AC) OIDCTokenForward[color=#b4d9ef]:
+     [
+     !IdP( $IdP ), !MessagingApp( $App ),
+     !UseMessagingKeyFor( $Prover, $VerifierPhone, pkVerifier
+     )[no_precomp],
+     !UseIdPKey( $Prover, $IdP, pkIdP ),
+     !MessagingLtkUser( $Prover, $ProverPhone, skProver )[no_precomp],
+     St_OIDCApp_CodeReq( $Prover, $IdP, $VerifierPhone, ~sessPost, hash,
+                         salt, code
+     ),
+     TLSClient_In( 'POST', ~sessPost, $IdP,
+                   <'token', <$IdP, $App, $Username, nonce, hash>, signature>
+     )
+     ]
+    --[
+    Eq( h(fingerprint(<pk(skProver), pkVerifier>), salt), hash ),
+    Eq( z, true ), GetTokenForCode( $IdP, ~sessPost, code ),
+    MustBeToken( <<$IdP, $App, $Username, nonce, hash>, signature> ),
+    MustBeCode( code ), UsedCode( $IdP, code )
+    ]->
+     [
+     SendAsTo( $Prover, $VerifierPhone,
+               <'fwd_token', <<$IdP, $App, $Username, nonce, hash>, signature>, 
+                salt>
+     ),
+     Out( code )
+     ]
+    variants (modulo AC)
+    1. $App  = $App.34
+       $IdP  = $IdP.35
+       $Username
+             = $Username.38
+       hash  = hash.42
+       nonce = nonce.43
+       pkIdP = pkIdP.44
+       signature
+             = signature.47
+       z     = verify(signature.47,
+                      <$IdP.35, $App.34, $Username.38, nonce.43, hash.42>, pkIdP.44)
+    
+    2. $App  = $App.69
+       $IdP  = $IdP.70
+       $Username
+             = $Username.73
+       hash  = hash.77
+       nonce = nonce.78
+       pkIdP = pk(x.136)
+       signature
+             = sign(<$IdP.70, $App.69, $Username.73, nonce.78, hash.77>, x.136)
+       z     = true
+  */
+
+rule (modulo E) OIDCTokenReceive[color=#b4d9ef]:
+   [
+   !MessagingLtkUser( $Verifier, $VerifierPhone, skVerifier
+   )[no_precomp],
+   !UseMessagingKeyFor( $Verifier, $ProverPhone, pk(skProver)
+   )[no_precomp],
+   !MessagingApp( $App ), !UseIdPKey( $Verifier, $IdP, pkIdP ),
+   In( e2ee(skProver, pk(skVerifier),
+            <'fwd_token', <<$IdP, $App, $Username, nonce, hash>, signature>, 
+             salt>)
+   )
+   ]
+  --[
+  Eq( h(fingerprint(<pk(skProver), pk(skVerifier)>), salt), hash ),
+  Eq( verify(signature, <$IdP, $App, $Username, nonce, hash>, pkIdP),
+      true
+  ),
+  DidNotIssueSelf( $Verifier, nonce ),
+  ReceivingKey( pk(skVerifier) ),
+  Correspond( $Verifier, pk(skProver), $IdP, $Username )
+  ]->
+   [ ]
+
+  /*
+  rule (modulo AC) OIDCTokenReceive[color=#b4d9ef]:
+     [
+     !MessagingLtkUser( $Verifier, $VerifierPhone, skVerifier
+     )[no_precomp],
+     !UseMessagingKeyFor( $Verifier, $ProverPhone, pk(skProver)
+     )[no_precomp],
+     !MessagingApp( $App ), !UseIdPKey( $Verifier, $IdP, pkIdP ),
+     In( e2ee(skProver, pk(skVerifier),
+              <'fwd_token', <<$IdP, $App, $Username, nonce, hash>, signature>, 
+               salt>)
+     )
+     ]
+    --[
+    Eq( h(fingerprint(<pk(skProver), pk(skVerifier)>), salt), hash ),
+    Eq( z, true ), DidNotIssueSelf( $Verifier, nonce ),
+    ReceivingKey( pk(skVerifier) ),
+    Correspond( $Verifier, pk(skProver), $IdP, $Username )
+    ]->
+     [ ]
+    variants (modulo AC)
+    1. $App  = $App.17
+       $IdP  = $IdP.18
+       $Username
+             = $Username.20
+       hash  = hash.23
+       nonce = nonce.24
+       pkIdP = pkIdP.25
+       signature
+             = signature.27
+       z     = verify(signature.27,
+                      <$IdP.18, $App.17, $Username.20, nonce.24, hash.23>, pkIdP.25)
+    
+    2. $App  = $App.25
+       $IdP  = $IdP.26
+       $Username
+             = $Username.28
+       hash  = hash.31
+       nonce = nonce.32
+       pkIdP = pk(x.48)
+       signature
+             = sign(<$IdP.26, $App.25, $Username.28, nonce.32, hash.31>, x.48)
+       z     = true
+  */
+
+restriction CheckNonceReplay:
+  "∀ verifier nonce #t1.
+    (DidNotIssueSelf( verifier, nonce ) @ #t1) ⇒
+    (¬(∃ #t2. SelfIssued( verifier, nonce ) @ #t2))"
+  // safety formula
+
+end

@@ -1,11 +1,24 @@
 {
-  "protocol": "xor4",
-  "overall_verdict": "UNKNOWN",
-  "lemmas": [],
-  "attack_traces": {},
+  "protocol": "L1:features__xor__basicfunctionality__xor4",
+  "overall_verdict": "UNSAFE",
+  "lemmas": [
+    {
+      "name": "secrecybroken",
+      "quantifier": "all-traces",
+      "verdict": "falsified",
+      "steps": 11
+    }
+  ],
+  "attack_traces": {
+    "secrecybroken": [
+      [
+        "testsend"
+      ]
+    ]
+  },
   "tamarin_version": null,
-  "wellformedness_ok": null,
-  "runtime_seconds": null,
+  "wellformedness_ok": true,
+  "runtime_seconds": 2.02,
   "requires_diff": false,
-  "validated": false
+  "validated": true
 }
