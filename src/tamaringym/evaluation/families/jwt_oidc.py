@@ -681,7 +681,8 @@ class JwtOidcEvaluator:
     def _collect_outputs(self, out_dir: Path) -> Path:
         outputs_dir = out_dir / "outputs"
         outputs_dir.mkdir(parents=True, exist_ok=True)
-        for fname in ("final.spthy", "verdict.json", "report.md"):
+        # copy known deliverable files (search recursively in /workspace)
+        for fname in ("verdict.json", "report.md"):
             try:
                 docker_cp_from_container(
                     self.agent_container.id,
@@ -691,6 +692,30 @@ class JwtOidcEvaluator:
                 )
             except Exception:
                 pass
+        # copy model files (agent may put them in subdirs like models/)
+        for pattern in ("final.spthy", "final.vp"):
+            try:
+                # try /workspace/ first
+                docker_cp_from_container(
+                    self.agent_container.id,
+                    f"/workspace/{pattern}",
+                    str(outputs_dir / pattern),
+                    check=False,
+                )
+            except Exception:
+                pass
+        # also try common subdirectories
+        for subdir in ("models", "model", "tamarin", "verifpal"):
+            for pattern in ("final.spthy", "final.vp"):
+                try:
+                    docker_cp_from_container(
+                        self.agent_container.id,
+                        f"/workspace/{subdir}/{pattern}",
+                        str(outputs_dir / pattern),
+                        check=False,
+                    )
+                except Exception:
+                    pass
         # exploit directory
         try:
             docker_cp_from_container(
