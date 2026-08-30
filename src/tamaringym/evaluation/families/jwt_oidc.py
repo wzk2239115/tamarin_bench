@@ -796,10 +796,13 @@ class JwtOidcEvaluator:
 
         # 2-3. evidence_valid: model accepted by chosen tool, all queries terminate
         model_file = None
-        for name in ("final.spthy", "final.vp"):
-            p = outputs_dir / name
-            if p.is_file():
-                model_file = p
+        # search for model files in outputs dir (recursively)
+        for pattern in ("final.spthy", "final.vp", "*.spthy", "*.vp"):
+            for p in sorted(outputs_dir.rglob(pattern)):
+                if p.is_file():
+                    model_file = p
+                    break
+            if model_file:
                 break
         # also check verdict's model_file field
         if model_file is None and verdict.get("model_file"):
