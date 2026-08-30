@@ -1,0 +1,29 @@
+{
+  "task_id": "L1:device_attestation",
+  "level": "L1_verdict",
+  "name": "device_attestation",
+  "protocol": "initphase",
+  "source_file": "device_attestation.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "versiontypes",
+    "ResponderAuth",
+    "RespOptionLoopBreaker",
+    "Aliveness",
+    "IoptionsTranscriptType",
+    "CertMeasOrdering",
+    "CertOrigin",
+    "NoArtificialLTKMeasure",
+    "MeasurementAuth",
+    "MeasurementSanityCheck"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,30 @@
+{
+  "task_id": "L1:authentication",
+  "level": "L1_verdict",
+  "name": "authentication",
+  "protocol": "DDS_Security_Authentication_Plugin_builtin",
+  "source_file": "authentication.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "key_exchange_without_compromise",
+    "aliveness_AB",
+    "weak_agreement_AB",
+    "noninjective_agreement_AB",
+    "injective_agreement_AB",
+    "aliveness_BA",
+    "weak_agreement_BA",
+    "noninjective_agreement_BA",
+    "injective_agreement_BA",
+    "secrecy",
+    "pfs_of_shared_secret"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

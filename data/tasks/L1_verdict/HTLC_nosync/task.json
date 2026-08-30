@@ -1,0 +1,37 @@
+{
+  "task_id": "L1:HTLC_nosync",
+  "level": "L1_verdict",
+  "name": "HTLC_nosync",
+  "protocol": "TikLegerHTLC",
+  "source_file": "HTLC_nosync.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "Smart_adversary_simpleTx",
+    "Smart_adversary_CommitCoin",
+    "originalCoin",
+    "commitLedgerTick",
+    "commitOpenTick",
+    "commitToutTick",
+    "uniqueTick",
+    "CommitTout_blockchain1_executable",
+    "CommitTout_blockchain2_executable",
+    "CommitOpen_blockchain1_executable",
+    "CommitOpen_blockchain2_executable",
+    "Alice11",
+    "Alice_3",
+    "Bob_receive",
+    "Security_1_Alice",
+    "Security_2_Alice",
+    "Security_3_Bob",
+    "Security_4_Bob"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

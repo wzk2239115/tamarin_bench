@@ -1,0 +1,401 @@
+
+theory DDS_AES_GCM_GMAC
+/*
+Protocol: 	DDS_AES_GCM_GMAC algorithm with master sender key and salt derived from 
+			a shared secret estabilshed during authentication
+Properties: authentication, secrecy
+
+tamarin-prover aes_gcm_gmac.spthy --quit-on-warning --prove --derivcheck-timeout=100 --stop-on-trace=SEQDFS
+
+==============================================================================
+summary of summaries:
+
+analyzed: aes_gcm_gmac.spthy
+
+  processing time: 50.80s
+  
+  messages_can_be_exchanged (exists-trace): verified (14 steps)
+  weak_agreement (all-traces): verified (20 steps)
+  noninjective_agreement (all-traces): verified (20 steps)
+  injective_agreement_vsmw (all-traces): falsified - found trace (17 steps)
+  secrecy (all-traces): verified (42 steps)
+  perfect_forward_secrecy (all-traces): falsified - found trace (14 steps)
+
+==============================================================================
+*/
+
+begin
+#include "AEADlibrary.splib"
+
+builtins: 	hashing, natural-numbers 
+functions: 	hmac/2, hmac_verify/2
+				, size(fresh):nat
+//				, true/0
+				, empty/0
+//				, aes_gcm/4, aes_gcm_dec/4
+//				, aes_gmac/3, aes_gmac_verify/4
+ 
+// *** Hash function ***
+// We use the builtin h()
+
+// *** HMAC ***
+//equations: hmac_verify(k, hmac(k, m), m) = true
+
+// *** AES GCM ***
+/* We separate Decryption and Verification as otherwise Decryption would be (also for the adversary) impossible if authentication of aad fails*/
+//equations: aes_gcm_dec(k, aes_gcm(k, p, aad, iv), iv) = p
+/* Verify and Decrypt if verify was successful */
+//equations: aes_gcm_decv(k, aes_gcm(k, p, aad, iv), aad, iv) = p
+/* Verify only */
+//equations: aes_gcm_verify(k, aes_gcm(k, p, aad, iv), aad, iv) = true
+// *** AES GMAC ***
+//equations: aes_gmac(k, aad, iv) = aes_gcm(k, empty, aad, iv)
+//equations: aes_gmac_verify(k, aes_gmac(k, aad, iv), aad, iv) = true
+
+// Map AES based AEAD functions as defined in the paper to the primitives in the library
+// Equations where previously used to improve clarity, but removed as they trigger subterm-convergence warnings in newer versions of tamarin
+//equations: 	aes_gcm(k, m, ad, iv) = senc(k, m, iv, ad)
+//equations:  aes_gcm_dec(k, c, ad, iv) = sdec(k, iv, ad, c)
+//equations:  aes_gmac(k, ad, iv) = senc(k, true, iv, ad) // true represents an empty message -> makes verification easier to understand
+//equations: aes_gmac_verify(k, c, ad, iv) = sdec(k, iv, ad, c)
+
+
+// *** Protocol Model ***
+rule CreateParticipant:
+[]
+--[]->
+[!Participant($P)]
+
+rule CreateMatchPair:
+[	!Participant($S)
+	, !Participant($R)
+	, Fr(~shared_secret)
+	, Fr(~challenge_S)
+	, Fr(~challenge_R)
+]
+-->
+[ !ParticipantMatchPair($S, $R, ~shared_secret, ~challenge_S, ~challenge_R) ]
+
+rule Reveal:
+[	!ParticipantMatchPair($S, $R, ~shared_secret, ~challenge_S, ~challenge_R) ]
+--[
+	Reveal($S, $R)
+	, Reveal($R, $S)
+]->
+[	Out(~shared_secret)
+	, Out(~challenge_S)
+	, Out(~challenge_R)
+]
+
+
+rule SetMaxBlocksPerSession:
+[ In(%max_blocks_per_session)]
+--[	OnlyOnce('max_blocks_per_session')
+]->
+[	!MaxBlocksPerSession(%max_blocks_per_session)
+]
+
+
+rule InitVolatileSecureMessageWriter:
+	let
+		// %offset_session = %1
+		// %offset_suffix = %1
+		id_session = <~initial_session, %offset_session>
+		iv_suffix = <~initial_suffix, %offset_suffix>
+		%sbc = %1
+		mkey_key = h(<challenge_R, 'key_exchange_key', challenge_S>)
+		mkey = hmac( mkey_key, ~shared_secret)
+
+		msalt_key = h(<challenge_S, 'keyexchange_salt', challenge_R>)
+		msalt = hmac( msalt_key, ~shared_secret)
+
+	in
+[	!Participant($S)
+	, !ParticipantMatchPair($S, $R, ~shared_secret, challenge_S, challenge_R)
+	, Fr(~initial_session)
+	, Fr(~initial_suffix)
+	, In(<%offset_session, %offset_suffix>) // holds for an arbitrary offset (simulated by having it chosen by the adversary)
+]
+--[	OnlyOnce(<'init_writer', $S, $R, ~shared_secret>)
+
+]->
+[	VSMW_0($S, $R, id_session, iv_suffix, %sbc, msalt, mkey)
+]
+
+rule SendVolatileSecureMessage:
+	let
+		id_session = <~initial_session, %offset_session>
+		iv_suffix = <~initial_suffix, %offset_suffix>
+		iv = <id_session, iv_suffix>
+
+		k_session = hmac( mkey, <'SessionKey', msalt, id_session>)
+
+		//%block_size = size(~msg)
+		c = senc(k_session, ~msg, iv, empty)
+	//	t = snd(senc(k_session, ~msg, iv), empty)
+	in
+[	!Participant($S)
+	, VSMW_0($S, $R, id_session, iv_suffix, %sbc, msalt, mkey)
+	, Fr(~msg)
+	, In(%block_size) // arbitrary block size per message
+	, !MaxBlocksPerSession(%max_blocks_per_session)
+]
+--[
+	LessThanOrEqual(%sbc %+ %block_size, %max_blocks_per_session)
+	, Running($S, $R, ~msg)
+]->
+[	VSMW_1($S, $R, id_session, <~initial_suffix, %offset_suffix %+ %1>, %sbc %+ %block_size, msalt, mkey)
+	, Out(<$S, $R, iv, c>)
+]
+
+rule SendVolatileSecureMessage_2:
+	let
+		id_session = <~initial_session, %offset_session>
+		iv_suffix = <~initial_suffix, %offset_suffix>
+		iv = <id_session, iv_suffix>
+
+		k_session = hmac( mkey, <'SessionKey', msalt, id_session>)
+
+		//%block_size = size(~msg)
+		c = senc(k_session, ~msg, iv, empty)
+	//	t = snd(senc(k_session, ~msg, iv), empty)
+	in
+[	!Participant($S)
+	, VSMW_1($S, $R, id_session, iv_suffix, %sbc, msalt, mkey)
+	, Fr(~msg)
+	, In(%block_size) // arbitrary block size per message
+	, !MaxBlocksPerSession(%max_blocks_per_session)
+]
+--[
+	LessThanOrEqual(%sbc %+ %block_size, %max_blocks_per_session)
+	, Running($S, $R, ~msg)
+]->
+[	VSMW_2($S, $R, id_session, <~initial_suffix, %offset_suffix %+ %1>, %sbc %+ %block_size, msalt, mkey)
+	, Out(<$S, $R, iv, c>)
+]
+
+rule SendVolatileSecureMessage_3:
+	let
+		id_session = <~initial_session, %offset_session>
+		iv_suffix = <~initial_suffix, %offset_suffix>
+		iv = <id_session, iv_suffix>
+
+		k_session = hmac( mkey, <'SessionKey', msalt, id_session>)
+
+		//%block_size = size(~msg)
+		c = senc(k_session, ~msg, iv, empty)
+	//	t = snd(senc(k_session, ~msg, iv), empty)
+	in
+[	!Participant($S)
+	, VSMW_2($S, $R, id_session, iv_suffix, %sbc, msalt, mkey)
+	, Fr(~msg)
+	, In(%block_size) // arbitrary block size per message
+	, !MaxBlocksPerSession(%max_blocks_per_session)
+]
+--[
+	LessThanOrEqual(%sbc %+ %block_size, %max_blocks_per_session)
+	, Running($S, $R, ~msg)
+]->
+[	VSMW_3($S, $R, id_session, <~initial_suffix, %offset_suffix %+ %1>, %sbc %+ %block_size, msalt, mkey)
+	, Out(<$S, $R, iv, c>)
+]
+
+rule SendVolatileSecureMessage_new_session:
+	let
+		id_session = <~initial_session, %offset_session>
+		iv_suffix = <~initial_suffix, %offset_suffix>
+		iv = <id_session, iv_suffix>
+
+		id_session_new = <~initial_session, %offset_session %+ %1>
+		iv_suffix_new = <~initial_suffix_new, %1>
+		iv_new = <id_session_new, iv_suffix_new>
+		k_session = hmac( mkey, <'SessionKey', msalt, id_session_new>)
+
+		//%block_size = size(~msg)
+		c = senc(k_session, ~msg, iv, empty)
+	//	t = snd(senc(k_session, ~msg, iv), empty)
+	in
+[	!Participant($S)
+	, VSMW_0($S, $R, id_session, iv_suffix, %sbc, msalt, mkey)
+	, Fr(~msg)
+	, Fr(~initial_suffix_new) 
+	, In(%block_size) // arbitrary block size per message
+	, !MaxBlocksPerSession(%max_blocks_per_session)
+]
+--[
+	LessThan(%max_blocks_per_session, %sbc %+ %block_size)
+	, Running($S, $R, ~msg)
+]->
+[	VSMW_1($S, $R, id_session_new, iv_suffix_new, %block_size, msalt, mkey)
+	, Out(<$S, $R, iv_new, c>)
+]
+
+rule SendVolatileSecureMessage_new_session_2:
+	let
+		id_session = <~initial_session, %offset_session>
+		iv_suffix = <~initial_suffix, %offset_suffix>
+		iv = <id_session, iv_suffix>
+
+		id_session_new = <~initial_session, %offset_session %+ %1>
+		iv_suffix_new = <~initial_suffix_new, %1>
+		iv_new = <id_session_new, iv_suffix_new>
+		k_session = hmac( mkey, <'SessionKey', msalt, id_session_new>)
+
+		//%block_size = size(~msg)
+		c = senc(k_session, ~msg, iv, empty)
+	//	t = snd(senc(k_session, ~msg, iv), empty)
+	in
+[	!Participant($S)
+	, VSMW_1($S, $R, id_session, iv_suffix, %sbc, msalt, mkey)
+	, Fr(~msg)
+	, Fr(~initial_suffix_new) 
+	, In(%block_size) // arbitrary block size per message
+	, !MaxBlocksPerSession(%max_blocks_per_session)
+]
+--[
+	LessThan(%max_blocks_per_session, %sbc %+ %block_size)
+	, Running($S, $R, ~msg)
+]->
+[	VSMW_2($S, $R, id_session_new, iv_suffix_new, %block_size, msalt, mkey)
+	, Out(<$S, $R, iv_new, c>)
+]
+
+rule SendVolatileSecureMessage_new_session_3:
+	let
+		id_session = <~initial_session, %offset_session>
+		iv_suffix = <~initial_suffix, %offset_suffix>
+		iv = <id_session, iv_suffix>
+
+		id_session_new = <~initial_session, %offset_session %+ %1>
+		iv_suffix_new = <~initial_suffix_new, %1>
+		iv_new = <id_session_new, iv_suffix_new>
+		k_session = hmac( mkey, <'SessionKey', msalt, id_session_new>)
+
+		//%block_size = size(~msg)
+		c = senc(k_session, ~msg, iv, empty)
+	//	t = snd(senc(k_session, ~msg, iv), empty)
+	in
+[	!Participant($S)
+	, VSMW_2($S, $R, id_session, iv_suffix, %sbc, msalt, mkey)
+	, Fr(~msg)
+	, Fr(~initial_suffix_new) 
+	, In(%block_size) // arbitrary block size per message
+	, !MaxBlocksPerSession(%max_blocks_per_session)
+]
+--[
+	LessThan(%max_blocks_per_session, %sbc %+ %block_size)
+	, Running($S, $R, ~msg)
+]->
+[	VSMW_3($S, $R, id_session_new, iv_suffix_new, %block_size, msalt, mkey)
+	, Out(<$S, $R, iv_new, c>)
+]
+
+rule InitVolatileSecureMessageReader:
+	let
+		mkey_key = h(<challenge_R, 'key_exchange_key', challenge_S>)
+		mkey = hmac( mkey_key, ~shared_secret)
+
+		msalt_key = h(<challenge_S, 'keyexchange_salt', challenge_R>)
+		msalt = hmac( msalt_key, ~shared_secret)
+
+	in
+[	!Participant($R)
+	, !ParticipantMatchPair($S, $R, ~shared_secret, challenge_S, challenge_R)
+]
+--[	OnlyOnce(<'init_reader', $R, $S, ~shared_secret>)
+]->
+[	!VSMR($R, $S, msalt, mkey)
+]
+
+rule ReceiveVolatileSecureMessage:
+	let
+		iv = <id_session, iv_suffix>
+		k_session = hmac( mkey, <'SessionKey', msalt, id_session>)
+
+		c = senc(k_session, msg, iv, empty)
+	in
+[	!Participant($R)
+	, !VSMR($R, $S, msalt, mkey)
+	//, In(<iv, c, t>)
+	, In(<$S, $R, iv, c>) 
+]
+--[ //	OnlyOnce(<'receive', $R, $S, iv>)
+	Commit($R, $S, msg)
+	, Honest($R, $S)
+	, Secret(msg)
+
+]->
+[ 	//VSMR($R, $S, msalt, mkey)
+]
+
+// *** Restrictions ***
+//restriction Equality:
+//"All x y #i. Eq(x, y) @i ==> x = y"
+
+restriction OnlyOnce:
+"All x #i #j. OnlyOnce(x) @i & OnlyOnce(x) @j ==> #i = #j"
+
+restriction LessThanOrEqual:
+"All x y #i. LessThanOrEqual(x, y) @i ==> not(y ⊏ x)"
+
+
+// *** Executability lemma ***
+lemma messages_can_be_exchanged:
+exists-trace
+"
+	Ex A B msg #i #j.
+		Running(A, B, msg) @i
+		& Commit(B, A, msg) @j
+		& i < j
+		& not( Ex C D #k. Reveal(C, D) @k)
+"
+
+
+// *** Security Properties ***
+lemma weak_agreement[use_induction]:
+" All A B t #i.
+	Commit(A,B,t) @i
+		==> (Ex #j t2. Running(B,A,t2) @j
+				& j < i
+			)
+			| (Ex C D #r. Reveal(C, D) @r & Honest(C, D) @i)
+"
+
+lemma noninjective_agreement[use_induction]:
+" All A B t #i.
+	Commit(A,B,t) @i
+		==> (Ex #j. Running(B,A,t) @j
+				& j < i
+			)
+			| (Ex C D #r. Reveal(C, D) @r & Honest(C, D) @i)
+	"
+
+lemma injective_agreement_vsmw[use_induction]:
+" All A B t #i.
+	Commit(A,B,t) @i
+		==> (Ex #j. Running(B,A,t) @j
+				& j < i
+				& not (Ex A2 B2 #i2. Commit(A2, B2, t) @i2
+					& not (#i2 = #i)
+				)
+			)
+			| (Ex C D #r. Reveal(C, D) @r & Honest(C, D) @i)
+	"
+
+// *** Secrecy Lemmas ***
+lemma secrecy:
+"All x #i.
+	Secret(x) @i
+	==> not(Ex #j. K(x) @j)
+		| (Ex C D #r. Reveal(C, D) @r & Honest(C, D) @i ) 
+"
+
+lemma perfect_forward_secrecy:
+"All x #i.
+	Secret(x) @i
+	==> not(Ex #j. K(x) @j)
+		| (Ex C D #r. Reveal(C, D) @r & Honest(C, D) @i & r < i) 
+"
+
+
+end

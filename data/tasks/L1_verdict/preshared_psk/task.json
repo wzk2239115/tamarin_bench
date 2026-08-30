@@ -1,0 +1,24 @@
+{
+  "task_id": "L1:preshared_psk",
+  "level": "L1_verdict",
+  "name": "preshared_psk",
+  "protocol": "spdm_psk",
+  "source_file": "preshared_psk.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "versiontypes",
+    "secret_major_init_side",
+    "secret_major_resp_side",
+    "mutual_authentication_weak",
+    "mutual_authentication"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

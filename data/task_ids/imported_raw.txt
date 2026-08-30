@@ -1,3 +1,6 @@
+L1:HTLC_nosync
+L1:HTLC_old_attack
+L1:HTLC_sync
 L1:SOAP__Executability
 L1:SOAP__soap_combined
 L1:TLS13__tls13_main
@@ -25,6 +28,8 @@ L1:accountability__features__rp-criterion__restrictions
 L1:accountability__masters-thesis-morio__CentralizedMonitor
 L1:accountability__masters-thesis-morio__OCSPS
 L1:accountability__masters-thesis-morio__WhoDunit
+L1:aes_gcm_gmac
+L1:aes_gcm_gmac_psk
 L1:ake__bilinear__Chen_Kudla
 L1:ake__bilinear__Chen_Kudla_eCK
 L1:ake__bilinear__Joux
@@ -69,6 +74,8 @@ L1:asiaccs20-eccDAA__SIGN__SP5_SP6_ObsEqui__SP6_UserControlledUnlinkability_SIGN
 L1:asiaccs20-eccDAA__SIGN__SP5_SP6_ObsEqui__SP6_UserControlledUnlinkability_SIGN_ObsEquiv_noBSN
 L1:asiaccs20-eccDAA__SIGN__TPM_DAA_JoinSign_withFix_BSN
 L1:asiaccs20-eccDAA__SIGN__TPM_DAA_JoinSign_withFix_noBSN
+L1:attack_refl_preshared_psk
+L1:authentication
 L1:cav13__DH_example
 L1:ccs14__arpki-NoThreeUntrusted
 L1:ccs15__Attack_TPM_Envelope
@@ -188,6 +195,7 @@ L1:csf23-subterms__FreshOrderingTest
 L1:csf23-subterms__ParserTests
 L1:csf23-subterms__YellowDiffTest
 L1:csf23-subterms__YellowTest
+L1:device_attestation
 L1:eurosp19-eccDAA__ISOIEC_20008_2013_2_ECC_DAA
 L1:eurosp19-eccDAA__ISOIEC_20008_2013_2_ECC_DAA_fixed
 L1:eurosp19-eccDAA__ISOIEC_20008_2013_2_ECC_DAA_linkability
@@ -485,6 +493,7 @@ L1:jcs19-xor__diff-models__OTYT06_UK2
 L1:jcs19-xor__diff-models__OTYT06_UK2_proof
 L1:jcs19-xor__diff-models__OTYT06_UK3
 L1:jcs19-xor__diff-models__OTYT06_UK3_proof
+L1:key_exchange
 L1:loops__Axioms_and_Induction
 L1:loops__JCS12_Typing_Example
 L1:loops__Minimal_Create_Use_Destroy
@@ -508,6 +517,8 @@ L1:post17__needham_schroeder_symmetric_cbc
 L1:post17__okamoto_eligibility
 L1:post17__okamoto_receipt_freeness
 L1:post17__okamoto_vote_privacy
+L1:preshared_pk
+L1:preshared_psk
 L1:related_work__AIF_Moedersheim_CCS10__Keyserver
 L1:related_work__SAPIC_K_POST15__pkcs11-templates
 L1:related_work__StatVerif_ARR_CSF11__StatVerif_GM_Contract_Signing
