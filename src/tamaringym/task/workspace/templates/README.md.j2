@@ -1,96 +1,98 @@
-# Tamarin Protocol Verification Task — Level 1: Property Formulation & Verdict
+# ProtocolBench — Real-World Protocol Security Analysis
 
-You are a formal verification engineer. Your workspace contains:
+You are a security researcher analyzing a **real-world protocol that is
+currently deployed in production**. Your goal: **discover design flaws**.
+
+This protocol is part of the infrastructure that the real world runs on
+right now — blockchain, IoT, industrial control, telecom, web, or
+authentication systems. Finding a vulnerability here has real-world impact.
+
+## Your workspace
 
 {% if has_theory %}
-- `theory.spthy` — a Tamarin security protocol theory. **All security lemmas
-  have been removed.** The rules, restrictions, functions and equations are
-  complete and must not be altered.
+- `theory.spthy` — a Tamarin model of the protocol with security lemmas
+  **removed**. The protocol rules are complete; do not alter them.
 {% endif %}
 {% if has_goals %}
-- `goals.md` — the security goals you must formalize (lemma names and
-  quantifiers are binding), plus a natural-language protocol description.
+- `goals.md` — the security goals you must formalize, plus a
+  natural-language protocol description.
 {% endif %}
 {% if has_spec %}
 - `spec.md` — a natural-language specification of the protocol.
 {% endif %}
 {% if has_broken %}
-- `broken.spthy` — a Tamarin theory that is broken (it may fail to parse or
-  to pass wellformedness, or it may be a subtly wrong model that masks real
-  behavior). You must repair it.
+- `broken.spthy` — a broken Tamarin theory to repair.
 - `error_hint.txt` — a hint about what is wrong.
 {% endif %}
 
-## Your objective
+## Tools available
 
-Produce, inside this workspace:
+You have **multiple formal verification tools** — choose freely:
 
-1. **`final.spthy`** — your complete Tamarin theory:
-   - Level 1: the given theory plus the lemmas you formulated for every
-     goal in `goals.md` (you may add helper/source lemmas).
-   - Level 2: the full model you built from `spec.md`.
-   - Level 3: the repaired theory (restore correct modeling; the protocol
-     rules should again faithfully implement the protocol).
-2. **`verdict.json`** — your verdict, exactly this schema:
+- **Tamarin** (`tamarin-prover`): powerful, unbounded verification.
+  `--prove` to verify; `--output-json=traces.json` for attack traces.
+  Use `--diff` for observational equivalence. May not terminate on
+  large models — add source lemmas or use `--heuristic`.
+- **Verifpal** (`verifpal verify model.vp`): simpler, always terminates,
+  JSON output (`--format json`). Bounded but sound — if it finds an
+  attack, the attack is real.
+- **Protocol reference docs** in `/opt/protocol-docs/`: RFCs for TLS 1.3,
+  QUIC, SSH, OAuth, MLS, X.509, and more.
+- **Example models** in `/opt/verifpal-examples/`: Signal, TLS 1.3,
+  WireGuard, Kerberos, OAuth, WebAuthn, Noise, and more.
+- You may also reason about the protocol by hand — formal tools amplify
+  your analysis but are not the only path to discovery.
 
+## Your objective: find 0-days
+
+1. **Understand the protocol**: what is it? What security properties should
+   it provide? What are the threat assumptions?
+
+2. **Model and verify**: use Tamarin and/or Verifpal to formally verify the
+   security properties. If a property is **falsified** — that is a real
+   protocol design flaw (a 0-day). The attack trace is your proof.
+
+3. **Think like an attacker**: don't just verify the "obvious" properties.
+   Consider: replay attacks, type confusion, role confusion, cross-protocol
+   attacks, downgrade, key compromise, forward secrecy, unlinkability,
+   authentication direction, injective vs non-injective agreement.
+
+4. **Iterate**: if the tool doesn't terminate, try different formulations.
+   If Verifpal says "holds" but you suspect an attack, try Tamarin (unbounded).
+   If Tamarin finds nothing, try Verifpal (different search strategy).
+
+## Deliverables
+
+1. **`final.spthy`** or **`final.vp`** — your complete model (the protocol
+   rules + your security lemmas/queries).
+2. **`verdict.json`**:
    ```json
    {
      "overall": "SAFE" | "UNSAFE",
-     "lemmas": {"<lemma name>": "verified" | "falsified", ...},
-     "attack_lemmas": ["<lemma name>", ...],
-     "notes": "<short free-text justification>"
+     "tool": "tamarin" | "verifpal" | "both" | "none",
+     "lemmas": {"<name>": "verified" | "falsified", ...},
+     "attack_lemmas": ["<name>", ...],
+     "notes": "<detailed justification>"
    }
    ```
-
-   `overall` is `UNSAFE` iff at least one security lemma is falsified.
-3. **`attack_report.md`** (required only when `overall` is `UNSAFE`) — a
-   concrete attack narrative: which party the intruder impersonates or
-   compromises, the ordered message flow, and the exact sequence of
-   **protocol rule names** exercised by the attack trace.
+   `overall` is `UNSAFE` iff any security lemma is falsified.
+3. **`attack_report.md`** (required if `UNSAFE`): concrete attack narrative —
+   the attack trace, the compromised party, the message flow, the protocol
+   rule sequence, and the real-world impact.
 
 ## Ground rules
 
-- The verdict must come from **actually running Tamarin** on
-  `final.spthy`. Your work is re-verified in a clean environment: the
-  harness re-runs Tamarin on your `final.spthy` and compares against its
-  own ground truth. A claimed verdict your theory cannot reproduce scores
-  zero.
-- Do not modify the given protocol rules, restrictions, or equations
-  (Levels 1 and 3). Adding or weakening them invalidates the task.
-- Do not weaken or drop goals. Each goal in `goals.md` must appear as a
-  lemma with the given name and quantifier.
-- Helper lemmas, source lemmas, `--auto-sources`, heuristics
-  (`--heuristic=s` etc.) and oracles are all fair game — driving the
-  prover to termination is part of the task.
+- The verdict must come from **actually running a tool** on your model.
+  Your work is re-verified in a clean environment. A claimed verdict your
+  model cannot reproduce scores zero.
+- Do not modify the given protocol rules (Levels 1/3). Adding or weakening
+  them invalidates the task.
+- Each goal in `goals.md` must appear as a lemma with the given name.
+- Helper lemmas, source lemmas, `--auto-sources`, heuristics, and oracles
+  are all fair game.
 
-## Working with Tamarin
+## Time
 
-`tamarin-prover` is installed. Useful invocations:
-
-```bash
-# full automatic analysis of all lemmas (what the harness runs):
-tamarin-prover final.spthy --prove
-
-# serialize found attack traces to JSON (for the attack report):
-tamarin-prover final.spthy --prove --output-json=traces.json
-
-# observational-equivalence theories (diff terms) need:
-tamarin-prover final.spthy --diff --prove
-
-# other useful flags: --auto-sources, --heuristic=..., --stop-on-trace
-```
-
-Practical tips:
-
-- Some proofs do not terminate automatically. Typical remedies: add source
-  lemmas, restate the property over explicit session facts, or bound the
-  proof search (`-b`). Manage your time: a lemma that cannot be finished
-  should be reported honestly rather than guessed.
-- Wellformedness warnings matter: a rule whose variables are not derivable
-  from its premises usually means the modeling is wrong. Investigate them
-  before trusting results.
-- Long-running commands: wrap with `timeout <seconds> ...`.
-
-Work entirely inside this directory. When you are done, make sure
-`final.spthy`, `verdict.json`, and (if unsafe) `attack_report.md` exist and
-are final.
+You have a generous time budget (2+ hours). Use it. Deep analysis that
+finds a subtle attack is worth far more than a quick surface scan. Start
+by understanding the protocol, then model, then verify, then iterate.

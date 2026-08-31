@@ -187,7 +187,7 @@ def main() -> None:
     ap.add_argument("--claude-model", default="claude-sonnet-4-6")
     ap.add_argument("--reasoning-effort", default=None)
     ap.add_argument(
-        "--timeout", type=int, default=3600, help="agent wall clock per task (s)"
+        "--timeout", type=int, default=7200, help="agent wall clock per task (s)"
     )
     ap.add_argument("--verify-timeout", type=int, default=600)
     ap.add_argument("--max-workers", type=int, default=1)
