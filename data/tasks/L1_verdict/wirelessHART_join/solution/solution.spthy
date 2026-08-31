@@ -1,0 +1,178 @@
+theory wirelessHART_join
+begin
+
+builtins: symmetric-encryption, hashing 
+
+section{* WirelessHART_join *}
+
+/*
+ * Protocol:    WirelessHART
+ * Modeler:     Martin Gunnarsson
+ * Date:        Summer 2022
+ * Source:      IEC 62591 Edition 2.0 2016-03
+ * Property:    Authentication and secrecy of transmitted keys for the 'Join procedure'.
+ * Status:      Working
+ */
+
+functions: aead_enc/4    // key, plaintext, additional data, nonce
+functions: aead_dec/4    // key, ciphertext, additional data, nonce
+functions: aead_verify/4 // Key, ciphertext, additional data, nonce
+functions: true/0
+functions: mac/2, verify_mac/3
+
+equations: verify_mac(mac(m,k),m,k) = true
+equations: aead_dec(    key, nonce, additional_data, aead_enc(key, nonce, additional_data, plaintext ) ) = plaintext
+equations: aead_verify( key, nonce, additional_data, aead_enc(key, nonce, additional_data, plaintext ) ) = true 
+
+/* Force Tamarin to only execute a rule once. Used when initiating the Security Manager. */
+restriction OnlyOnce: "All #i #j x. OnlyOnceV(x)@#i & OnlyOnceV(x)@#j ==> #i = #j"
+
+/* Force Tamarin to test for equality when the Eq() fact is encountered. */
+restriction Eq_testing: "All x y #i. Eq(x, y) @ i ==> x = y"
+
+/* Initiate Security Manager. */
+rule init_Security_Manager:
+        [Fr(~NetworkKey), Fr(~D_NM_BK)]
+        --[OnlyOnceV('SecurityManager')]->
+        [!SecurityManager_0($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BK)]
+
+/* Initiate Gateway. */
+rule init_Gateway:
+        [!SecurityManager_0($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BK), Fr(~D_GW_BK)]
+        --[]->
+        [!Gateway_0('GW_ID', $NetworkID, ~NetworkKey, ~D_GW_BK), !SecurityManager_1($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BK, ~D_GW_BK)]
+
+/* Initiate another Field Device in the network so we have keys to compromise. */
+rule init_Dummy_Device:
+        [!Gateway_0($Gateway_ID, $NetworkID, ~NetworkKey, ~D_GW_BC), !SecurityManager_1($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC, ~D_GW_BC), Fr(~JoinKey), Fr(~D_GW_UC), Fr(~D_NM_UC)]
+        --[]->
+        [!Field_Device_Dummy($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC),
+         !Gateway_1($Gateway_ID, $NetworkID, ~NetworkKey, ~D_GW_BC, ~D_GW_UC),
+         !SecurityManager_2($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC, ~D_NM_UC, ~D_GW_BC, ~D_GW_UC)]
+
+/* Reveal all the keys for one device.
+ * This corresponds to an Insider Attacker compromising one device and acquiring all it's keys.
+ */
+rule compromise_device:
+      [!Field_Device_Dummy($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC)]
+      --[Reveal($device_id),
+         InsiderAttacker()]->
+      [Out(<~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC>)]
+
+/* Initiate joining Field Device. Write Join_key and network_ID is done here. */
+rule init_Device:
+        [!Gateway_0('GW_ID', $NetworkID, ~NetworkKey, ~D_GW_BK), !SecurityManager_1($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BK, ~D_GW_BK), Fr(~JoinKey)]
+        --[]->
+        [Field_Device_0($device_id, $NetworkID, ~JoinKey), Join_Session('Network_ID', $device_id, ~JoinKey)]
+
+/* Field Device send 'Join Request' to Security Manager. */
+rule Device_send_join_request:
+        let
+        NL_msg_s = <'ID', 'Long_Tag', 'Neighbor_List'>
+        NL_header_s = <~NL_nonce_s, 'JoinRequest', 'NL_Ctrl', 'Sec_Ctrl'>
+        NL_key_s = ~JoinKey
+        
+        DL_payload_s = aead_enc(NL_key_s, ~NL_nonce_s, NL_header_s, NL_msg_s) 
+        
+        DL_key_s = 'WellKnownKey'     
+        DL_header_s = <~DL_nonce_s, $SecurityManager_ID, $device_id>
+        DL_mac_s = mac( < DL_header_s, DL_payload_s>, DL_key_s)
+        join_request = <DL_header_s, NL_header_s, DL_payload_s, DL_mac_s>
+
+        in
+        [!Gateway_0('GW_ID', $NetworkID, ~NetworkKey, ~D_GW_BK), !SecurityManager_1($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BK, ~D_GW_BK), Field_Device_0($device_id, $NetworkID, ~JoinKey), Fr(~DL_nonce_s), Fr(~NL_nonce_s)]
+        --[SendJoinRequest($device_id)]->
+        [Out(join_request), Field_Device_1($device_id, $NetworkID, ~JoinKey, join_request)]
+
+/* Security Manager receive 'Join Request' from Field Device.
+ * Security Manager then send 'Write Keys' message. */
+rule NM_receive_join_request:
+        let
+        /* Incomming Join Request */
+        join_request = < DL_header_r, NL_header_r, DL_payload_r, DL_MAC_r>
+        
+        NL_key_r = ~JoinKey
+        NL_nonce_r = fst(NL_header_r)
+        decrypted_payload = aead_dec(NL_key_r, NL_nonce_r, NL_header_r, DL_payload_r)
+        
+        /* Outgoing Keys */
+        K_NL_msg_s = <~D_NM_UK, ~D_NM_BK, ~D_GW_UK, ~D_GW_UK, ~NetworkKey>
+        K_NL_header_s = <~K_NL_nonce_s, 'EncyptedKeys', 'NL_Ctrl', 'Sec_Ctrl'>
+        K_NL_key_s = ~JoinKey
+        
+        K_DL_payload_s = aead_enc(K_NL_key_s, ~K_NL_nonce_s, K_NL_header_s, K_NL_msg_s) 
+        
+        K_DL_key_s = 'WellKnownKey'     
+        K_DL_header_s = <~K_DL_nonce_s,  $SecurityManager_ID, $device_id>
+        K_DL_mac_s = mac( < K_DL_header_s, K_DL_payload_s>, K_DL_key_s)
+        encrypted_keys = <K_DL_header_s, K_NL_header_s, K_DL_payload_s, K_DL_mac_s>
+
+        in
+        [In(join_request), Join_Session('Network_ID', $device_id, ~JoinKey), !SecurityManager_1($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BK, ~D_GW_BK), Fr(~D_NM_UK), Fr(~D_GW_UK), Fr(~K_NL_nonce_s), Fr(~K_DL_nonce_s)] 
+       --[ 
+           Eq( verify_mac(DL_MAC_r, <DL_header_r, DL_payload_r>, 'WellKnownKey'), true),  //DPDU MIC
+           Eq( aead_verify(NL_key_r, NL_nonce_r, NL_header_r, DL_payload_r), true), //NLPDU
+           ReceivedJoinRequest($device_id),
+           KeysSent($device_id, ~D_NM_UK)
+        ]->
+        [Out(encrypted_keys), 
+         SecurityManager_3($SecurituManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BK, ~D_GW_BK, ~D_NM_UK, ~D_NM_BK),
+         !Gateway_1('GW_ID', $NetworkID, ~NetworkKey, ~D_GW_UK, ~D_GW_BK)
+        ]
+
+/* Field Device receive 'Write Keys' from Security Manager.
+ * Field Device then send 'ACK' message. */
+rule Device_receive_keys:
+  let
+  encrypted_keys = < K_DL_header_r, K_NL_header_r, K_DL_payload_r, K_DL_MAC_r>
+  K_NL_key_r = ~JoinKey
+  K_NL_nonce_r = fst(K_NL_header_r)
+  decrypted_payload = aead_dec(K_NL_key_r, K_NL_nonce_r, K_NL_header_r, K_DL_payload_r)
+  
+  type = fst(snd(K_NL_header_r))
+  //extract keys from decrypted_payload
+  D_NM_UK_r = fst(decrypted_payload)
+  in
+
+  [In(encrypted_keys),
+  Field_Device_1($device_id, $NetworkID, ~JoinKey, join_request)
+  ]
+  --[     
+     Eq( verify_mac(K_DL_MAC_r, <K_DL_header_r, K_DL_payload_r>, 'WellKnownKey'), true),  //DPDU MIC
+     Eq( aead_verify(K_NL_key_r, K_NL_nonce_r, K_NL_header_r, K_DL_payload_r), true), //NLPDU
+     Eq(type, 'EncryptedKeys'),
+     KeysReceived($device_id, D_NM_UK_r)
+  ]->
+  [!Field_Device_2($device_id, $NetworkID, ~JoinKey, D_NM_UK_r)]
+
+/* Sanity lemma, to show running protocol. */
+lemma join_request_received_lemma:
+        exists-trace
+        " Ex a #j #k.
+           SendJoinRequest(a) @ #j &
+           ReceivedJoinRequest(a) @ #k &
+           #j < #k 
+        "
+
+/* For all protocol executions, a key K received at #m implies that it was sent at #l and that #l happened before #m */
+lemma key_agreement:
+        all-traces
+        "All a k #m.
+           KeysReceived(a, k) @ #m  
+          ==>
+           (Ex #l. KeysSent(a, k) @ #l) |
+           (Ex #j. InsiderAttacker() @ #j)
+        "
+/* For all protocol executions, a key K received at #m implies that it was sent at #l and that #l happened before #m */
+lemma key_secrecy:
+        all-traces
+        "All a k #m #n.
+           KeysReceived(a, k) @ #m &
+           K(k) @ #n  
+          ==>
+           (Ex #l. KeysSent(a, k) @ #l) &
+           (Ex #m. InsiderAttacker() @ #m)
+        "
+
+end
+

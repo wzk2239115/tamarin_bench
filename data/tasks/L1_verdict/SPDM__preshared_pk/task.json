@@ -1,0 +1,20 @@
+{
+  "task_id": "L1:SPDM__preshared_pk",
+  "level": "L1_verdict",
+  "name": "SPDM__preshared_pk",
+  "protocol": "spdm_pk",
+  "source_file": "SPDM/preshared_pk.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "versiontypes"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,28 @@
+{
+  "task_id": "L1:SPDM__key_exchange",
+  "level": "L1_verdict",
+  "name": "SPDM__key_exchange",
+  "protocol": "spdm_kex",
+  "source_file": "SPDM/key_exchange.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "versiontypes",
+    "resp_authentication_before_finish",
+    "resp_authentication_at_finish",
+    "mutual_authentication_weak",
+    "mutual_authentication_TLS",
+    "mutual_authentication",
+    "secret_major_init_side",
+    "secret_major_resp_side",
+    "receiver_finish_without_init"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

@@ -1,0 +1,322 @@
+
+
+//
+theory TikLegerHTLC
+begin
+
+builtins: hashing,signing,multiset
+functions: h/1,HTLChash/1,TXhash/1
+
+rule address_register:
+    [ Fr(~ltkA) ]
+  --[!PK($A,pk(~ltkA))]->
+    [!Ltk($A,~ltkA) //generate a long term secret key for A
+     ,!PK($A,pk(~ltkA)) //binding the public key and the secret key
+     ,Out(pk(~ltkA))]
+
+/*****************Global time rules*******************************/
+
+/*
+
+A tick rule create two facts: 1.Tick 2.LedgerTick
+1.Tick fact used for the iteration, creating a "tick chain", can be considered as a blockchain  
+2.LedgerTick will be consumed by the ledger rule to recorded a trasaction.  
+
+for instance: 
+LedgerTick('1'+'1') is consumed by a simple_tx rule, it means a transaction is recorded a block with height '1'+'1'
+if a LedgerTick(x) is not consumed by any ledger rules, that means in this height there is a empty block.
+
+we simplify the blockchain model that a block is either an empty block or only contains one transaction
+
+*/
+
+rule Tick_start:
+     [ Chain(BC)]
+   --[ TickStart(BC,'1'),Tick(BC,'1'),LedgerTick(BC,'1')]->
+     [ Tick(BC,'1'),LedgerTick(BC,'1')]
+
+ rule Tick:
+     [ Tick(BC,height)[+] ]
+   --[ Tick(BC,height+'1'), LedgerTick(BC,height+'1') ]->
+     [ Tick(BC,height+'1')[+], LedgerTick(BC,height+'1')[+]]
+
+/***************************Ledger rules***********************************/
+
+rule Blockchain:
+    [  ]
+  --[BChain('1')]->
+    [ Chain('BC1')
+      ,Chain('BC2')
+    ]
+
+//Create the original simple transactions (original coins)
+rule MineCoin:
+   //n is the id of this coin. the format of a simple transaction is 
+   //!SimpleTx(BlockchainName,previous txid,inputSig,outputPk,txid,blockchain height)
+   //with the orginal coin, the previous tx and inputSig are '0'
+    [ Fr(~n), !PK(A,pkA),LedgerTick(BC,t)[+] ]
+  --[ MineCoin(BC,~n,t) ]->
+    [ !SimpleTx(BC,'0','0',pkA,~n,t) 
+      ,Out(<'0','0',pkA,~n>)
+     ]
+
+//Spend the simple transactions, and create a new simple transaction
+rule Simple_Tx:
+    let
+     txNew=TXhash(<tx,SigA,pkB>)
+    in
+    [ 
+     !SimpleTx(BC,txPrevious,SigPre,pkA,tx,LedgerTick)
+     , LedgerTick(BC,t)[+]
+     ,In(<SigA,pkB>)
+      ]
+  --[
+     // HappenBefore restricts t>LedgerTick, since the later recorded transaction should be added on the later block.
+     HappenBefore(BC,LedgerTick,t)
+     //check the correctness of the signature to spend the transaction
+     ,Eq(verify(SigA,<BC,tx,pkA,pkB>,pkA),true)
+     //recorded a SimpleTx is created. 
+     ,!SimpleTx(BC,tx,SigA,pkB,txNew,t)
+     //the transaction tx is being spent. 
+     //An Spend action has the format: Spend(BlockchainName, txid, transaction type, block height)
+     ,Spend(BC,tx,'Simple',t)
+     ]->
+    [ !SimpleTx(BC,tx,SigA,pkB,txNew,t)
+     ,Out(<tx,SigA,pkB,txNew>) 
+    ]
+
+//Create a CommitTx
+
+rule Commit_Tx:
+    let
+      txNew=TXhash(<tx,SigA_0,<pkA,timelock,hash,pkB>>)
+    in
+    [ 
+      !SimpleTx(BC,txPrevious,SigPre,pkA_0,tx,LedgerTick)
+      //The output of the trasnaction is a script consist two potential path to be spent
+      //1. redeem path: pkA timelock     2. commit open path: hash pkB 
+      ,In(<SigA_0,<pkA,timelock,hash,pkB>>)
+      ,LedgerTick(BC,t)
+      ]
+  --[ 
+     HappenBefore(BC,LedgerTick,t)
+    ,Eq(verify(SigA_0,<BC,tx,pkA_0,<pkA,timelock,hash,pkB>>,pkA_0),true) 
+    ,!CommitTx(BC,tx,SigA_0,<pkA,timelock,hash,pkB>,txNew,t)
+    ,Spend(BC,tx,'Simple',t) ]->
+    
+    [ !CommitTx(BC,tx,SigA_0,<pkA,timelock,hash,pkB>,txNew,t) 
+      ,Out(<BC,tx,SigA_0,<pkA,timelock,hash,pkB>,txNew>) 
+    ]
+
+//Spend the CommitTx by timeout
+
+rule Commit_TimeOut:
+   let
+   SigVerifyA=verify(Script1,<BC,tx,<pkA1,timelock,hash,pkB3>,PKaddress>,pkA1)
+   txNew=TXhash(<tx,Script1,PKaddress>)
+   in
+    [ 
+    !CommitTx(BC,tx0,SigA_0,<pkA1,timelock,hash,pkB3>,tx,LedgerTick)[+]
+     ,In(<Script1,PKaddress>)
+     ,LedgerTick(BC,t)[+]
+    ]
+  --[ //LedgerTick+timlock<t, to make sure the timelock expire
+      HappenBefore(BC,LedgerTick+timelock,t)
+      ,Eq(SigVerifyA,true)
+     ,Spend(BC,tx,'CommitTout',t)
+     ,!SimpleTx(BC,tx,Script1,PKaddress,txNew,t)
+  ]->
+    [ !SimpleTx(BC,tx,Script1,PKaddress,txNew,t)
+    ,Out(<BC,tx,Script1,PKaddress,txNew>) 
+    ]
+
+//Spend the CommitTx by open the commit
+rule Commit_Open:
+   let
+   HashVerify=HTLChash(Script1)
+   SigVerify=verify(Script2,<BC,tx,<pkA1,timelock,hash,pkB3>,PKaddress>,pkB3)
+   txNew=TXhash(<tx,<Script1,Script2>,PKaddress>)
+   in
+    [ 
+    !CommitTx(BC,tx0,SigA_0,<pkA1,timelock,hash,pkB3>,tx,LedgerTick)[+]
+     ,In(<<Script1,Script2>,PKaddress>)
+     ,LedgerTick(BC,t)[+]
+    ]
+  --[ 
+      HappenBefore(BC,LedgerTick,t)
+      ,Eq(HashVerify,hash)
+      ,Eq(SigVerify,true)
+     ,!SimpleTx(BC,tx,<Script1,Script2>,PKaddress,txNew,t) 
+     ,Spend(BC,tx,'CommitOpen',t)
+  ]->
+    [ !SimpleTx(BC,tx,<Script1,Script2>,PKaddress,txNew,t)
+     ,Out(<BC,tx,<Script1,Script2>,PKaddress,txNew>) 
+    ]
+
+// This rule create the signature to spend a simple transaction 
+rule creatCointoCoin:
+  let
+    sigB=sign(<BC,tx,pk(ltkB),pkC>,ltkB)
+    
+  in
+    [ !SimpleTx(BC,txPrevious,SigA,pk(ltkB),tx,t) 
+      ,!PK(B,pk(ltkB))
+      ,!PK(C,pkC)
+      ,Fr(~txNew)]
+  --[ SpendCoin(BC,tx) ]->
+    [ Out(<tx,sigB,pk(ltkB),~txNew>) ]
+
+//no double spending restriction
+restriction DoubleSpending:
+"All BC x n m t1 t2 #i #j .Spend(BC,x,n,t1)@i &Spend(BC,x,m,t2)@j
+==>#i=#j 
+    
+"
+
+restriction HappenBefore:
+"All BC
+     t1 
+     t2 
+     #i 
+     .HappenBefore(BC,t1,t2)@i
+==>Ex x .t2=t1+x   
+"
+
+restriction Equality:
+    "All x y #i.Eq(x,y) @i ==> x=y"
+
+restriction inequality:
+  " All x #i. InEq(x, x)@i ==> F "
+
+restriction No_keyReveal:
+ "All #i A ltkA .!PK(A,pk(ltkA))@i
+ ==>not Ex #j .!KU(ltkA)@j
+ "
+//avoid Tamarin create infinite length chain
+restriction ledgerHeight:
+"
+not Ex  BC height #i .Tick(BC,'1'+'1'+'1'+'1'+'1'+height)@i 
+"
+//we only need two blockchains
+restriction twoLedger:
+"All #i #j.BChain('1')@i
+                 &BChain('1')@j
+==>#i=#j
+"
+
+/*******************************sources to solve the partial deconstruction***********************/
+
+rule Alice_send:
+   let
+    //if the commit transaction is recorded on block with height x, the earlist block that Alice can
+    //add her redeem trasaction on is x+timelock_A+'1'
+    timelock_A='1'+'1'
+    hash=HTLChash(~hsk)
+    //SigA is the input signature of Alice commit transaction
+    SigA=sign(<'BC1',tx,pk(ltkA),<pk(ltkA1),timelock_A,hash,pkB3>>,ltkA)
+    //txid of Alice commit trasaction
+    CommitTxAlice=TXhash(<tx,SigA,<pk(ltkA1),timelock_A,hash,pkB3>>)
+    //SigA1 is the input signature of Alice redeem redeem transaction (time out of commit transaction)
+    SigA1=sign(<'BC1',CommitTxAlice,<pk(ltkA1),timelock_A,hash,pkB3>,pkA2>,ltkA1)
+
+    
+   in
+    [ 
+     !SimpleTx('BC1','0','0',pk(ltkA),tx,'1') 
+     ,!PK(A,pk(ltkA1))
+     ,!PK(A,pkA2)
+     ,!PK(B,pkB3)
+     ,Fr(~hsk)
+     ]
+  --[ 
+      InEq(A,B)
+     ,Alice_1(hash) ]->
+    [ 
+     //Alice broadcast the commit transaction and redeem transaction.
+      Out(<tx,SigA,<pk(ltkA1),timelock_A,hash,pkB3>>)
+      ,Out(<CommitTxAlice,SigA1,pkA2>)
+      ,Alice_1_record(hash,~hsk)
+    ]
+
+rule Alice_receive:
+  let
+    //Alice creates signature to take Bob's funding
+    SigA3=sign(<'BC2',CommitTxBob,<pkB1,timelock_B,hash,pk(ltkA3)>,pkA4>,ltkA3)
+  in
+    [
+    !CommitTx('BC2',tx0,SigB0,<pkB1,timelock_B,hash,pk(ltkA3)>,CommitTxBob,'1'+'1')[+]
+    ,Alice_1_record(hash,hsk)
+    ,!PK(A,pkA4)
+      ]
+  --[ Alice_receive(CommitTxBob) ]->
+    [
+      //Reveal(hsk) 
+     Out(<CommitTxBob,<hsk,SigA3>,pkA4>)]
+
+/*
+restriction OneAlice:                                                                       
+"
+All hash1 hash2 #i1 #i2.Alice_1(hash1)@i1 &Alice_1(hash2)@i2 
+==>#i1=#i2
+    
+"
+*/
+
+rule Bob_send:
+  let
+    timelock_B='1'
+    SigB=sign(<'BC2',tx,pk(ltkB),<pk(ltkB1),timelock_B,hash,pkA3>>,ltkB)
+    CommitTxBob=TXhash(<tx,SigB,<pk(ltkB1),timelock_B,hash,pkA3>>)
+    SigB1=sign(<'BC2',CommitTxBob,<pk(ltkB1),timelock_B,hash,pkA3>,pkB2>,ltkB1)
+    
+  in
+    [
+    !SimpleTx('BC2','0','0',pk(ltkB),tx,'1') 
+    //when Bob sees Alice's commit transaction is added to blockchain, then he will create a commit transaction
+    ,!CommitTx('BC1',tx_0,SigA_0,<pkA,timelock_A,hash,pkB>,CommitTxAlice,'1'+'1') 
+    ,!PK(B,pk(ltkB1))
+     ,!PK(B,pkB2)
+     ,!PK(A,pkA3)
+     ,!PK(A,pkA)
+    
+     ]
+  --[ Bob_1('1') 
+     //Alice commit trasnaction hasn't been spent
+     ,Not_Spend(CommitTxAlice)
+     ]->
+    [ 
+      Bob_1_record(hash,CommitTxAlice)
+      //Bob broadcasts his commit transaction
+     ,Out(<tx,SigB,<pk(ltkB1),timelock_B,hash,pkA3>>)
+     //Bob broadcasts his timeout transaction
+     ,Out(<CommitTxBob,SigB1,pkB2>)
+     ]
+
+restriction Not_Spend:
+"All tx #i . Not_Spend(tx)@i
+==>not Ex #j t . Spend('BC1',tx,'Simple',t)@j&#j<#i
+    
+"
+ 
+
+rule Bob_receive:
+  let
+    //Bob creates the signature to take Alice commit transaction
+    SigB3=sign(<'BC1',CommitTxAlice,<pkA1,timelock_A,hash,pk(ltkB3)>,pkB4>,ltkB3)
+  in
+    [ Bob_1_record(hash,CommitTxAlice)
+     ,In(hsk)
+     ,!CommitTx('BC1',tx0,SigA0,<pkA1,timelock_A,hash,pk(ltkB3)>,CommitTxAlice,'1'+'1')
+     ,!PK(B,pkB4) ]
+  --[ Bob_receive(CommitTxAlice) 
+    ]->
+    [ Out(<CommitTxAlice,<hsk,SigB3>,pkB4>) ]
+
+restriction stable_growing_blockchain:
+"All height #i .Tick('BC1',height)@i
+==>Ex #j.Tick('BC2',height)@j
+        
+    
+"
+
+end

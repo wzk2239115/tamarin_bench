@@ -1,0 +1,323 @@
+theory DDS_Security_Authentication_Plugin_builtin
+/*
+Protocol: 3-way handshake of the DDS Security Authentication plugin
+Properties: authentication, secrecy of shared secret
+
+tamarin-prover authentication.spthy --quit-on-warning --prove --derivcheck-timeout=100 --stop-on-trace=SEQDFS
+
+This model uses the python file "AuthenticationOracle" as heuristic for its prove generation. Please make sure the file is available at the same location as this model.
+
+
+==============================================================================
+summary of summaries:
+
+analyzed: authentication.spthy
+
+  processing time: 319.98s
+  
+  key_exchange_without_compromise (exists-trace): verified (18 steps)
+  aliveness_AB (all-traces): verified (64 steps)
+  weak_agreement_AB (all-traces): verified (172 steps)
+  noninjective_agreement_AB (all-traces): verified (172 steps)
+  injective_agreement_AB (all-traces): verified (280 steps)
+  aliveness_BA (all-traces): verified (63 steps)
+  weak_agreement_BA (all-traces): verified (487 steps)
+  noninjective_agreement_BA (all-traces): verified (487 steps)
+  injective_agreement_BA (all-traces): verified (647 steps)
+  secrecy (all-traces): verified (828 steps)
+  pfs_of_shared_secret (all-traces): verified (228 steps)
+
+==============================================================================
+
+
+*/
+
+begin
+builtins: signing, symmetric-encryption, diffie-hellman, hashing
+heuristic: O "AuthenticationOracle"
+
+// *** Protocol setup ***
+rule CreateCA:
+	let
+		pk_CA = pk(~sk_CA)
+	in
+	[	Fr(~sk_CA) ]
+	--[ OnlyOnce('create_ca') ]->
+	[	!CA(~sk_CA)
+		, !CA_pub(pk_CA)
+	]
+	
+rule DefineAlgs:
+	[]
+	--[ OnlyOnce('define_algs') ]->
+	[	!SigAlg('RSASSA_PSS_SHA256')
+		, !SigAlg('ECDSA_SHA256')
+		, !KxAlg('DH_MODP_2048_256')
+		, !KxAlg('ECDH_prime256v1_CEUM')
+	]
+
+rule CreateParticipant:
+	let
+		pk_P = pk(~sk_P)
+		cert_P = <$P, pk_P, sign(<$P, pk_P>, sk_CA)>
+		C_P = <cert_P, perm_P, data_perm_P, alg_sig_P, alg_kx_P>
+	in
+	[	Fr(~sk_P)
+		, !CA(sk_CA)
+		, In(perm_P)
+		, In(data_perm_P)
+		, !SigAlg(alg_sig_P)
+		, !KxAlg(alg_kx_P) 
+	]
+	--[ OnlyOnce($P)
+		, Honest($P)
+		, Secret(~sk_P)
+		, P_Create($P, pk_P)
+	]->
+	[	!Participant($P, ~sk_P, C_P) ]
+
+rule RevealParticipant:
+	[	!Participant($P, ~sk_P, C_P) ]
+	--[ Reveal($P) ]->
+	[	Out(~sk_P) ]
+
+// *** Protocol ***
+
+// A -- handshake request -> B
+rule Handshake_request:
+	let
+		pk_A = pk(~sk_A)
+		cert_A = <$A, pk_A, sigma_cert_A>
+		C_A = <cert_A, perm_A, data_perm_A, alg_sig_A, alg_kx_A>
+
+		pk_DH_A = 'g'^~sk_DH_A
+		// h_A = h(C_A)
+		handshake_request = <C_A, ~c_A, pk_DH_A> // Optional h_A: C_A, h_A, ~c_A, pk_DH_A
+	in
+	[	!Participant($A, ~sk_A, C_A)
+		, Fr(~c_A)
+		, Fr(~sk_DH_A)
+	]
+	--[
+	]->
+	[	Out(<$B, $A, handshake_request>)
+		, A_Handshake_request($A, <$B, ~c_A, ~sk_DH_A>)
+	]
+
+// B -- handshake response --> A
+rule Handshake_response:
+	let	
+		cert_A = <$A, pk_A, sigma_cert_A>
+		C_A = <cert_A, perm_A, data_perm_A, alg_sig_A, alg_kx_A>
+		cert_B = <$B, pk_B, sigma_cert_B>
+		C_B = <cert_B, perm_B, data_perm_B, alg_sig_B, alg_kx_B>
+
+		handshake_request = <C_A, c_A, pk_DH_A> // Optional h_A: C_A, h_A, ~c_A, pk_DH_A
+
+		pk_DH_B = 'g'^~sk_DH_B
+		m_sigma_B = <h(C_B), ~c_B, pk_DH_B, c_A, pk_DH_A, h(C_A)>
+		sigma_B = sign(m_sigma_B, ~sk_B)
+		handshake_response = <C_B, c_A, ~c_B, pk_DH_B, sigma_B> // Optional h_B: C_B, h_B, ~c_B, pk_DH_B
+		
+		s = h(pk_DH_A^~sk_DH_B)
+	in
+	[ !Participant($B, ~sk_B, C_B)
+		, !CA_pub(pk_CA)
+		, Fr(~c_B)
+		, Fr(~sk_DH_B)
+		, In(<$B, $A, handshake_request>)
+	]
+	--[	// Verify the certificate of A
+		Eq(verify(sigma_cert_A, <$A, pk_A>, pk_CA), true)
+		// Verify that A and B are using the same key exchange algorithm
+		, Eq(alg_kx_A, alg_kx_B)
+		// Verification of h_A is ommitted as h_A is ommitted
+		
+		// Security Events
+		, B_Running($B, $A, <C_A, C_B, c_A, ~c_B, s>)
+	]->
+	[	Out(<$A, $B, handshake_response>)
+		, B_Handshake_response($B, <$A, pk_A, C_A, c_A, ~c_B, pk_DH_A, ~sk_DH_B>)
+	]
+
+// A -- final handshake message --> B
+rule Handshake_final:
+	let	
+		cert_A = <$A, pk_A, sigma_cert_A>
+		C_A = <cert_A, perm_A, data_perm_A, alg_sig_A, alg_kx_A>
+		cert_B = <$B, pk_B, sigma_cert_B>
+		C_B = <cert_B, perm_B, data_perm_B, alg_sig_B, alg_kx_B>
+
+		pk_DH_A = 'g'^~sk_DH_A
+		m_sigma_B = <h(C_B), c_B, pk_DH_B, ~c_A, pk_DH_A, h(C_A)>
+		handshake_response = <C_B, c_A2, c_B, pk_DH_B, sigma_B> // Optional h_B: C_B, h_B, ~c_B, pk_DH_B
+		
+		m_sigma_A = <h(C_A), ~c_A, pk_DH_A, c_B, pk_DH_B, h(C_B)>
+		sigma_A = sign(m_sigma_A, ~sk_A)
+		handshake_final = <~c_A, c_B, sigma_A>
+
+		s = h(pk_DH_B^~sk_DH_A)
+	in
+	[	!Participant($A, ~sk_A, C_A)
+		, !CA_pub(pk_CA)
+		, A_Handshake_request($A, <$B, ~c_A, ~sk_DH_A>)
+		, In(<$A, $B, handshake_response>)
+	]
+	--[	// Verify Certificate of B
+		Eq(verify(sigma_cert_B, <$B, pk_B>, pk_CA), true)
+		// , Eq(c_A*, c_A) // Ensure that received message contains correct challenge
+		// Verify sigma_B
+		, Eq(verify(sigma_B, m_sigma_B, pk_B), true)
+		, A_Running($A, $B, <C_B, C_A, c_B, ~c_A, s>)
+		, A_Commit($A, $B, <C_A, C_B, ~c_A, c_B, s>) 
+		, Honest($A)
+		, Honest($B)
+		, Secret(s)
+		, Secret_PFS(s)
+	]->
+	[	Out(<$B, $A, handshake_final>)
+	]
+
+// B receives the final message
+rule Receive_Handshake_final:
+	let	
+		cert_A = <$A, pk_A, sigma_cert_A>
+		C_A = <cert_A, perm_A, data_perm_A, alg_sig_A, alg_kx_A>
+		cert_B = <$B, pk_B, sigma_cert_B>
+		C_B = <cert_B, perm_B, data_perm_B, alg_sig_B, alg_kx_B>
+
+		pk_DH_B = 'g'^~sk_DH_B
+		m_sigma_A = <h(C_A), c_A, pk_DH_A, ~c_B, pk_DH_B, h(C_B)>
+		handshake_final = <c_A, c_B2, sigma_A>
+
+		s = h(pk_DH_A^~sk_DH_B)
+	in
+	[	!Participant($B, ~sk_B, C_B)
+		, B_Handshake_response($B, <$A, pk_A, C_A, c_A, ~c_B, pk_DH_A, ~sk_DH_B>)
+		, In(<$B, $A, handshake_final>)
+	]
+	--[	// Verify sigma_A
+		Eq(verify(sigma_A, m_sigma_A, pk_A), true)
+
+		, B_Commit($B, $A, <C_B, C_A, ~c_B, c_A, s>)
+		, Honest($A)
+		, Honest($B)
+		, Secret(s)
+	]->
+	[]
+
+
+// *** Restrictions ***
+restriction Equality:
+"All x y #i. Eq(x, y) @i ==> x = y"
+
+restriction OnlyOnce:
+"All x #i #j. OnlyOnce(x) @i & OnlyOnce(x) @j ==> #i = #j"
+
+// *** Executability lemmas ***
+lemma key_exchange_without_compromise:
+exists-trace
+"Ex A B pk_A pk_B C_A C_B c_A c_B s #t1 #t2 #t3 #t4 #t5.
+	P_Create(A, pk_A) @t1
+	& P_Create(B, pk_B) @t2
+	& B_Running(B, A, <C_A, C_B, c_A, c_B, s>) @t3
+	& A_Running(A, B, <C_B, C_A, c_B, c_A, s>) @t4
+	& A_Commit(A, B, <C_A, C_B, c_A, c_B, s>) @t4
+	& B_Commit(B, A, <C_B, C_A, c_B, c_A, s>) @t5
+	& t1 < t3
+	& t2 < t3
+	& t3 < t4
+	& t4 < t5
+	& not(Ex c #k. Reveal(c) @k)
+"
+
+// *** Authentication lemmas ***
+// *** A authenticates B ***
+lemma aliveness_AB:
+"All A B t #i.
+	A_Commit(A, B, t) @i
+	==> (Ex pk #j. P_Create(B, pk) @j)
+		| (Ex c #r. Reveal(c) @r & Honest(c) @i)
+"
+
+lemma weak_agreement_AB:
+"All A B t #i.
+	A_Commit(A, B, t) @i
+	==> (Ex t2 #j. B_Running(B, A, t2) @j)
+		| (Ex c #r. Reveal(c) @r & Honest(c) @i)
+"
+
+lemma noninjective_agreement_AB:
+"All A B t #i.
+	A_Commit(A, B, t) @i
+	==> (Ex #j. B_Running(B, A, t) @j)
+		| (Ex c #r. Reveal(c) @r & Honest(c) @i)
+"
+
+lemma injective_agreement_AB:
+// For all peers A and B, shared secrets t and timepoints i
+"All A B t #i.
+	// if B commited to a shared secret, apparently exchanged with A
+	A_Commit(A, B, t) @i
+		// then A was previously running the protocol, apparently with B and the same shared secret t
+	==> (Ex #j. B_Running(B, A, t) @j
+		& j < i
+		// and no other peer B2 commited previously to the same shared secret
+		& not (Ex A2 B2 #i2. A_Commit(A2, B2, t) @i2 & not (#i2 = #i)))
+		// or either A or B have been compromised by the adversary (before timepoint i)
+		| (Ex c #r. Reveal(c) @r & Honest(c) @i)
+"
+
+// *** B authenticates A ***
+lemma aliveness_BA:
+"All A B t #i.
+	B_Commit(B, A, t) @i
+	==> (Ex pk #j. P_Create(A, pk) @j)
+		| (Ex c #r. Reveal(c) @r & Honest(c) @i)
+"
+
+lemma weak_agreement_BA:
+"All A B t #i.
+	B_Commit(B, A, t) @i
+	==> (Ex t2 #j. A_Running(A, B, t2) @j)
+		| (Ex c #r. Reveal(c) @r & Honest(c) @i)
+"
+
+lemma noninjective_agreement_BA:
+"All A B t #i.
+	B_Commit(B, A, t) @i
+	==> (Ex #j. A_Running(A, B, t) @j)
+		| (Ex c #r. Reveal(c) @r & Honest(c) @i)
+"
+
+lemma injective_agreement_BA:
+// For all peers A and B, shared secrets t and timepoints i
+"All A B t #i.
+	// if B commited to a shared secret, apparently exchanged with A
+	B_Commit(B, A, t) @i
+		// then A was previously running the protocol, apparently with B and the same shared secret t
+	==> (Ex #j. A_Running(A, B, t) @j
+		& j < i
+		// and no other peer B2 commited previously to the same shared secret
+		& not (Ex A2 B2 #i2. B_Commit(B2, A2, t) @i2 & not (#i2 = #i)))
+		// or either A or B have been compromised by the adversary (before timepoint i)
+		| (Ex c #r. Reveal(c) @r & Honest(c) @i)
+"
+
+// *** Secrecy Lemmas ***
+lemma secrecy:
+"All x #i.
+	Secret(x) @i
+	==> not(Ex #j. K(x) @j)
+		| (Ex c #r. Reveal(c) @r & Honest(c) @i ) 
+"
+
+lemma pfs_of_shared_secret:
+"All x #i.
+	Secret_PFS(x) @i
+	==> not(Ex #j. K(x) @j)
+		| (Ex c #r. Reveal(c) @r & Honest(c) @i & r < i) 
+"
+
+
+end

@@ -1,0 +1,202 @@
+theory wirelessHART_e2e
+begin
+
+builtins: symmetric-encryption, hashing 
+
+section{* WirelessHART_e2e *}
+
+/*
+ * Protocol:    WirelessHART
+ * Modeler:     Martin Gunnarsson
+ * Date:        Summer 2022
+ * Source:      IEC 62591 Edition 2.0 2016-03
+ * Property:    Message secrecy and authentication for the end-to-end security protocol. 
+ * Status:      Working
+ */
+
+functions: aead_enc/4    // key, plaintext, additional data, nonce
+functions: aead_dec/4    // key, ciphertext, additional data, nonce
+functions: aead_verify/4 // Key, ciphertext, additional data, nonce
+functions: true/0
+functions: mac/2, verify_mac/3
+
+equations: verify_mac(mac(m,k),m,k) = true
+equations: aead_dec(    key, nonce, additional_data, aead_enc(key, nonce, additional_data, plaintext ) ) = plaintext
+equations: aead_verify( key, nonce, additional_data, aead_enc(key, nonce, additional_data, plaintext ) ) = true 
+
+/* Force Tamarin to only execute a rule once. Used when initiating the Security Manager. */
+restriction OnlyOnce: "All #i #j x. OnlyOnceV(x)@#i & OnlyOnceV(x)@#j ==> #i = #j"
+
+/* Force Tamarin to test for equality when the Eq() fact is encountered. */
+restriction Eq_testing: "All x y #i. Eq(x, y) @ i ==> x = y"
+
+/* Initiate Security Manager. */
+rule init_Security_Manager:
+        [Fr(~NetworkKey), Fr(~D_NM_BC)]
+        --[OnlyOnceV('SecurityManager')]->
+        [!SecurityManager_0($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC)]
+
+/* Initiate Gateway. */
+rule init_Gateway:
+        [!SecurityManager_0($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC), Fr(~D_GW_BC)]
+        --[]->
+        [!Gateway_0($Gateway_ID, $NetworkID, ~NetworkKey, ~D_GW_BC), !SecurityManager_1($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC, ~D_GW_BC)]
+
+/* Initiate Field Device. */
+rule init_Device:
+        [!Gateway_0($Gateway_ID, $NetworkID, ~NetworkKey, ~D_GW_BC), !SecurityManager_1($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC, ~D_GW_BC), Fr(~JoinKey), Fr(~D_GW_UC), Fr(~D_NM_UC)]
+        --[]->
+        [!Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC),
+         !Gateway_1($Gateway_ID, $NetworkID, ~NetworkKey, ~D_GW_BC, ~D_GW_UC),
+         !SecurityManager_2($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC, ~D_NM_UC, ~D_GW_BC, ~D_GW_UC)]
+
+/* Reveal all the keys for one device.
+ * This corresponds to an Insider Attacker compromising one device and acquiring all it's keys.
+ */
+rule compromise_device:
+      [!Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC)]
+      --[Reveal($device_id),
+         InsiderAttacker()]->
+      [Out(<~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC>)]
+
+/* Send a 'command' from the Gateway GW to a Field Device D over a unicast session. */
+rule Gateway_send_command_UC:
+        let
+        NL_msg_s = ~command
+        NL_header_s = <~NL_nonce_s, 'Command_pkt', 'NL_Ctrl', 'Sec_Ctrl'>
+        NL_key_s = ~D_GW_UC
+        
+        DL_payload_s = aead_enc(NL_key_s, ~NL_nonce_s, NL_header_s, NL_msg_s) 
+        
+        DL_key_s = ~NetworkKey     
+        DL_header_s = <~DL_nonce_s, $device_id, $Gateway_ID>
+        DL_mac_s = mac( < DL_header_s, DL_payload_s>, DL_key_s)
+        encrypted_message = <DL_header_s, NL_header_s, DL_payload_s, DL_mac_s>
+
+        in
+        [!Gateway_1($Gateway_ID, $NetworkID, ~NetworkKey, ~D_GW_BC, ~D_GW_UC), 
+         !Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC),
+         Fr(~DL_nonce_s), Fr(~NL_nonce_s), Fr(~command)]
+        --[SendCommand_UC($Gateway_ID, $device_id, ~command)]->
+        [Out(encrypted_message) ]
+
+/* Field Device receive 'command' from Gateway GW over a unicast session. */
+rule Device_receive_command_UC:
+        let
+        /* Incoming Message */
+        DL_header_r = <DL_nonce_r, receiver, source>
+        NL_header_r = <NL_nonce_r, a, b, c>
+        incoming_message = < DL_header_r, NL_header_r, DL_payload_r, DL_MAC_r>
+        
+        NL_key_r = ~D_GW_UC
+        decrypted_command = aead_dec(NL_key_r, NL_nonce_r, NL_header_r, DL_payload_r)
+        
+        in
+        [In(incoming_message), 
+         !Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC)
+        ] 
+       --[ 
+           Eq( verify_mac(DL_MAC_r, <DL_header_r, DL_payload_r>, ~NetworkKey), true),  //DPDU MIC
+           Eq( aead_verify(NL_key_r, NL_nonce_r, NL_header_r, DL_payload_r), true), //NLPDU
+           ReceivedCommand_UC(source, receiver, decrypted_command),
+           Authentic(source, receiver, decrypted_command, ~NetworkKey)
+        ]->
+        []
+
+/* Send a 'command' from the Gateway GW to a Field Device D over a broadcast session. */
+rule Gateway_send_command_BC:
+        let
+        NL_msg_s = ~command
+        NL_header_s = <~NL_nonce_s, 'Command_pkt', 'NL_Ctrl', 'Sec_Ctrl'>
+        NL_key_s = ~D_GW_BC
+        
+        DL_payload_s = aead_enc(NL_key_s, ~NL_nonce_s, NL_header_s, NL_msg_s) 
+        
+        DL_key_s = ~NetworkKey     
+        DL_header_s = <~DL_nonce_s, $device_id, $Gateway_ID>
+        DL_mac_s = mac( < DL_header_s, DL_payload_s>, DL_key_s)
+        encrypted_message = <DL_header_s, NL_header_s, DL_payload_s, DL_mac_s>
+
+        in
+        [!Gateway_1($Gateway_ID, $NetworkID, ~NetworkKey, ~D_GW_BC, ~D_GW_UC), 
+         !Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC),
+         Fr(~DL_nonce_s), Fr(~NL_nonce_s), Fr(~command)]
+        --[SendCommand_BC($Gateway_ID, $device_id, ~command)]->
+        [Out(encrypted_message) ]
+
+/* Field Device receive 'command' from Gateway GW over a broadcast session. */
+rule Device_receive_command_BC:
+        let
+        /* Incoming Message */
+        DL_header_r = <DL_nonce_r, receiver, source>
+        NL_header_r = <NL_nonce_r, a, b, c>
+        incoming_message = < DL_header_r, NL_header_r, DL_payload_r, DL_MAC_r>
+        
+        NL_key_r = ~D_GW_BC
+        decrypted_command = aead_dec(NL_key_r, NL_nonce_r, NL_header_r, DL_payload_r)
+        
+        in
+        [In(incoming_message), 
+         !Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC)
+        ] 
+       --[ 
+           Eq( verify_mac(DL_MAC_r, <DL_header_r, DL_payload_r>, ~NetworkKey), true),  //DPDU MIC
+           Eq( aead_verify(NL_key_r, NL_nonce_r, NL_header_r, DL_payload_r), true), //NLPDU
+           ReceivedCommand_BC(source, receiver, decrypted_command),
+           Authentic(source, receiver, decrypted_command, ~NetworkKey)
+        ]->
+        []
+
+
+/* Sanity lemma, to show running unicast protocol. 
+ * Gateway GW sends a 'command' to Field Device D.*/
+lemma command_received_UC:
+        exists-trace
+        " Ex GW D cmd #l #m.
+           SendCommand_UC(GW, D, cmd) @ #l &
+           ReceivedCommand_UC(GW, D, cmd) @ #m &
+           #l < #m & 
+           not (Ex d #n. Reveal(d) @ #n)
+        "
+
+/* A Field Device D will believe a message coming from Gateway GW over unicast to be authentic, or D's keys has been revealed. */
+lemma message_authentication_UC:
+"All GW D cmd #i. ReceivedCommand_UC(GW, D, cmd) @i
+==> (Ex #j. SendCommand_UC(GW, D, cmd) @j & j<i) | (Ex #k. Reveal(D) @ #k) | (Ex c #m. Reveal(c) @ #m & not c = D)
+"
+
+/* A 'command' cmd sent over unicast to a Field Device D that is known by ADV implies D has been compromised. */
+lemma command_secrecy_UC:
+      "All GW D cmd #i #j.
+       SendCommand_UC(GW, D, cmd) @ #i &
+       K(cmd) @ #j
+       ==>
+         Ex #k. Reveal(D) @ #k
+       "
+
+/* Sanity lemma, to show running broadcast protocol. 
+ * Gateway GW sends a 'command' to Field Device D.*/
+lemma command_received_BC:
+        exists-trace
+        " Ex GW D cmd #l #m.
+           SendCommand_BC(GW, D, cmd) @ #l &
+           ReceivedCommand_BC(GW, D, cmd) @ #m &
+           #l < #m & 
+           not (Ex d #n. Reveal(d) @ #n)
+        "
+
+/* A Field Device D will believe a message coming from Gateway GW over broadcast to be authentic, or D's keys has been revealed. */
+lemma message_authentication_BC:
+"All GW D cmd #i. ReceivedCommand_BC(GW, D, cmd) @i
+==> (Ex #j. SendCommand_BC(GW, D, cmd) @j & j<i) | (Ex #k. Reveal(D) @ #k) | (Ex c #m. Reveal(c) @ #m & not c = D)
+"
+
+/* A 'command' cmd sent over broadcast to a Field Device D that is known by ADV implies that any device keys has been compromised. */
+lemma command_secrecy_BC:
+      "All GW D cmd #i #j.
+       SendCommand_BC(GW, D, cmd) @ #i &
+       K(cmd) @ #j
+       ==>
+         Ex #k. InsiderAttacker() @ #k
+       "
+end

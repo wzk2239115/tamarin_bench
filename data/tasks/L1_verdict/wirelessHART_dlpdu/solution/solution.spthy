@@ -1,0 +1,165 @@
+theory wirelessHART_dlpdu
+begin
+
+builtins: symmetric-encryption, hashing 
+
+section{* WirelessHART_dlpdu *}
+
+/*
+ * Protocol:    WirelessHART
+ * Modeler:     Martin Gunnarsson
+ * Date:        Summer 2022
+ * Source:      IEC 62591 Edition 2.0 2016-03
+ * Property:    Message authentication of 'Disconnect DLPDU' and 'Advertise DLPDU' 
+ * Status:      Working
+ */
+
+
+functions: aead_enc/4    // key, plaintext, additional data, nonce
+functions: aead_dec/4    // key, ciphertext, additional data, nonce
+functions: aead_verify/4 // Key, ciphertext, additional data, nonce
+functions: true/0
+functions: mac/2, verify_mac/3
+
+equations: verify_mac(mac(m,k),m,k) = true
+equations: aead_dec(    key, nonce, additional_data, aead_enc(key, nonce, additional_data, plaintext ) ) = plaintext
+equations: aead_verify( key, nonce, additional_data, aead_enc(key, nonce, additional_data, plaintext ) ) = true 
+
+
+/* Force Tamarin to only execute a rule once. Used when initiating the Security Manager. */
+restriction OnlyOnce: "All #i #j x. OnlyOnceV(x)@#i & OnlyOnceV(x)@#j ==> #i = #j"
+
+/* Force Tamarin to test for equality when the Eq() fact is encountered. */
+restriction Eq_testing: "All x y #i. Eq(x, y) @ i ==> x = y"
+
+/* Initiate Security Manager */
+rule init_Security_Manager:
+        [Fr(~NetworkKey), Fr(~D_NM_BC)]
+        --[OnlyOnceV('SecurityManager')]->
+        [!SecurityManager_0($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC)]
+
+
+/* Initiate the joining Field Devie */
+rule init_Joining_Device:
+        [!SecurityManager_0($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC), Fr(~JoinKey), Fr(~D_GW_BC), Fr(~D_GW_UC), Fr(~D_NM_UC)]
+        --[]->
+        [!Joining_Device($device_id, $NetworkID, ~JoinKey)]
+
+/* Initiate a Field Device that has joined the network. */
+rule init_Device:
+        [!SecurityManager_0($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC), Fr(~JoinKey), Fr(~D_GW_BC), Fr(~D_GW_UC), Fr(~D_NM_UC)]
+        --[]->
+        [!Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC)]
+
+/* Reveal all the keys for one device.
+ * This corresponds to an Insider Attacker compromising one device and acquiring all it's keys.
+ */
+rule compromise_device:
+      [!Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC)]
+      --[Reveal($device_id),
+         InsiderAttacker()]->
+      [Out(<~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC>)]
+
+/* Send 'Disconnect DLPDU' from Field Device D1 to Field Device D2 */
+rule send_disconnect:
+        let
+        DL_payload_s = 'Disconnect'
+        DL_key_s = ~NetworkKey1     
+        DL_header_s = <~DL_nonce_s, $device_id1, $device_id2>
+        DL_mac_s = mac( < DL_header_s, DL_payload_s>, DL_key_s)
+        disconnect_message = <DL_header_s, DL_payload_s, DL_mac_s>
+
+        in
+        [!Field_Device_0($device_id1, $NetworkID1, ~JoinKey1, ~NetworkKey1, ~D_GW_BC1, ~D_NM_BC1, ~D_GW_UC1, ~D_NM_UC1),
+         !Field_Device_0($device_id2, $NetworkID2, ~JoinKey2, ~NetworkKey2, ~D_GW_BC2, ~D_NM_BC2, ~D_GW_UC2, ~D_NM_UC2),
+         Fr(~DL_nonce_s)]
+        --[SendDisconnectCommand($device_id1, $device_id2)]->
+        [Out(disconnect_message) ]
+
+/* Field Device D2 receive 'Disconnect DLPDU' from Field Device D1 */
+rule receive_disconnect:
+        let
+        /* Incoming Message */
+        DL_header_r = <DL_nonce_r, source, receiver>
+        incoming_message = < DL_header_r,DL_payload_r, DL_MAC_r>
+        
+        in
+        [In(incoming_message), 
+         !Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC)
+        ] 
+       --[ 
+           Eq( verify_mac(DL_MAC_r, <DL_header_r, DL_payload_r>, ~NetworkKey), true),
+           Eq(receiver, $device_id),
+           ReceivedDisconnectCommand(source, receiver)
+        ]->
+        []
+
+/* Field Device D1 send 'Advertise DLPDU' to joining Field Device D2 */
+rule send_advertisement:
+        let
+        DL_payload_s = 'Advertisement'
+        DL_key_s = 'WellKnownKey'     
+        DL_header_s = <~DL_nonce_s, $device_id1, $device_id2>
+        DL_mac_s = mac( < DL_header_s, DL_payload_s>, DL_key_s)
+        advertisement = <DL_header_s, DL_payload_s, DL_mac_s>
+
+        in
+        [!Field_Device_0($device_id1, $NetworkID1, ~JoinKey1, ~NetworkKey1, ~D_GW_BC1, ~D_NM_BC1, ~D_GW_UC1, ~D_NM_UC1),
+         !Joining_Device($device_id2, $NetworkID2, ~JoinKey2),
+         Fr(~DL_nonce_s)]
+        --[SendAdvertisement($device_id1, $device_id2)]->
+        [Out(advertisement)]
+
+/* Field Device D2 receive 'Advertise DLPDU' from Field Device D1 */ 
+rule receive_advertisement:
+        let
+        /* Incoming Message */
+        DL_header_r = <DL_nonce_r, source, receiver>
+        incoming_message = < DL_header_r,DL_payload_r, DL_MAC_r>
+        
+        in
+        [In(incoming_message), 
+         !Joining_Device($device_id, $NetworkID, ~JoinKey)
+        ] 
+       --[ 
+           Eq( verify_mac(DL_MAC_r, <DL_header_r, DL_payload_r>, 'WellKnownKey'), true),  //DPDU MIC
+           Eq(receiver, $device_id),
+           ReceivedAdvertisement(source, receiver)
+        ]->
+        []
+
+/* Sanity lemma, to show running protocol. */
+lemma disconnect_received:
+        exists-trace
+        " Ex A B #l #m.
+           SendDisconnectCommand(A, B) @ #l &
+           ReceivedDisconnectCommand(A, B) @ #m &
+           #l < #m & 
+           not (Ex #n. InsiderAttacker() @ #n)
+        "
+
+/* A Device will believe a message to be authentic, or any device's key has been revealed */
+lemma disconnect_authentication:
+"All A B #i. ReceivedDisconnectCommand(A,B) @i
+ ==> 
+ (Ex #j. SendDisconnectCommand(A,B) @j & j<i) | 
+ (Ex #k. InsiderAttacker() @ #k)
+"
+
+/* Sanity lemma, to show running protocol. */
+lemma advertisement_received:
+        exists-trace
+        " Ex A B #l #m.
+           SendAdvertisement(A, B) @ #m &
+           ReceivedAdvertisement(A, B) @ #l &
+           #l < #m & 
+           not (Ex #n. InsiderAttacker() @ #n)
+        "
+/* A Device will believe a message to be authentic, or any device's key has been revealed */
+lemma advertisement_authentication:
+        "All A B #l.
+           ReceivedAdvertisement(A, B) @ #l
+           ==>   
+           (Ex #m. SendAdvertisement(A, B) @ #m)
+        "
+end

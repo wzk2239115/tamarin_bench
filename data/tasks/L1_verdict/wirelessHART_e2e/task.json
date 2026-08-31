@@ -1,0 +1,25 @@
+{
+  "task_id": "L1:wirelessHART_e2e",
+  "level": "L1_verdict",
+  "name": "wirelessHART_e2e",
+  "protocol": "wirelessHART_e2e",
+  "source_file": "wirelessHART_e2e.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "command_received_UC",
+    "message_authentication_UC",
+    "command_secrecy_UC",
+    "command_received_BC",
+    "message_authentication_BC",
+    "command_secrecy_BC"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

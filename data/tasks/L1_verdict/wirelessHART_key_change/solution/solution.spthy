@@ -1,0 +1,204 @@
+theory wirelessHART_key_change
+begin
+
+builtins: symmetric-encryption, hashing 
+
+section{* WirelessHART_e2e *}
+
+/*
+ * Protocol:    WirelessHART
+ * Modeler:     Martin Gunnarsson
+ * Date:        Summer 2022
+ * Source:      IEC 62591 Edition 2.0 2016-03
+ * Property:    Secrecy and authentication of the new keys in the 'Network key change operation'
+ * Status:      Working
+ */
+
+functions: aead_enc/4 // key, plaintext, additional data, nonce
+functions: aead_dec/4 // key, ciphertext, additional data, nonce
+functions: aead_verify/4 // Key, ciphertext, additional data, nonce
+functions: true/0
+functions: mac/2, verify_mac/3
+
+equations: verify_mac(mac(m,k),m,k) = true
+equations: aead_dec(    key, nonce, additional_data, aead_enc(key, nonce, additional_data, plaintext ) ) = plaintext
+equations: aead_verify( key, nonce, additional_data, aead_enc(key, nonce, additional_data, plaintext ) ) = true 
+
+/* Force Tamarin to only execute a rule once. Used when initiating the Security Manager. */
+restriction OnlyOnce: "All #i #j x. OnlyOnceV(x)@#i & OnlyOnceV(x)@#j ==> #i = #j"
+
+/* Force Tamarin to test for equality when the Eq() fact is encountered. */
+restriction Eq_testing: "All x y #i. Eq(x, y) @ i ==> x = y"
+
+/* Initiate Security Manager */
+rule init_Security_Manager:
+        [Fr(~NetworkKey), Fr(~D_NM_BC)]
+        --[OnlyOnceV('SecurityManager')]->
+        [!SecurityManager_0($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC)]
+
+/* Initiate Gateway. */
+rule init_Gateway:
+        [!SecurityManager_0($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC), Fr(~D_GW_BC)]
+        --[]->
+        [!Gateway_0('GW_ID', $NetworkID, ~NetworkKey, ~D_GW_BC), !SecurityManager_1($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC, ~D_GW_BC)]
+
+/* Initiate Field Device. */
+rule init_Device:
+        [!Gateway_0('GW_ID', $NetworkID, ~NetworkKey, ~D_GW_BC), !SecurityManager_1($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC, ~D_GW_BC), Fr(~JoinKey), Fr(~D_GW_UC), Fr(~D_NM_UC)]
+        --[]->
+        [!Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC),
+         !Gateway_1('GW_ID', $NetworkID, ~NetworkKey, ~D_GW_BC, ~D_GW_UC),
+         !SecurityManager_2($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC, ~D_NM_UC, ~D_GW_BC, ~D_GW_UC)]
+
+/* Reveal all the keys for one device.
+ * This corresponds to an Insider Attacker compromising one device and acquiring all it's keys.
+ */
+rule compromise_device:
+      [!Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC)]
+      --[Reveal($device_id),
+         InsiderAttacker()]->
+      [Out(<~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC>)]
+
+/* Send a new key from the Security Manager to a Field Device D over a unicast session. */
+rule NetworkManager_send_key_UC:
+        let
+        NL_msg_s = <'NewKey', ~new_key>
+        NL_header_s = <~NL_nonce_s, 'Command_pkt', 'NL_Ctrl', 'Sec_Ctrl'>
+        NL_key_s = ~D_NM_UC
+        
+        DL_payload_s = aead_enc(NL_key_s, ~NL_nonce_s, NL_header_s, NL_msg_s) 
+        
+        DL_key_s = ~NetworkKey     
+        DL_header_s = <~DL_nonce_s, $device_id, $SecurityManager_ID>
+        DL_mac_s = mac( < DL_header_s, DL_payload_s>, DL_key_s)
+        encrypted_message = <DL_header_s, NL_header_s, DL_payload_s, DL_mac_s>
+
+        in
+        [!Gateway_1('GW_ID', $NetworkID, ~NetworkKey, ~D_GW_BC, ~D_GW_UC), 
+         !SecurityManager_2($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC, ~D_NM_UC, ~D_GW_BC, ~D_GW_UC), 
+         !Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC),
+         Fr(~DL_nonce_s), Fr(~NL_nonce_s), Fr(~new_key)]
+        --[SendKey_UC($SecurityManager_ID, $device_id, ~new_key)]->
+        [Out(encrypted_message) ]
+
+/* Field Device receive the new key from the Security Manager over a unicast session. */
+rule Device_receive_key_UC:
+        let
+        /* Incoming Message */
+        DL_header_r = <DL_nonce_r, receiver, source>
+        incoming_message = < DL_header_r, NL_header_r, DL_payload_r, DL_MAC_r>
+        
+        NL_key_r = ~D_NM_UC
+        NL_nonce_r = fst(NL_header_r)
+        decrypted_command = aead_dec(NL_key_r, NL_nonce_r, NL_header_r, DL_payload_r)
+        new_key = snd(decrypted_command) 
+        in
+        [In(incoming_message), 
+         !Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC)
+        ] 
+       --[ 
+           Eq( verify_mac(DL_MAC_r, <DL_header_r, DL_payload_r>, ~NetworkKey), true),  //DPDU MIC
+           Eq( aead_verify(NL_key_r, NL_nonce_r, NL_header_r, DL_payload_r), true), //NLPDU
+           NewKeyReceived_UC(source, receiver, new_key),
+           Authentic(source, receiver, new_key)
+        ]->
+        []
+
+/* Send a new key from the Security Manager to a Field Device D over a broadcast session. */
+rule NetworkManager_send_key_BC:
+        let
+        NL_msg_s = <'NewKey', ~new_key>
+        NL_header_s = <~NL_nonce_s, 'Command_pkt', 'NL_Ctrl', 'Sec_Ctrl'>
+        NL_key_s = ~D_NM_BC
+        
+        DL_payload_s = aead_enc(NL_key_s, ~NL_nonce_s, NL_header_s, NL_msg_s) 
+        
+        DL_key_s = ~NetworkKey     
+        DL_header_s = <~DL_nonce_s, $device_id, $SecurityManager_ID>
+        DL_mac_s = mac( < DL_header_s, DL_payload_s>, DL_key_s)
+        encrypted_message = <DL_header_s, NL_header_s, DL_payload_s, DL_mac_s>
+
+        in
+        [!Gateway_1('GW_ID', $NetworkID, ~NetworkKey, ~D_GW_BC, ~D_GW_UC), 
+         !SecurityManager_2($SecurityManager_ID, $NetworkID, ~NetworkKey, ~D_NM_BC, ~D_NM_UC, ~D_GW_BC, ~D_GW_UC), 
+         !Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC),
+         Fr(~DL_nonce_s), Fr(~NL_nonce_s), Fr(~new_key)]
+        --[SendKey_BC($SecurityManager_ID, $device_id, ~new_key)]->
+        [Out(encrypted_message) ]
+
+/* Field Device receive the new key from the Security Manager over a broadcast session. */
+rule Device_receive_key_BC:
+        let
+        /* Incoming Message */
+        DL_header_r = <DL_nonce_r, receiver, source>
+        incoming_message = < DL_header_r, NL_header_r, DL_payload_r, DL_MAC_r>
+        
+        NL_key_r = ~D_NM_BC
+        NL_nonce_r = fst(NL_header_r)
+        decrypted_command = aead_dec(NL_key_r, NL_nonce_r, NL_header_r, DL_payload_r)
+        new_key = snd(decrypted_command) 
+        in
+        [In(incoming_message), 
+         !Field_Device_0($device_id, $NetworkID, ~JoinKey, ~NetworkKey, ~D_GW_BC, ~D_NM_BC, ~D_GW_UC, ~D_NM_UC)
+        ] 
+       --[ 
+           Eq( verify_mac(DL_MAC_r, <DL_header_r, DL_payload_r>, ~NetworkKey), true),  //DPDU MIC
+           Eq( aead_verify(NL_key_r, NL_nonce_r, NL_header_r, DL_payload_r), true), //NLPDU
+           NewKeyReceived_BC(source, receiver, new_key),
+           Authentic(source, receiver, new_key)
+        ]->
+        []
+
+
+/* Sanity lemma, to show running unicast protocol. 
+ * Security Manager SM sends a new key to Field Device D.*/
+lemma key_received_UC:
+        exists-trace
+        " Ex SM D k #l #m. 
+           SendKey_UC(SM, D, k) @ #l &
+           NewKeyReceived_UC(SM, D, k) @ #m &
+           #l < #m & 
+           not (Ex d #n. Reveal(d) @ #n) 
+        "
+/* A Device D will believe a message, sent over unicast, to be authentic, or any device's key has been revealed */
+lemma key_authentication_UC:
+"All SM D k #i. NewKeyReceived_UC(SM,D,k) @i
+==> (Ex #j. SendKey_UC(SM,D,k) @j & j<i) | (Ex #k. Reveal(D) @ #k) | (Ex c #k2. Reveal(c) @ #k2 & not c = D)
+"
+
+/* A key k sent to device D, over unicast, that is known by ADV implies D has been compromised. */
+lemma key_secrecy_UC:
+      "All SM D k #i #j. 
+       SendKey_UC(SM, D, k) @ #i &
+       K(k) @ #j
+       ==> 
+         Ex #k. Reveal(D) @ #k
+       "   
+
+/* Sanity lemma, to show running broadcast protocol. 
+ * Security Manager SM sends a new key to Field Device D.*/
+lemma key_received_BC:
+        exists-trace
+        " Ex SM D k #l #m. 
+           SendKey_BC(SM, D, k) @ #l &
+           NewKeyReceived_BC(SM, D, k) @ #m &
+           #l < #m & 
+           not (Ex d #n. Reveal(d) @ #n) 
+        "
+
+/* A Device D will believe a message, sent over broadcast, to be authentic, or any device's key has been revealed */
+lemma key_authentication_BC:
+"All SM D k #i. NewKeyReceived_BC(SM,D,k) @i
+==> (Ex #j. SendKey_BC(SM,D,k) @j & j<i) | (Ex #k. InsiderAttacker() @ #k)
+"
+
+/* A key k sent to device D, over broadcast, that is known by ADV implies D has been compromised. */
+lemma key_secrecy_BC:
+      "All SM D k #i #j. 
+       SendKey_BC(SM, D, k) @ #i &
+       K(k) @ #j
+       ==> 
+         Ex #k. InsiderAttacker() @ #k
+       "   
+
+end

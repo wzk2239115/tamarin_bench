@@ -1,0 +1,28 @@
+{
+  "task_id": "L1:DDS__aes_gcm_gmac_psk",
+  "level": "L1_verdict",
+  "name": "DDS__aes_gcm_gmac_psk",
+  "protocol": "DDS_AES_GCM_GMAC_PSK",
+  "source_file": "DDS/aes_gcm_gmac_psk.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "messages_can_be_exchanged",
+    "weak_agreement",
+    "noninjective_agreement",
+    "injective_agreement",
+    "weak_member_agreement",
+    "noninjective_member_agreement",
+    "injective_member_agreement",
+    "secrecy",
+    "perfect_forward_secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}

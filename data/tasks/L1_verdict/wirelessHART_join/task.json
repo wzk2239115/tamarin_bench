@@ -1,0 +1,22 @@
+{
+  "task_id": "L1:wirelessHART_join",
+  "level": "L1_verdict",
+  "name": "wirelessHART_join",
+  "protocol": "wirelessHART_join",
+  "source_file": "wirelessHART_join.spthy",
+  "source_dataset": "tamarin-examples",
+  "given_files": [
+    "theory.spthy",
+    "goals.md"
+  ],
+  "lemma_names": [
+    "join_request_received_lemma",
+    "key_agreement",
+    "key_secrecy"
+  ],
+  "uses_diff_terms": false,
+  "family": "tamarin",
+  "deployment": null,
+  "oracle": false,
+  "description": "Formulate the security lemmas, verify with Tamarin, give the verdict."
+}
