@@ -1,4 +1,4 @@
-"""Structural anti-cheat checks for tamarin_bench.
+"""Structural anti-cheat checks for ProtocolBench.
 
 The evaluator never trusts the agent container; the final theory is re-run
 in a clean verifier container. But a *correct-looking* run can still be a

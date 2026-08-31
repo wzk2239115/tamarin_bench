@@ -1,4 +1,4 @@
-"""Pydantic models for tamarin_bench task metadata and ground truth.
+"""Pydantic models for ProtocolBench task metadata and ground truth.
 
 A task is a directory under ``data/tasks/<level>/<name>/`` containing:
 

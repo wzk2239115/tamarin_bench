@@ -5,8 +5,8 @@
 ProtocolBench: 测量 AI 自主发现协议设计缺陷的能力。
 **多工具架构** — agent 可自由选择 Tamarin / Verifpal / 纯推理，评分验证证据而非工具操作。
 
-- 代码: `/home/wzk/projects/tamarin_bench` (仓库名未改，品牌已迁移)
-- git: `git@github.com:wzk2239115/tamarin_bench.git`
+- 代码: `/home/wzk/projects/ProtocolBench` (仓库名未改，品牌已迁移)
+- git: `git@github.com:wzk2239115/ProtocolBench.git`
 - 任务语料: 491 真实协议任务(L1/L2) + 75 v0 + 4 B1 真实部署 = 570 任务
 - 覆盖协议族: TLS 1.3, 5G AKA, WireGuard, EMV, HTLC(区块链), SPDM(硬件),
   Signal/OIDC, DDS(工控), Noise, Kerberos, AKE(NAXOS/UM/KCL07/LAK06/KEA+)

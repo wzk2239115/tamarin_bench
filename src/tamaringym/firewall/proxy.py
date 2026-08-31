@@ -46,7 +46,7 @@ DEFAULT_ALLOWLIST_PATH = Path(__file__).with_name("default_allowlist.txt")
 DOMAIN_ALLOWLIST_CONTAINER_PATH = "/etc/squid/allowed_domains.txt"
 
 SQUID_CONF_TEMPLATE = """\
-# --- tamarin_bench domain-allowlist proxy ---
+# --- ProtocolBench domain-allowlist proxy ---
 
 acl SSL_ports port 443
 acl Safe_ports port 80 443
@@ -68,7 +68,7 @@ cache_log /var/log/squid/cache.log
 """
 
 ALLOW_ALL_SQUID_CONF_TEMPLATE = """\
-# --- tamarin_bench install proxy (allow-all; pre-agent phase only) ---
+# --- ProtocolBench install proxy (allow-all; pre-agent phase only) ---
 
 acl SSL_ports port 1-65535
 acl Safe_ports port 1-65535
@@ -295,7 +295,7 @@ def main() -> None:
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     ap = argparse.ArgumentParser(
-        description="manage the tamarin_bench firewall proxies"
+        description="manage the ProtocolBench firewall proxies"
     )
     ap.add_argument("action", choices=["start", "stop", "status"])
     ap.add_argument("--which", choices=["run", "install", "both"], default="both")

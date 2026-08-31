@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import Tamarin example theories into tamarin_bench task directories.
+"""Import Tamarin example theories into ProtocolBench task directories.
 
 Generalizes ``convert_cfb.py``: walks a checkout of
 https://github.com/tamarin-prover/tamarin-prover ``examples/`` (skipping the

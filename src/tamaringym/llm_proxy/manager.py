@@ -373,7 +373,7 @@ def main() -> None:
     import argparse
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    ap = argparse.ArgumentParser(description="manage the tamarin_bench LLM proxy")
+    ap = argparse.ArgumentParser(description="manage the ProtocolBench LLM proxy")
     ap.add_argument("action", choices=["start", "stop", "status"])
     ap.add_argument("--port", type=int, default=DEFAULT_PORT)
     ap.add_argument("--workdir", type=Path, default=None)

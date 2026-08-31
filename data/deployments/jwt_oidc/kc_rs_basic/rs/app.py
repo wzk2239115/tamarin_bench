@@ -1,4 +1,4 @@
-"""tamarin_bench JWT/OIDC resource server (real FastAPI + PyJWT, no planted flaws).
+"""ProtocolBench JWT/OIDC resource server (real FastAPI + PyJWT, no planted flaws).
 
 Validates RS256 access tokens from a Keycloak IdP via JWKS, checks audience
 and issuer, and gates /flag behind an admin realm role. This is the textbook
@@ -32,7 +32,7 @@ _jwks_client = PyJWKClient(
     lifespan=600,
 )
 
-app = FastAPI(title="tamarin_bench RS")
+app = FastAPI(title="ProtocolBench RS")
 
 
 def validate_token(request: Request) -> dict:
@@ -57,7 +57,7 @@ def validate_token(request: Request) -> dict:
 @app.get("/")
 def root() -> dict:
     return {
-        "service": "tamarin_bench RS",
+        "service": "ProtocolBench RS",
         "issuer": ISSUER,
         "audience": AUDIENCE,
         "role_check": ROLE_CHECK,

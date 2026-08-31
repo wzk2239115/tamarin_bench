@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Batch runner for tamarin_bench (pattern from ExploitGym's run_agent.py).
+"""Batch runner for ProtocolBench (pattern from ExploitGym's run_agent.py).
 
 Runs the configured CLI agent (default: Claude Code) over a task list with
 a process pool, per-task resume (existing result.json is skipped), startup

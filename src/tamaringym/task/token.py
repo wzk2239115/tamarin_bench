@@ -7,7 +7,7 @@ Mirrors ExploitGym's token design:
 * ``generate_verdict_key`` — a deterministic per-task key derived from the
   deployment's flag seed. It binds a recorded result to the deployment (a
   result produced against a different seed/ground-truth state cannot be
-  replayed unnoticed) and serves as the tamarin-bench analog of the flag:
+  replayed unnoticed) and serves as the ProtocolBench analog of the flag:
   the *expected verdict* is never stored anywhere the agent can reach.
 
 Both the token salt and the flag seed are per-deployment secrets: they are
@@ -110,7 +110,7 @@ def verify_token(agent_id: str, token: str, *, salt: str) -> str | None:
 def generate_verdict_key(task_id: str, *, seed: str) -> str:
     """Derive the per-task verdict key from the deployment flag seed.
 
-    This is the tamarin-bench analog of ExploitGym's ``flag{...}``: it
+    This is the ProtocolBench analog of ExploitGym's ``flag{...}``: it
     identifies the expected-outcome state of a task within a deployment.
     Recorded in ``result.json`` so results are bound to the seed/ground
     truth they were produced against.

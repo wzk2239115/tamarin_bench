@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert CrypFormBench spthy datasets into tamarin_bench task directories.
+"""Convert CrypFormBench spthy datasets into ProtocolBench task directories.
 
 Reads (from --cfb-dir, default ~/projects/CrypFormBench):
 
